@@ -1,0 +1,70 @@
+{ "simulinkmodel" :
+    { "inputs": [
+      { "inputid": "i1",
+        "inputtype": "real"
+      },
+      { "inputid": "i2",
+        "inputtype": "real"
+      }
+    ],
+    "outputs": [
+      { "outputid": "o1",
+        "outputtype": "real"
+      },
+      { "outputid": "o2",
+        "outputtype": "real"
+      }],
+    "blocks": [
+      { "blockid": "b1",
+        "blockname": "gain1",
+        "blockroutine": "gain",
+        "sampletime": 1
+      },
+      { "blockid": "b2",
+        "blockname": "gain2",
+        "blockroutine": "gain",
+        "sampletime": 0
+      },
+      { "blockid": "b3",
+        "blockname": "add1",
+        "blockroutine": "add",
+        "sampletime": 3
+      },
+      { "blockid": "b4",
+        "blockname": "abs1",
+        "blockroutine": "abs",
+        "sampletime": 4
+      }],
+      "connections": [
+      {
+        "sourceblockid": "i1",
+        "destinationblockid": "b1",
+        "name": "c1"
+      },
+      {
+        "sourceblockid": "i2",
+        "destinationblockid": "b2",
+        "name": "c2"
+      },
+      {
+        "sourceblockid": "b1",
+        "destinationblockid": "b3",
+        "name": "c3"
+      },
+      {
+        "sourceblockid": "b2",
+        "destinationblockid": "b3",
+        "name": "c4"
+      },
+      {
+        "sourceblockid": "b3",
+        "destinationblockid": "b4",
+        "name": "c5"
+      },
+      {
+        "sourceblockid": "b4",
+        "destinationblockid": "b5",
+        "name": "c6"
+      }]
+    }
+}
