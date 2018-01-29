@@ -68,7 +68,7 @@ class SimulinkModel:
         inputconnections = self.getBlockInputConnections(blockid);
         inputs = ""
         for iconn in inputconnections:
-            inputs += iconn["name"] + ","
+            inputs += "{0}:{1}:{2},".format(iconn["name"],iconn["sourceportnumber"],iconn["destinationportnumber"])
         inputs = inputs[:len(inputs) - 1]
         blockForTransformation["inputs"] = inputs
         return blockForTransformation

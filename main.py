@@ -19,7 +19,7 @@ def printlist(_list):
 
 def main():
     start = time.time()
-    sModel = loadModel("vhe.json")
+    sModel = loadModel("./data/vhe.json")
     ssg = StateSpaceGenerator()
     sbPackackage = sModel.packBlockForTransformation("b2")
     ag = AssertionGenerator()
