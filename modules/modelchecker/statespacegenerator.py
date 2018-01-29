@@ -1,4 +1,5 @@
 from modules.modelchecker.statespace import *
+from modules.assertiongenerators.assertiongenerator import *
 class StateSpaceGenerator:
     def __init__(self):
         pass
@@ -12,7 +13,18 @@ class StateSpaceGenerator:
         return int(floating)
 
     def __generateSymbolicState(self, sBlockPackage, step):
-        return "{0}_{3} = {1}({2})".format(sBlockPackage["signalname"], sBlockPackage["blockroutine"], sBlockPackage["inputs"], step)
+        ag = AssertionGenerator()
+        blockType = sBlockPackage["blocktype"]
+        result = "";
+
+        if blockType == "add":
+            result = ag.add(sBlockPackage, step)
+        elif blockType == "gain":
+            result = ag.gain(sBlockPackage, step)
+        elif blockType == "abs":
+            result = ag.abs(sBlockPackage, step)
+
+        return result;
 
     def generateSignalStateSpace(self, sBlockPackage, simulationStepSize, simulationTimeHorizon):
         #for continuous blocks this will be 0, meaning that a new
@@ -31,8 +43,7 @@ class StateSpaceGenerator:
 
     def generateStateSpace(self, sModel, simulationStepSize, simuationDuration):
         simulinkModelStateSpace = StateSpace()
-        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize, simuationDuration)
-        print(simulationTimeHorizon)
+        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize, simuationDuration)        
         allBlocks = sModel.getAllBlocks()
 
         for block in allBlocks:

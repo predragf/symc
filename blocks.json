@@ -17,23 +17,31 @@
     "blocks": [
       { "blockid": "b1",
         "blockname": "gain1",
-        "blockroutine": "gain",
-        "sampletime": 1
+        "blocktype": "gain",
+        "sampletime": 1,
+        "parameters" : {
+          "gain": 5
+        }
       },
       { "blockid": "b2",
         "blockname": "gain2",
-        "blockroutine": "gain",
-        "sampletime": 0
+        "blocktype": "gain",
+        "sampletime": 0,
+        "parameters" : {
+          "gain": 15
+        }
       },
       { "blockid": "b3",
         "blockname": "add1",
-        "blockroutine": "add",
-        "sampletime": 3
+        "blocktype": "add",
+        "sampletime": 3,
+        "parameters" : {}
       },
       { "blockid": "b4",
         "blockname": "abs1",
-        "blockroutine": "abs",
-        "sampletime": 4
+        "blocktype": "abs",
+        "sampletime": 4,
+        "parameters" : {}
       }],
       "connections": [
       {
