@@ -1,0 +1,99 @@
+{ "simulinkmodel" :
+    { "modelname": "vehicle_speed_estimator",
+      "inputs": [
+      { "inputid": "i1",
+        "inputtype": "real"
+      },
+      { "inputid": "i2",
+        "inputtype": "real"
+      },
+      { "inputid": "i3",
+        "inputtype": "real"
+      },
+      { "inputid": "i4",
+        "inputtype": "real"
+      }
+    ],
+    "outputs": [{
+        "outputid": "Veh_Spd_Est_kmh",
+        "outputtype": "real"
+      }],
+    "blocks": [
+      { "blockid": "b1",
+        "blockname": "Add",
+        "blocktype": "add",
+        "sampletime": 30,
+        "parameters" : {
+          "initialvalue": 10
+        }
+      },
+      { "blockid": "b2",
+        "blockname": "average_rpm",
+        "blocktype": "gain",
+        "sampletime": 20,
+        "parameters" : {
+          "gain": 0.25,
+          "initialvalue": 10
+        }
+      },
+      { "blockid": "b3",
+        "blockname": "w(gard_s)",
+        "blocktype": "gain",
+        "sampletime": 20,
+        "parameters" : {
+          "gain": "3.14/30",
+          "initialvalue": 10
+        }
+      },
+      { "blockid": "b4",
+        "blockname": "vkmh",
+        "blocktype": "gain",
+        "sampletime": 20,
+        "parameters" : {
+          "gain": 3.6,
+          "initialvalue": 10
+        }
+      }],
+      "connections": [
+      {
+        "sourceblockid": "i1",
+        "destinationblockid": "b1",
+        "name": "c1"
+      },
+      {
+        "sourceblockid": "i2",
+        "destinationblockid": "b1",
+        "name": "c2"
+      },
+      {
+        "sourceblockid": "i3",
+        "destinationblockid": "b1",
+        "name": "c3"
+      },
+      {
+        "sourceblockid": "i4",
+        "destinationblockid": "b1",
+        "name": "c4"
+      },
+      {
+        "sourceblockid": "b1",
+        "destinationblockid": "b2",
+        "name": "add"
+      },
+      {
+        "sourceblockid": "b2",
+        "destinationblockid": "b3",
+        "name": "average_rpm"
+      },
+      {
+        "sourceblockid": "b3",
+        "destinationblockid": "b4",
+        "name": "w_grad_s"
+      },
+      {
+        "sourceblockid": "b4",
+        "destinationblockid": "o1",
+        "name": "vkmh"
+      }]
+    }
+}

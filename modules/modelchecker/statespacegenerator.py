@@ -32,18 +32,20 @@ class StateSpaceGenerator:
         statespace = []
         blockSampleTime = sBlockPackage["sampletime"];
         blockStepSize = self.__calculateBlockStepSize(simulationStepSize, blockSampleTime)
+        print("block step size is: " + str(blockStepSize))
         statespace.append(self.__generateSymbolicState(sBlockPackage, 0))
         for step in range(1, simulationTimeHorizon):
-
             if ((blockStepSize == 0) or ((step % blockStepSize) == 0)):
                 statespace.append(self.__generateSymbolicState(sBlockPackage, step))
             else:
-                statespace.append(statespace[step - 1])
+                equalToPrevious = "(= {0}_{1} {0}_{2})"
+                signalname = sBlockPackage["signalname"]
+                statespace.append(equalToPrevious.format(signalname, step, step - 1)) #statespace.append(statespace[step - 1])
         return statespace
 
     def generateStateSpace(self, sModel, simulationStepSize, simuationDuration):
         simulinkModelStateSpace = StateSpace()
-        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize, simuationDuration)        
+        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize, simuationDuration)
         allBlocks = sModel.getAllBlocks()
 
         for block in allBlocks:

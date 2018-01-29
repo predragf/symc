@@ -1,3 +1,5 @@
+from modules.utils.gcd import *
+
 class SimulinkModel:
     def __init__(self, _simulinkmodeljson):
         self.simulinkModelJson = _simulinkmodeljson["simulinkmodel"]
@@ -63,10 +65,25 @@ class SimulinkModel:
         blockForTransformation = self.getBlockById(blockid)
         outConns = self.getBlockOutputConnections(blockid)
         blockForTransformation["signalname"] = outConns[0]["name"]
-        inputconnections = self.getBlockInputConnections(blockid);        
+        inputconnections = self.getBlockInputConnections(blockid);
         inputs = ""
         for iconn in inputconnections:
             inputs += iconn["name"] + ","
         inputs = inputs[:len(inputs) - 1]
         blockForTransformation["inputs"] = inputs
         return blockForTransformation
+
+    def calculateFundamentalSampleTime(self):
+        allBlocks = self.getAllBlocks()
+        sampletimes = set()
+        for block in allBlocks:
+            ts = block["sampletime"]
+            if ts == 0:
+                '''-1 denotes that there is at least one continuous-time
+                block which means that we must construct the complete state space
+                '''
+                return -1
+            else:
+                sampletimes.add(ts)
+
+        return gcdList(list(sampletimes))
