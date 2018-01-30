@@ -1,0 +1,229 @@
+{ "simulinkmodel" :
+    { "modelname": "wheel",
+      "inputs": [
+      { "id": "i1",
+        "type": "real",
+        "name": "TreqestedTorque"
+      },
+      { "id": "i2",
+        "type": "real",
+        "name": "VehicleVelocity(kmh)"
+      },
+      { "id": "i3",
+        "type": "real",
+        "name": "WheelRotation(rpm)"
+      }
+    ],
+    "outputs": [{
+        "id": "o1",
+        "type": "real",
+        "name": "M_abs_BrakeTorque"
+      }],
+    "blocks": [
+      { "blockid": "b1",
+        "blockname": "wheSpd",
+        "blocktype": "gain",
+        "sampletime": 10,
+        "parameters" : {
+          "initialvalue": "",
+          "gain": "(/ (* R PI) 30)"
+
+        }
+      },
+      { "blockid": "b2",
+        "blockname": "vms",
+        "blocktype": "gain",
+        "sampletime": 10,
+        "parameters" : {
+          "gain": "(/ 10 36)",
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b3",
+        "blockname": "subtract",
+        "blocktype": "subtract",
+        "sampletime": 10,
+        "parameters" : {
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b4",
+        "blockname": "positive",
+        "blocktype": "saturate",
+        "sampletime": 10,
+        "parameters" : {
+          "lowerlimit": 0,
+          "upperlimit": "inf"
+        }
+      },
+      { "blockid": "b5",
+        "blockname": "times_10",
+        "blocktype": "gain",
+        "sampletime": 10,
+        "parameters" : {
+          "gain": "10",
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b6",
+        "blockname": "slip_abs_on_times_10",
+        "blocktype": "gain",
+        "sampletime": 10,
+        "parameters" : {
+          "gain": "(* 10 SLIP_ABS_ON)",
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b7",
+        "blockname": "relational operator",
+        "blocktype": "relationaloperator",
+        "sampletime": 10,
+        "parameters" : {
+          "relationtype": ">",
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b8",
+        "blockname": "ReleaseBrake",
+        "blocktype": "constant",
+        "sampletime": 10,
+        "parameters" : {
+          "value": "0",
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b9",
+        "blockname": "LockDetect",
+        "blocktype": "switch",
+        "sampletime": 10,
+        "parameters" : {
+          "condition": "u2 > 0",
+          "initialvalue": ""
+        }
+      },
+      { "blockid": "b10",
+        "blockname": "Threshold_10kmh",
+        "blocktype": "switch",
+        "sampletime": 10,
+        "parameters" : {
+          "condition": "u2 > 10",
+          "initialvalue": ""
+        }
+      }],
+      "connections": [
+      {
+        "sourceblockid": "i1",
+        "destinationblockid": "b10",
+        "sourceportnumber": 1,
+        "destinationportnumber": 3,
+        "name": "c1"
+      },
+      {
+        "sourceblockid": "i1",
+        "destinationblockid": "b9",
+        "sourceportnumber": 1,
+        "destinationportnumber": 3,
+        "name": "c1"
+      },
+      {
+        "sourceblockid": "i2",
+        "destinationblockid": "b10",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "sourceportnumber": 1,
+        "destinationportnumber": 2,
+        "name": "c2"
+      },
+      {
+        "sourceblockid": "i3",
+        "destinationblockid": "b1",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c3"
+      },
+      {
+        "sourceblockid": "i2",
+        "destinationblockid": "b2",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c2"
+      },
+      {
+        "sourceblockid": "b1",
+        "destinationblockid": "b3",
+        "sourceportnumber": 1,
+        "destinationportnumber": 2,
+        "name": "c4"
+      },
+      {
+        "sourceblockid": "b2",
+        "destinationblockid": "b3",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c5"
+      },
+      {
+        "sourceblockid": "b2",
+        "destinationblockid": "b6",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c5"
+      },
+      {
+        "sourceblockid": "b3",
+        "destinationblockid": "b4",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c6"
+      },
+      {
+        "sourceblockid": "b4",
+        "destinationblockid": "b5",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c7"
+      },
+      {
+        "sourceblockid": "b5",
+        "destinationblockid": "b7",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c8"
+      },
+      {
+        "sourceblockid": "b6",
+        "destinationblockid": "b7",
+        "sourceportnumber": 1,
+        "destinationportnumber": 2,
+        "name": "c9"
+      },
+      {
+        "sourceblockid": "b7",
+        "destinationblockid": "b9",
+        "sourceportnumber": 1,
+        "destinationportnumber": 2,
+        "name": "c10"
+      },
+      {
+        "sourceblockid": "b8",
+        "destinationblockid": "b9",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c11"
+      },
+      {
+        "sourceblockid": "b9",
+        "destinationblockid": "b10",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c12"
+      },
+      {
+        "sourceblockid": "b10",
+        "destinationblockid": "o1",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c13"
+      }]
+    }
+}

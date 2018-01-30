@@ -8,28 +8,29 @@ from modules.routinegenerators.routinegenerator import *
 from modules.assertiongenerators.assertiongenerator import *
 from modules.utils.gcd import *
 import time
+import re
 
 def calculateBlockStepSize(simulationStepSize, blockStepSize):
     floating = blockStepSize / simulationStepSize
     return int(floating)
 
-def printlist(_list):
+def printlist(_list, keyname=""):
+    if keyname != "":
+        _list = sorted(_list, key=lambda k: k[keyname])
+    print("The size of the list is: {0}".format(len(_list)))
     for itm in _list:
         print(itm)
 
 def main():
     start = time.time()
-    sModel = loadModel("./data/vhe.json")
+    sModel = loadModel("./data/wheel.json")
+    print(sModel.calculateFundamentalSampleTime())
     ssg = StateSpaceGenerator()
-    sbPackackage = sModel.packBlockForTransformation("b2")
-    ag = AssertionGenerator()
-    print(ag.gain(sbPackackage, 0))
-    stateSpace = ssg.generateStateSpace(sModel, 1, 10000)
+    stateSpace = ssg.generateStateSpace(sModel, 1, 1000000)
     end = time.time()
     requestedStates = stateSpace.getStates(0,120)
     printlist(requestedStates)
     print("the state space was generated in {0} seconds".format(end - start))
-    #ss = ssg.generateStateSpace(sModel, 0.01, 10000)
-    #print(ss.getStates(25,5))
+
 
 main()
