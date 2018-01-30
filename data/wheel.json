@@ -53,7 +53,7 @@
         "sampletime": 10,
         "parameters" : {
           "lowerlimit": 0,
-          "upperlimit": "inf"
+          "upperlimit": "10000000"
         }
       },
       { "blockid": "b5",

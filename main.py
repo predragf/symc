@@ -22,6 +22,7 @@ def printlist(_list, keyname=""):
         print(itm)
 
 def main():
+    ag = AssertionGenerator()
     start = time.time()
     sModel = loadModel("./data/wheel.json")
     print(sModel.calculateFundamentalSampleTime())
@@ -29,7 +30,10 @@ def main():
     stateSpace = ssg.generateStateSpace(sModel, 1, 1000000)
     end = time.time()
     requestedStates = stateSpace.getStates(0,120)
+    testing = stateSpace.getStates(0, 1)
     printlist(requestedStates)
+    print("testing")
+    printlist(testing)
     print("the state space was generated in {0} seconds".format(end - start))
 
 

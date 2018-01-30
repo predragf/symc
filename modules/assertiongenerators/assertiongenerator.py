@@ -17,7 +17,7 @@ class AssertionGenerator:
         inputs = sBlockPackage["inputs"]
         inputs = inputs.split(',')
         result = [None] * len(inputs)
-        for _input in inputs:            
+        for _input in inputs:
             parts = _input.split("#")
             portNumber = int(parts[0])
             result[portNumber - 1] = self.__adjustInput(parts[1], step)
@@ -35,7 +35,7 @@ class AssertionGenerator:
         signalname = sBlockPackage["signalname"]
         _gain = sBlockPackage["parameters"]["gain"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
-        assertion = "(= {0}_{1} (* {2} {3}_{1}))"
+        assertion = "(= {0}_{1} (* {2} {3}))"
         return assertion.format(signalname, simulationstep, _gain, inputs[0])
 
     def abs(self, sBlockPackage, simulationstep):
@@ -48,24 +48,28 @@ class AssertionGenerator:
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         signalname = sBlockPackage["signalname"]
         operator = sBlockPackage["parameters"]["relationtype"]
-        return "(ite ({1} {2} {3}) (= {0} True) (= {0} False))".format(signalname, operator, inputs[0], inputs[1])
+        return "(ite ({1} {2} {3}) (= {0}_{4} 1) (= {0}_{4} 0))".format(signalname, operator, inputs[0], inputs[1], simulationstep)
 
     def subtract(self, sBlockPackage, simulationstep):
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         signalname = sBlockPackage["signalname"]
-        return "(= {0} (- {1} {2}))".format(signalname, inputs[0], inputs[1])
+        return "(= {0}_{3} (- {1} {2}))".format(signalname, inputs[0], inputs[1], simulationstep)
 
     def saturate(self, sBlockPackage, simulationstep):
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         signalname = sBlockPackage["signalname"]
-        return "(= {0} (saturate {1}))".format(signalname, inputs[0])
+        lowerLimit = sBlockPackage["parameters"]["lowerlimit"]
+        upperLimit = sBlockPackage["parameters"]["upperlimit"]
+        return "(and (=> (<= {2} {4}) (= {0}_{1} {4})) (=> (and (>= {2} {4}) (<= {2} {3})) (= {0}_{1} {2})) (=> (>= {2} {3}) (= {0}_{1} {3})))".format(signalname, simulationstep, inputs[0], upperLimit, lowerLimit)
+        #return "(= {0}_{2} (saturate {1}))".format(signalname, inputs[0], simulationstep)
 
     def switch(self, sBlockPackage, simulationstep):
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         signalname = sBlockPackage["signalname"]
         condition = sBlockPackage["parameters"]["condition"]
-        condition = condition.replace("u2", inputs[1])
-        return "(ite ({1}) (= {0} {2}) (= {0} {3}))".format(signalname, condition, inputs[0], inputs[2])
+        condition = condition.replace("u2", inputs[1]).split(" ")        
+        condition = "{0} {1} {2}".format(condition[1], condition[0], condition[2])
+        return "(ite ({1}) (= {0}_{4} {2}) (= {0}_{4} {3}))".format(signalname, condition, inputs[0], inputs[2], simulationstep)
 
     def constant(self, sBlockPackage, simulationstep):
         signalname = sBlockPackage["signalname"]
