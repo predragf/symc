@@ -12,26 +12,12 @@ import re
 import logging
 from modules.modelchecker.simc import *
 
-def calculateBlockStepSize(simulationStepSize, blockStepSize):
-    floating = blockStepSize / simulationStepSize
-    return int(floating)
-
 def printlist(_list, keyname=""):
     if keyname != "":
         _list = sorted(_list, key=lambda k: k[keyname])
     print("The size of the list is: {0}".format(len(_list)))
     for itm in _list:
         print(itm)
-
-def extractVariables(assertion):
-    _vars = set()
-    smtKeywords = ["ite", "assert", "and", "or"]
-    p = re.compile("[a-zA-Z0-9_]+")
-    matches = p.findall(assertion)
-    for m in matches:
-        if m.lower() not in smtKeywords:
-            _vars.add(m)
-    return _vars
 
 def testScenario():
     modelChecker = SiMC()
