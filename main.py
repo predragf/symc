@@ -1,5 +1,5 @@
 import json
-#from z3 import *
+from z3 import *
 from modules.simulink.simulinkmodel import *
 from modules.simulink.simulinkmodelloader import *
 from modules.modelchecker.statespace import *
@@ -9,6 +9,8 @@ from modules.assertiongenerators.assertiongenerator import *
 from modules.utils.gcd import *
 import time
 import re
+import logging
+from modules.modelchecker.simc import *
 
 def calculateBlockStepSize(simulationStepSize, blockStepSize):
     floating = blockStepSize / simulationStepSize
@@ -21,20 +23,26 @@ def printlist(_list, keyname=""):
     for itm in _list:
         print(itm)
 
-def main():
-    ag = AssertionGenerator()
-    start = time.time()
-    sModel = loadModel("./data/wheel.json")
-    print(sModel.calculateFundamentalSampleTime())
-    ssg = StateSpaceGenerator()
-    stateSpace = ssg.generateStateSpace(sModel, 1, 1000000)
-    end = time.time()
-    requestedStates = stateSpace.getStates(0,120)
-    testing = stateSpace.getStates(0, 1)
-    printlist(requestedStates)
-    print("testing")
-    printlist(testing)
-    print("the state space was generated in {0} seconds".format(end - start))
+def extractVariables(assertion):
+    _vars = set()
+    smtKeywords = ["ite", "assert", "and", "or"]
+    p = re.compile("[a-zA-Z0-9_]+")
+    matches = p.findall(assertion)
+    for m in matches:
+        if m.lower() not in smtKeywords:
+            _vars.add(m)
+    return _vars
 
+def testScenario():
+    modelChecker = SiMC()
+    assumptions = ["(assert (= PI 3.14))", "(assert (= R 0.5))", "(assert (= SLIP_ABS_ON 0.1))", "(assert (not (> (* c5_0 0.9) c4_0)))",  "(assert (and (> c3_0 0) (> c2_0 0)))", "(assert (> c1_0 0))", "(assert (= c12_0 0))"]
+    start = time.time()
+    result = modelChecker.checkModel("./data/wheel.json", 1, 10, assumptions)
+    end = time.time()
+    print("checking took {0} seconds".format(end - start))
+    print(result)
+
+def main():
+    testScenario()
 
 main()

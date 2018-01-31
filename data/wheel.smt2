@@ -37,6 +37,3 @@
 (assert (ite (> c2_0 10) (= c13_0 c12_0) (= c13_0 c1_0)))
 
 (assert (= c12_0 0))
-
-(check-sat)
-(get-model)

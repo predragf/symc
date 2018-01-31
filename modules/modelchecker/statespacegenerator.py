@@ -1,5 +1,6 @@
 from modules.modelchecker.statespace import *
 from modules.assertiongenerators.assertiongenerator import *
+
 class StateSpaceGenerator:
     def __init__(self):
         pass
@@ -61,8 +62,7 @@ class StateSpaceGenerator:
         simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize, simuationDuration)
         if fundamentalSampleTime > 0:
             simulationTimeHorizon = self.__calculateSimulationHorizon(fundamentalSampleTime, simuationDuration)
-        allBlocks = sModel.getAllBlocks()
-        print("Simulation horizon is {0} states".format(simulationTimeHorizon))
+        allBlocks = sModel.getAllBlocks()        
         for block in allBlocks:
             blockpackage = sModel.packBlockForTransformation(block["blockid"])
             signalStateSpace = self.generateSignalStateSpace(blockpackage, simulationStepSize, fundamentalSampleTime, simulationTimeHorizon)
