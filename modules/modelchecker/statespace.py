@@ -26,15 +26,13 @@ class StateSpace:
     def getAllStates(self):
         states = []
         _vars = self.__getStateSpaceVariables()
-        if len(_vars) < 1:
-            return states
-
-        numberOfStates = len(self.statespace[_vars[0]])
-        for position in range(0, numberOfStates):
-            state = []
-            for _var in _vars:
-                state.append(self.statespace[_var][position])
-            states.append(state)
+        if len(_vars) > 0:
+            numberOfStates = len(self.statespace[_vars[0]])
+            for position in range(0, numberOfStates):
+                state = []
+                for _var in _vars:
+                    state.append(self.statespace[_var][position])
+                    states.append(state)
         return states
 
     def getStatesRange(self, start=0, howmany=0):
@@ -42,7 +40,6 @@ class StateSpace:
         if howmany > 0:
             for stateNo in range(start, start + howmany):
                 states.append(self.getStateAtPosition(stateNo))
-
         return states
 
     def __getStatesForParsing(self, start=0, howmany=0):
@@ -51,7 +48,6 @@ class StateSpace:
             statesForParsing = self.getStatesRange(start, howmany)
         else:
             statesForParsing = self.getAllStates()
-
         return statesForParsing
 
     def __extractVariables(self, assertion):
@@ -61,7 +57,8 @@ class StateSpace:
         numberPattern = re.compile("^[-]?[0-9]*([.,][0-9]+)?$")
         matches = generalPattern.findall(assertion)
         for m in matches:
-            if (numberPattern.match(m) == None) and (m.lower() not in smtKeywords):
+            if (numberPattern.match(m) == None and
+                m.lower() not in smtKeywords):
                 _vars.add(m)
         return _vars
 
@@ -81,4 +78,5 @@ class StateSpace:
                 allVars = allVars | _vars
                 assertions.append("(assert {0})".format(assertion))
         declarationsAssertions = self.__generateDeclarations(allVars)
-        return "{0} \n {1}".format("\n".join(declarationsAssertions), "\n".join(assertions))
+        return "{0} \n {1}".format("\n".join(declarationsAssertions),
+                                    "\n".join(assertions))

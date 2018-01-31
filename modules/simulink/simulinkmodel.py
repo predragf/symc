@@ -32,8 +32,11 @@ class SimulinkModel:
         allconnections = self.getAllConnections()
         blockConnections = []
         for connection in allconnections:
-            if ((connectionType == "ouput" and connection["sourceblockid"] == blockid)
-                or (connectionType == "input" and connection["destinationblockid"] == blockid)):
+            if ((connectionType == "ouput" and
+                    connection["sourceblockid"] == blockid)
+                or (connectionType == "input" and
+                    connection["destinationblockid"] == blockid)
+                ):
                 blockConnections.append(connection)
         return blockConnections
 
@@ -68,7 +71,8 @@ class SimulinkModel:
         inputconnections = self.getBlockInputConnections(blockid);
         inputs = ""
         for iconn in inputconnections:
-            inputs += "{0}#{1},".format(iconn["destinationportnumber"],iconn["name"])
+            inputs += "{0}#{1},".format(iconn["destinationportnumber"],
+                                        iconn["name"])
         inputs = inputs[:len(inputs) - 1]
         blockForTransformation["inputs"] = inputs
         return blockForTransformation
@@ -85,5 +89,4 @@ class SimulinkModel:
                 return -1
             else:
                 sampletimes.add(ts)
-
         return gcdList(list(sampletimes))

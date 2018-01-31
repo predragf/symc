@@ -31,9 +31,13 @@ class SiMC:
     def __generateScriptForChecking(self, smtScript):
         return z3.parse_smt2_string(smtScript)
 
-    def __createAndPopulateSolver(self, pathToModel, stepsize, simulationDuration, assumptions):
-        stateSpaceForChecking = self.__obtainModelStateSpace(pathToModel, stepsize, simulationDuration)
-        stateSpaceSMT = "{0} \n {1}".format(stateSpaceForChecking.genenrateSMT2Script(), "\n".join(assumptions))
+    def __createAndPopulateSolver(self, pathToModel, stepsize, simulationDuration,
+                                    assumptions):
+        stateSpaceForChecking = self.__obtainModelStateSpace(pathToModel,
+                                                stepsize, simulationDuration)
+        stateSpaceSMT = "{0} \n {1}".format(
+                                    stateSpaceForChecking.genenrateSMT2Script(),
+                                    "\n".join(assumptions))
         goal = self.__createGoal()
         goal.add(self.__generateScriptForChecking(stateSpaceSMT))
         solver = self.__createSolver(goal)
@@ -50,5 +54,6 @@ class SiMC:
         return result
 
     def checkModel(self, pathToModel, stepsize, simulationDuration, assumptions=[]):
-        solver = self.__createAndPopulateSolver(pathToModel, stepsize, simulationDuration, assumptions)
+        solver = self.__createAndPopulateSolver(pathToModel, stepsize,
+                                                simulationDuration, assumptions)
         return self.__executeSolver(solver)
