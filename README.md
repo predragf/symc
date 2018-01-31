@@ -4,7 +4,6 @@
 
 * Quick summary
 * V 0.0.1
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### How do I get set up? ###
 
@@ -23,7 +22,4 @@
 
 ### Contact ###
 
-For any further information please contact the developer directly me
-
-* Repo owner or admin
-* Other community or team contact
+For any further information feel free to contact me directly.
