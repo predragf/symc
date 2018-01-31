@@ -79,9 +79,6 @@ class StateSpace:
             for assertion in state:
                 _vars = self.__extractVariables(assertion)
                 allVars = allVars | _vars
-                assertions.append("(assert {0}) \n".format(assertion))
-        declarationsAssertions = self.__generateDeclarations(allVars)            
-        smtScript = "\n".join(declarationsAssertions)
-        smtScript += "\n"
-        smtScript += "\n".join(assertions)
-        return smtScript
+                assertions.append("(assert {0})".format(assertion))
+        declarationsAssertions = self.__generateDeclarations(allVars)
+        return "{0} \n {1}".format("\n".join(declarationsAssertions), "\n".join(assertions))
