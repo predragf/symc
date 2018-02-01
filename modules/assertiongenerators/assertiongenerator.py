@@ -34,7 +34,7 @@ class AssertionGenerator:
         signalname = sBlockPackage["signalname"]
         _gain = sBlockPackage["parameters"]["gain"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
-        assertion = "(= {0}_{1} (* {2} {3}))"        
+        assertion = "(= {0}_{1} (* {2} {3}))"
         return assertion.format(signalname, simulationstep, _gain, inputs[0])
 
     def abs(self, sBlockPackage, simulationstep):
@@ -81,3 +81,32 @@ class AssertionGenerator:
         signalname = sBlockPackage["signalname"]
         _value = sBlockPackage["parameters"]["value"]
         return "(= {0}_{1} {2})".format(signalname, simulationstep, _value)
+
+    def max(self, sBlockPackage, simulationstep):
+        signalname = sBlockPackage["signalname"]
+        inputs = self.__extractInputs(sBlockPackage, simulationstep)
+        return """(ite (> {1} {2}) (= {0}_{3} {1}) (= {0}_{3} {2}))""".format(signalname,
+                                            inputs[0], inputs[1], simulationstep)
+
+    def abs(self, sBlockPackage, simulationstep):
+        signalname = sBlockPackage["signalname"]
+        inputs = self.__extractInputs(sBlockPackage, simulationstep)
+        return """(ite (> {1} 0) (= {0}_{3} {1}) (= {0}_{3} (* -1 {1})))""".format(
+                                                    signalname, inputs[0], simulationstep)
+
+    def product(self, sBlockPackage, simulationstep):
+        signalname = sBlockPackage["signalname"]
+        inputs = self.__extractInputs(sBlockPackage, simulationstep)
+        return """(= {0} (* {1}))""".format(signalname, " ".join(inputs).lstrip())
+
+    def unitdelay(self, sBlockPackage, simulationstep):
+        signalname = sBlockPackage["signalname"]
+        inputs = self.__extractInputs(sBlockPackage, simulationstep)
+        #TODO: Implement this function.
+        return ""
+
+    def divide(self, sBlockPackage, simulationstep):
+        signalname = sBlockPackage["signalname"]
+        inputs = self.__extractInputs(sBlockPackage, simulationstep)
+        #TODO: Implement this function.
+        return ""

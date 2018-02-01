@@ -47,7 +47,8 @@ class StateSpaceGenerator:
         #output must be computed at each simulation step
         statespace = []
         blockSampleTime = sBlockPackage["sampletime"];
-        blockStepSize = self.__calculateBlockStepSize(blockSampleTime, fundamentalSampleTime, simulationStepSize)
+        blockStepSize = self.__calculateBlockStepSize(blockSampleTime,
+                                    fundamentalSampleTime, simulationStepSize)
         statespace.append(self.__generateSymbolicState(sBlockPackage, 0))
         for step in range(1, simulationTimeHorizon):
             if ((blockStepSize == 0) or ((step % blockStepSize) == 0)):
@@ -61,7 +62,8 @@ class StateSpaceGenerator:
                                                         step, step - 1))
         return statespace
 
-    def __generateModelStateSpace(self, sModel, simulationStepSize, fundamentalSampleTime, simulationTimeHorizon):
+    def __generateModelStateSpace(self, sModel, simulationStepSize,
+                                    fundamentalSampleTime, simulationTimeHorizon):
         simulinkModelStateSpace = StateSpace()
         allBlocks = sModel.getAllBlocks()
         for block in allBlocks:
