@@ -16,6 +16,7 @@ execution of the early prototypes.
 model, we report the following times:
 - model generation time: 1716 seconds.
 - model checking (SMT checking) time: 2.15 seconds.
+- version moved to branch "dev"
 
 
 
