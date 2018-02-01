@@ -19,13 +19,21 @@ def printlist(_list, keyname=""):
     for itm in _list:
         print(itm)
 
+def generateAssertionsForTheTestScenario():
+    assumptions = ["(assert (= PI 3.14))", "(assert (= R 0.5))", "(assert (= SLIP_ABS_ON 0.1))"]
+    for i in range(0, 1):
+        #assumptions.append("(assert (not (> (* c5_{0} 0.9) c4_{0})))".format(str(i)))
+        assumptions.append("(assert (and (> c1_{0} 0) (> c3_{0} 0) (> c2_{0} 0)))".format(i))
+        assumptions.append("(assert (and (< c2_{0} 10) (not (= c13_{0} c1_{0}))))".format(i))
+        #assumptions.append("(assert (= c12_{0} 0))".format(i))
+    return assumptions
+
+
+
 def testScenario():
     modelChecker = SiMC()
-    assumptions = ["(assert (= PI 3.14))", "(assert (= R 0.5))", "(assert (= SLIP_ABS_ON 0.1))", "(assert (not (> (* c5_0 0.9) c4_0)))",  "(assert (and (> c3_0 0) (> c2_0 0)))", "(assert (> c1_0 0))", "(assert (= c12_0 0))"]
-    start = time.time()
-    result = modelChecker.checkModel("./models/wheel.json", 1, 10, assumptions)
-    end = time.time()
-    print("checking took {0} seconds".format(end - start))
+    assumptions = generateAssertionsForTheTestScenario()
+    result = modelChecker.checkModel("./models/wheel.json", 0.1, 10, assumptions)
     print(result)
 
 def main():

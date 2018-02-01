@@ -5,13 +5,17 @@ class StateSpaceGenerator:
     def __init__(self):
         pass
 
-    def __calculateSimulationHorizon(self, simulationStepSize, simulationDuration):
-        floating = simulationDuration / simulationStepSize
-        return int(floating)
+    def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime, simulationDuration):
+        simulationHorizon = (simulationDuration / simulationStepSize)
+        if fundamentalSampleTime > 0:
+            simulationHorizon = (simulationDuration / fundamentalSampleTime)
+        return int(simulationHorizon)
 
-    def __calculateBlockStepSize(self, simulationStepSize, blockStepSize):
-        floating = blockStepSize / simulationStepSize
-        return int(floating)
+    def __calculateBlockStepSize(self, blockSampleTime, fundamentalSampleTime, simulationStepSize):
+        blockStepSize = (blockSampleTime / simulationStepSize)
+        if fundamentalSampleTime > 0:
+            blockStepSize = (blockSampleTime / fundamentalSampleTime)
+        return int(blockStepSize)
 
     def __generateSymbolicState(self, sBlockPackage, step):
         ag = AssertionGenerator()
@@ -43,31 +47,22 @@ class StateSpaceGenerator:
         #output must be computed at each simulation step
         statespace = []
         blockSampleTime = sBlockPackage["sampletime"];
-        blockStepSize = self.__calculateBlockStepSize(simulationStepSize,
-                                                        blockSampleTime)
-        if fundamentalSampleTime > 0:
-            blockStepSize = self.__calculateBlockStepSize(simulationStepSize,
-                                                            blockSampleTime)
+        blockStepSize = self.__calculateBlockStepSize(blockSampleTime, fundamentalSampleTime, simulationStepSize)
         statespace.append(self.__generateSymbolicState(sBlockPackage, 0))
         for step in range(1, simulationTimeHorizon):
             if ((blockStepSize == 0) or ((step % blockStepSize) == 0)):
                 statespace.append(self.__generateSymbolicState(sBlockPackage,
                                                                 step))
             else:
+                print("copying previous step")
                 equalToPrevious = "(= {0}_{1} {0}_{2})"
                 signalname = sBlockPackage["signalname"]
                 statespace.append(equalToPrevious.format(signalname,
                                                         step, step - 1))
         return statespace
 
-    def generateStateSpace(self, sModel, simulationStepSize, simuationDuration):
-        fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
+    def __generateModelStateSpace(self, sModel, simulationStepSize, fundamentalSampleTime, simulationTimeHorizon):
         simulinkModelStateSpace = StateSpace()
-        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
-                                                                simuationDuration)
-        if fundamentalSampleTime > 0:
-            simulationTimeHorizon = self.__calculateSimulationHorizon(
-                                        fundamentalSampleTime, simuationDuration)
         allBlocks = sModel.getAllBlocks()
         for block in allBlocks:
             blockpackage = sModel.packBlockForTransformation(block["blockid"])
@@ -75,5 +70,11 @@ class StateSpaceGenerator:
                                     simulationStepSize, fundamentalSampleTime,
                                     simulationTimeHorizon)
             simulinkModelStateSpace.addTrace(block["blockid"], signalStateSpace)
-
         return simulinkModelStateSpace
+
+    def generateStateSpace(self, sModel, simulationStepSize, simuationDuration):
+        fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
+        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
+                                        fundamentalSampleTime, simuationDuration)
+        return self.__generateModelStateSpace(sModel, simulationStepSize,
+                                fundamentalSampleTime, simulationTimeHorizon)

@@ -6,6 +6,7 @@ from modules.modelchecker.statespacegenerator import *
 from modules.routinegenerators.routinegenerator import *
 from modules.assertiongenerators.assertiongenerator import *
 from modules.utils.gcd import *
+import time
 
 class SiMC:
     def __init__(self):
@@ -41,6 +42,7 @@ class SiMC:
         goal = self.__createGoal()
         goal.add(self.__generateScriptForChecking(stateSpaceSMT))
         solver = self.__createSolver(goal)
+        print(solver.to_smt2())
         return solver
 
     def __executeSolver(self, solver):
@@ -54,6 +56,15 @@ class SiMC:
         return result
 
     def checkModel(self, pathToModel, stepsize, simulationDuration, assumptions=[]):
+        start = time.time()
+        print("Creating model started at {0}".format(start))
         solver = self.__createAndPopulateSolver(pathToModel, stepsize,
                                                 simulationDuration, assumptions)
-        return self.__executeSolver(solver)
+        end = time.time()
+        print("Creating model finished. It took {0} seconds.".format(end - start))
+        print("Model checking started.")
+        start = time.time()
+        result = self.__executeSolver(solver)
+        end = time.time()
+        print("Model checking finished. It took {0} seconds.".format(end - start))
+        return result

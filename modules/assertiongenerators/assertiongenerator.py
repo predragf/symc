@@ -34,7 +34,7 @@ class AssertionGenerator:
         signalname = sBlockPackage["signalname"]
         _gain = sBlockPackage["parameters"]["gain"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
-        assertion = "(= {0}_{1} (* {2} {3}))"
+        assertion = "(= {0}_{1} (* {2} {3}))"        
         return assertion.format(signalname, simulationstep, _gain, inputs[0])
 
     def abs(self, sBlockPackage, simulationstep):

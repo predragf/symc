@@ -77,6 +77,7 @@ class StateSpace:
                 _vars = self.__extractVariables(assertion)
                 allVars = allVars | _vars
                 assertions.append("(assert {0})".format(assertion))
+        print("The model has {0} variables".format(len(allVars)))
         declarationsAssertions = self.__generateDeclarations(allVars)
         return "{0} \n {1}".format("\n".join(declarationsAssertions),
                                     "\n".join(assertions))
