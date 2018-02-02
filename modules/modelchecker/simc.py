@@ -3,6 +3,7 @@ from modules.simulink.simulinkmodel import *
 from modules.simulink.simulinkmodelloader import *
 from modules.modelchecker.statespace import *
 from modules.modelchecker.statespacegenerator import *
+from modules.modelchecker.statespacemanager import *
 from modules.routinegenerators.routinegenerator import *
 from modules.assertiongenerators.assertiongenerator import *
 from modules.utils.gcd import *
@@ -27,6 +28,8 @@ class SiMC:
         sModel = loadModel(pathToModel)
         ssg = StateSpaceGenerator()
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
+        StateSpaceManager.saveStateSpaceToFile(stateSpace, "./models/{0}{1}.txt".format(
+                        sModel.getModelName(), simulationDuration))
         return stateSpace;
 
     def __generateScriptForChecking(self, smtScript):

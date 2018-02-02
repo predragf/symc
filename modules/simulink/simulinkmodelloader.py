@@ -1,12 +1,6 @@
-import json
 from modules.simulink.simulinkmodel import *
-
-def openAndLoadJson(pathToBlockListFile):
-    file = open(pathToBlockListFile, "r");
-    blockFileListAsString = file.read()
-    blockListJson = json.loads(blockFileListAsString)
-    return blockListJson
+import modules.utils.jsonmanager as jsonManager
 
 def loadModel(pathToModel):
-    jsonData = openAndLoadJson(pathToModel)
+    jsonData = jsonManager.openAndLoadJson(pathToModel)
     return SimulinkModel(jsonData)

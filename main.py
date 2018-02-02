@@ -11,6 +11,7 @@ import time
 import re
 import logging
 from modules.modelchecker.simc import *
+from modules.modelchecker.statespacemanager import *
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -38,5 +39,6 @@ def testScenario():
 
 def main():
     testScenario()
+
 
 main()

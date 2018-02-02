@@ -2,8 +2,8 @@ import re
 
 class StateSpace:
 
-    def __init__(self):
-        self.statespace = {}
+    def __init__(self, _stateSpace={}):
+        self.statespace = _stateSpace
 
     def addTrace(self, signalName, signalTrace):
         self.statespace[signalName] = signalTrace

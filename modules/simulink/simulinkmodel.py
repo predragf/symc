@@ -28,6 +28,12 @@ class SimulinkModel:
     def getAllConnections(self):
         return self.simulinkModelJson["connections"]
 
+    def getModelName(self):
+        modelName = self.simulinkModelJson["modelname"]
+        if modelName is None:
+            modelName = ""
+        return modelName
+
     def _getBlockConnections(self, blockid, connectionType):
         allconnections = self.getAllConnections()
         blockConnections = []
