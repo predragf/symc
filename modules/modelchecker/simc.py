@@ -60,7 +60,7 @@ class SiMC:
 
     def checkModel(self, pathToModel, stepsize, simulationDuration, assumptions=[]):
         start = time.time()
-        print("Creating model started at {0}".format(start))
+        print("Creating model started at {0}".format(time.ctime()))
         solver = self.__createAndPopulateSolver(pathToModel, stepsize,
                                                 simulationDuration, assumptions)
         end = time.time()

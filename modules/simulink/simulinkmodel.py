@@ -70,17 +70,19 @@ class SimulinkModel:
                 predecessors.append(sourceBlock)
         return predecessors
 
+    def __createInputs(self, blockid):
+        inputconnections = self.getBlockInputConnections(blockid);
+        inputs = ""
+        for iconn in inputconnections:            
+            inputs += "{0}#{1},".format(iconn["destinationportnumber"],
+                                        iconn["name"])
+        return inputs[:len(inputs) - 1]
+
     def packBlockForTransformation(self, blockid):
         blockForTransformation = self.getBlockById(blockid)
         outConns = self.getBlockOutputConnections(blockid)
         blockForTransformation["signalname"] = outConns[0]["name"]
-        inputconnections = self.getBlockInputConnections(blockid);
-        inputs = ""
-        for iconn in inputconnections:
-            inputs += "{0}#{1},".format(iconn["destinationportnumber"],
-                                        iconn["name"])
-        inputs = inputs[:len(inputs) - 1]
-        blockForTransformation["inputs"] = inputs
+        blockForTransformation["inputs"] = self.__createInputs(blockid)
         return blockForTransformation
 
     def calculateFundamentalSampleTime(self):
