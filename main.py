@@ -29,16 +29,15 @@ def generateAssertionsForTheTestScenario():
         #assumptions.append("(assert (= c12_{0} 0))".format(i))
     return assumptions
 
-
-
 def testScenario():
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel("./models/wheel.json", 0.1, 10, assumptions)
+    result = modelChecker.checkModel("./models/4wheels.json", 0.1, 20, assumptions)
     print(result)
 
 def main():
     testScenario()
+
 
 
 main()

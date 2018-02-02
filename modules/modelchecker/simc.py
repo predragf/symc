@@ -28,7 +28,7 @@ class SiMC:
         sModel = loadModel(pathToModel)
         ssg = StateSpaceGenerator()
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
-        StateSpaceManager.saveStateSpaceToFile(stateSpace, "./models/{0}{1}.txt".format(
+        StateSpaceManager.saveStateSpaceToFile(stateSpace, "./models/{0}{1}.ss".format(
                         sModel.getModelName(), simulationDuration))
         return stateSpace;
 
