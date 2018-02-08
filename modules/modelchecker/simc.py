@@ -44,8 +44,7 @@ class SiMC:
                                     "\n".join(assumptions))
         goal = self.__createGoal()
         goal.add(self.__generateScriptForChecking(stateSpaceSMT))
-        solver = self.__createSolver(goal)
-        print(solver.to_smt2())
+        solver = self.__createSolver(goal)        
         return solver
 
     def __executeSolver(self, solver):
