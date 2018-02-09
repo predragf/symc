@@ -13,21 +13,21 @@
       }
       ],
     "blocks": [
-      { "blockid": "bbw/pedalmap",
+      { "blockid": "bbw/hw_brakepedal/pedalmap",
         "blockname": "Pedal_map",
         "blocktype": "saturate",
         "sampletime": 10,
         "parameters" : {
         }
       },
-      { "blockid": "bbw/roundtoint",
+      { "blockid": "bbw/ldm_brakepedal/roundtoint",
         "blockname": "round_to_int",
         "blocktype": "round",
         "sampletime": ,
         "parameters" : {
         }
       },
-      { "blockid": "bbw/gain1",
+      { "blockid": "bbw/brake_torq_calculation/gain1",
         "blockname": "Gain1",
         "blocktype": "gain",
         "sampletime": 10,
@@ -35,7 +35,7 @@
           "gain": "maxBrakeTorque/100"
         }
       },
-      { "blockid": "bbw/gbc/distribution",
+      { "blockid": "bbw/global_brake_controller/distribution",
         "blockname": "Distribution",
         "blocktype": "gain",
         "sampletime": 20,
@@ -1179,26 +1179,35 @@
         "blocktype": "round",
         "sampletime": 0,
         "parameters" : {}
-      }
-
-
-
-
-      ,
-      { "blockid": "",
-        "blockname": "",
-        "blocktype": "",
-        "sampletime": ,
-        "parameters" : {
-        }
       }],
       "connections": [
       {
-        "sourceblockid": "",
-        "destinationblockid": "",
-        "sourceportnumber": ,
-        "destinationportnumber": ,
-        "name": ""
+        "sourceblockid": "bbw/hw_brakepedal/pedalmap",
+        "destinationblockid": "bbw/ldm_brakepedal/roundtoint",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c1"
+      },
+      {
+        "sourceblockid": "bbw/ldm_brakepedal/roundtoint",
+        "destinationblockid": "bbw/brake_torq_calculation/gain1",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c2"
+      },
+      {
+        "sourceblockid": "bbw/brake_torq_calculation/gain1",
+        "destinationblockid": "bbw/global_brake_controller/distribution",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c3"
+      },
+      {
+        "sourceblockid": "bbw/brake_torq_calculation/gain1",
+        "destinationblockid": "bbw/global_brake_controller/distribution",
+        "sourceportnumber": 1,
+        "destinationportnumber": 1,
+        "name": "c4"
       }]
     }
 }
