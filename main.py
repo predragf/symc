@@ -12,6 +12,7 @@ import re
 import logging
 from modules.modelchecker.simc import *
 from modules.modelchecker.statespacemanager import *
+from modules.simulink.simulinkmodelloader import *
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -36,7 +37,7 @@ def testScenario():
     print(result)
 
 def main():
-    testScenario()
-
-
+    #testScenario()
+    sModel = loadModel("./models/4wheels.json")
+    print(sModel.getSignalVariables())
 main()

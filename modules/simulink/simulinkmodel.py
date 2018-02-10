@@ -3,6 +3,39 @@ from modules.utils.gcd import *
 class SimulinkModel:
     def __init__(self, _simulinkmodeljson):
         self.simulinkModelJson = _simulinkmodeljson["simulinkmodel"]
+        self.simulinkModelJson["signalvariables"] = self.__createVariables()
+
+    def __getLinesFromSameSource(self, _pivot, _allLines):
+        samelines = []
+        samelines.append(_pivot)
+        indexesForPopping = []
+
+        for i in range(0, len(_allLines)):
+            if(_allLines[i]["sourceblockid"] == _pivot["sourceblockid"] and
+                _allLines[i]["sourceportnumber"] == _pivot["sourceportnumber"]):
+                indexesForPopping.append(i)
+
+        for itm in reversed(indexesForPopping):
+            samelines.append(_allLines.pop(itm))
+
+        return samelines
+
+    def __createVariables(self):
+        #get a local copy of all connections
+        variables = {}
+        allConnections = self.getAllConnections()[:]
+        variableIndex = 1
+        while(len(allConnections) > 0):
+            pivot = allConnections.pop(0)
+            samelines = self.__getLinesFromSameSource(pivot, allConnections)
+            for line in samelines:
+                variables[line["name"]] = "signal_variable_{0}".format(variableIndex)
+            variableIndex = variableIndex + 1
+
+        return variables
+
+    def __processModel(self):
+        pass
 
     def getAllBlocks(self):
         return self.simulinkModelJson["blocks"]
@@ -27,6 +60,13 @@ class SimulinkModel:
 
     def getAllConnections(self):
         return self.simulinkModelJson["connections"]
+
+    def getSignalVariables(self):
+        return self.simulinkModelJson["signalvariables"]
+
+    def getConnectionSignalVariable(self, _lineName):
+        allSignalVariables = self.getSignalVariables()
+        return allSignalVariables[_lineName]
 
     def getModelName(self):
         modelName = self.simulinkModelJson["modelname"]
@@ -73,9 +113,10 @@ class SimulinkModel:
     def __createInputs(self, blockid):
         inputconnections = self.getBlockInputConnections(blockid);
         inputs = ""
-        for iconn in inputconnections:            
-            inputs += "{0}#{1},".format(iconn["destinationportnumber"],
-                                        iconn["name"])
+        for iconn in inputconnections:
+            inputs += "{0}#{1}#{2},".format(iconn["destinationportnumber"],
+                                        iconn["name"],
+                                        self.getConnectionSignalVariable(iconn["name"]))
         return inputs[:len(inputs) - 1]
 
     def packBlockForTransformation(self, blockid):
