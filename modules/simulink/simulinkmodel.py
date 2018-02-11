@@ -122,8 +122,12 @@ class SimulinkModel:
     def packBlockForTransformation(self, blockid):
         blockForTransformation = self.getBlockById(blockid)
         outConns = self.getBlockOutputConnections(blockid)
-        blockForTransformation["signalname"] = outConns[0]["name"]
         blockForTransformation["inputs"] = self.__createInputs(blockid)
+        if len(outConns) > 0:
+            blockForTransformation["signalname"] = outConns[0]["name"]
+        else:
+            blockForTransformation["signalname"] = ""            
+
         return blockForTransformation
 
     def calculateFundamentalSampleTime(self):

@@ -30,14 +30,19 @@ def generateAssertionsForTheTestScenario():
         #assumptions.append("(assert (= c12_{0} 0))".format(i))
     return assumptions
 
-def testScenario():
+def testScenario(modelname):
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel("./models/4wheels.json", 0.1, 20, assumptions)
+    result = modelChecker.checkModel(modelname, 0.1, 20, [])
     print(result)
 
 def main():
-    #testScenario()
-    sModel = loadModel("./models/4wheels.json")
-    print(sModel.getSignalVariables())
+    modelname = "./models/bbw.json"
+    sModel = loadModel(modelname)
+    distinctBlockTypes = set()
+    print(len(sModel.getAllBlocks()))
+    for blk in sModel.getAllBlocks():
+        print(blk["blockid"])
+
+
 main()

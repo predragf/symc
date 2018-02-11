@@ -17,12 +17,15 @@ class AssertionGenerator:
         inputs = inputs.split(',')
         result = [None] * len(inputs)
         for _input in inputs:
-            parts = _input.split("#")
-            portNumber = int(parts[0])
-            result[portNumber - 1] = self.__adjustInput(parts[1], step)
+            try:
+                parts = _input.split("#")
+                portNumber = int(parts[0])
+                result[portNumber - 1] = self.__adjustInput(parts[1], step)
+            except:
+                print("I am failing for " + str(inputs))
         return result
 
-    def add(self, sBlockPackage, simulationstep):
+    def sum(self, sBlockPackage, simulationstep):
         #here one also needs to know the simulation step from which
         #the inputs shall be taken
         signalname = sBlockPackage["signalname"]
