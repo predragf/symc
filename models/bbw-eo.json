@@ -1,0 +1,2720 @@
+{
+	"simulinkmodel": {
+		"inputs": [{
+			"type": "real",
+			"id": "driverbrake",
+			"name": "driver_brake"
+		}],
+		"modelname": "bbw",
+		"blocks": [{
+			"blockid": "bbw/hw_brakepedal/pedal_map",
+			"executionorder": "161",
+			"parameters": {
+				"lowerlimit": "0",
+				"upperlimit": "100"
+			},
+			"blockname": "pedal_map",
+			"sampletime": 10,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/ldm_brakepedal/round_to_int",
+			"executionorder": "163",
+			"parameters": {},
+			"blockname": "round_to_int",
+			"sampletime": 0,
+			"blocktype": "round"
+		}, {
+			"blockid": "bbw/brake_torq_calculation/gain1",
+			"executionorder": "165",
+			"parameters": {
+				"gain": "maxbraketorque/100"
+			},
+			"blockname": "gain1",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/global brake controller/distribution",
+			"executionorder": "199",
+			"parameters": {
+				"gain": "distrib"
+			},
+			"blockname": "distribution",
+			"sampletime": 20,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/threshold_10km//h",
+			"executionorder": "148",
+			"parameters": {
+				"condition": "u2 > 10"
+			},
+			"blockname": "threshold_10kmh",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/whespd (m//s)",
+			"executionorder": "138",
+			"parameters": {
+				"gain": "r*pi/30"
+			},
+			"blockname": "whespd (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/v (m//s)",
+			"executionorder": "139",
+			"parameters": {
+				"gain": "10/36"
+			},
+			"blockname": "v (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/subtract",
+			"executionorder": "140",
+			"parameters": {
+				"signs": "-+"
+			},
+			"blockname": "subtract",
+			"sampletime": 10,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/positive",
+			"executionorder": "141",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "10000000"
+			},
+			"blockname": "positive",
+			"sampletime": 10,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/times_10",
+			"executionorder": "142",
+			"parameters": {
+				"gain": "10"
+			},
+			"blockname": "times10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"executionorder": "143",
+			"parameters": {
+				"gain": "10*slip_abs_on"
+			},
+			"blockname": "slip_abs_on_times_10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/relational operator",
+			"executionorder": "144",
+			"parameters": {
+				"relationtype": ">",
+				"initialvalue": ""
+			},
+			"blockname": "relational operator",
+			"sampletime": 10,
+			"blocktype": "relationaloperator"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/releasebrake",
+			"executionorder": "146",
+			"parameters": {
+				"initialvalue": "",
+				"value": "0"
+			},
+			"blockname": "release brake",
+			"sampletime": 10,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/lockdetect",
+			"executionorder": "147",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "lockdetect",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/threshold_10km//h",
+			"executionorder": "180",
+			"parameters": {
+				"condition": "u2 > 10"
+			},
+			"blockname": "threshold_10kmh",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/whespd (m//s)",
+			"executionorder": "170",
+			"parameters": {
+				"gain": "r*pi/30"
+			},
+			"blockname": "whespd (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/v (m//s)",
+			"executionorder": "171",
+			"parameters": {
+				"gain": "10/36"
+			},
+			"blockname": "v (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/subtract",
+			"executionorder": "172",
+			"parameters": {
+				"signs": "-+"
+			},
+			"blockname": "subtract",
+			"sampletime": 10,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/positive",
+			"executionorder": "173",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "10000000"
+			},
+			"blockname": "positive",
+			"sampletime": 10,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/times_10",
+			"executionorder": "174",
+			"parameters": {
+				"gain": "10"
+			},
+			"blockname": "times10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"executionorder": "175",
+			"parameters": {
+				"gain": "10*slip_abs_on"
+			},
+			"blockname": "slip_abs_on_times_10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/relational operator",
+			"executionorder": "176",
+			"parameters": {
+				"relationtype": ">",
+				"initialvalue": ""
+			},
+			"blockname": "relational operator",
+			"sampletime": 10,
+			"blocktype": "relationaloperator"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/releasebrake",
+			"executionorder": "178",
+			"parameters": {
+				"initialvalue": "",
+				"value": "0"
+			},
+			"blockname": "release brake",
+			"sampletime": 10,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/lockdetect",
+			"executionorder": "179",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "lockdetect",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/threshold_10km//h",
+			"executionorder": "132",
+			"parameters": {
+				"condition": "u2 > 10"
+			},
+			"blockname": "threshold_10kmh",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/whespd (m//s)",
+			"executionorder": "122",
+			"parameters": {
+				"gain": "r*pi/30"
+			},
+			"blockname": "whespd (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/v (m//s)",
+			"executionorder": "123",
+			"parameters": {
+				"gain": "10/36"
+			},
+			"blockname": "v (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/subtract",
+			"executionorder": "124",
+			"parameters": {
+				"signs": "-+"
+			},
+			"blockname": "subtract",
+			"sampletime": 10,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/positive",
+			"executionorder": "125",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "10000000"
+			},
+			"blockname": "positive",
+			"sampletime": 10,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/times_10",
+			"executionorder": "126",
+			"parameters": {
+				"gain": "10"
+			},
+			"blockname": "times10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"executionorder": "127",
+			"parameters": {
+				"gain": "10*slip_abs_on"
+			},
+			"blockname": "slip_abs_on_times_10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/relational operator",
+			"executionorder": "128",
+			"parameters": {
+				"relationtype": ">",
+				"initialvalue": ""
+			},
+			"blockname": "relational operator",
+			"sampletime": 10,
+			"blocktype": "relationaloperator"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/releasebrake",
+			"executionorder": "130",
+			"parameters": {
+				"initialvalue": "",
+				"value": "0"
+			},
+			"blockname": "release brake",
+			"sampletime": 10,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/lockdetect",
+			"executionorder": "131",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "lockdetect",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/threshold_10km//h",
+			"executionorder": "194",
+			"parameters": {
+				"condition": "u2 > 10"
+			},
+			"blockname": "threshold_10kmh",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/whespd (m//s)",
+			"executionorder": "184",
+			"parameters": {
+				"gain": "r*pi/30"
+			},
+			"blockname": "whespd (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/v (m//s)",
+			"executionorder": "185",
+			"parameters": {
+				"gain": "10/36"
+			},
+			"blockname": "v (m//s)",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/subtract",
+			"executionorder": "186",
+			"parameters": {
+				"signs": "-+"
+			},
+			"blockname": "subtract",
+			"sampletime": 10,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/positive",
+			"executionorder": "187",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "10000000"
+			},
+			"blockname": "positive",
+			"sampletime": 10,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/times_10",
+			"executionorder": "188",
+			"parameters": {
+				"gain": "10"
+			},
+			"blockname": "times10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"executionorder": "189",
+			"parameters": {
+				"gain": "10*slip_abs_on"
+			},
+			"blockname": "slip_abs_on_times_10",
+			"sampletime": 10,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/relational operator",
+			"executionorder": "190",
+			"parameters": {
+				"relationtype": ">",
+				"initialvalue": ""
+			},
+			"blockname": "relational operator",
+			"sampletime": 10,
+			"blocktype": "relationaloperator"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/releasebrake",
+			"executionorder": "192",
+			"parameters": {
+				"initialvalue": "",
+				"value": "0"
+			},
+			"blockname": "release brake",
+			"sampletime": 10,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/lockdetect",
+			"executionorder": "193",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "lockdetect",
+			"sampletime": 10,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/half",
+			"executionorder": "16",
+			"parameters": {
+				"initialvalue": "",
+				"gain": 5
+			},
+			"blockname": "half",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/negative",
+			"executionorder": "17",
+			"parameters": {
+				"initialvalue": "",
+				"gain": -1
+			},
+			"blockname": "negative",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/negative1",
+			"executionorder": "94",
+			"parameters": {
+				"initialvalue": "",
+				"gain": -1
+			},
+			"blockname": "negative1",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/negative2",
+			"executionorder": "70",
+			"parameters": {
+				"initialvalue": "",
+				"gain": -1
+			},
+			"blockname": "negative2",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/negative3",
+			"executionorder": "46",
+			"parameters": {
+				"initialvalue": "",
+				"gain": -1
+			},
+			"blockname": "negative3",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr",
+			"executionorder": "18",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "rr",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl",
+			"executionorder": "95",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "rl",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr",
+			"executionorder": "71",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "fr",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl",
+			"executionorder": "47",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "fl",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/whlradius",
+			"executionorder": "26",
+			"parameters": {
+				"initialvalue": "",
+				"gain": "r"
+			},
+			"blockname": "whlradius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/v_wr",
+			"executionorder": "27",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "v_wr",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr",
+			"executionorder": "30",
+			"parameters": {
+				"mode": "max"
+			},
+			"blockname": "max_v_wr",
+			"sampletime": 5,
+			"blocktype": "minmax"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/radius",
+			"executionorder": "40",
+			"parameters": {
+				"gain": "r"
+			},
+			"blockname": "radius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/times100",
+			"executionorder": "28",
+			"parameters": {
+				"gain": "100"
+			},
+			"blockname": "times100",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/subtract",
+			"executionorder": "41",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "subtract",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/product",
+			"executionorder": "39",
+			"parameters": {
+				"inputs": "**"
+			},
+			"blockname": "product",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/sign",
+			"executionorder": "38",
+			"parameters": {},
+			"blockname": "sign",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/ts_over_inertia",
+			"executionorder": "43",
+			"parameters": {
+				"gain": "t_veh/i"
+			},
+			"blockname": "ts_over_inertia",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/abs",
+			"executionorder": "29",
+			"parameters": {},
+			"blockname": "abs",
+			"sampletime": 5,
+			"blocktype": "abs"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/sum",
+			"executionorder": "44",
+			"parameters": {
+				"signs": "++"
+			},
+			"blockname": "add",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/w_radps",
+			"executionorder": "24",
+			"parameters": {},
+			"blockname": "w_radps",
+			"sampletime": 5,
+			"blocktype": "unitdelay"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/saturation",
+			"executionorder": "25",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "w_max"
+			},
+			"blockname": "saturation",
+			"sampletime": 5,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/friction_force_n",
+			"executionorder": "37",
+			"parameters": {},
+			"blockname": "friction_force_n",
+			"sampletime": 5,
+			"blocktype": "lookup"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/w (rpm)",
+			"executionorder": "45",
+			"parameters": {
+				"gain": "30/pi"
+			},
+			"blockname": "w(rpm)",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/divide",
+			"executionorder": "33",
+			"parameters": {
+				"inputs": "*/"
+			},
+			"blockname": "divide",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/c_zero",
+			"executionorder": "34",
+			"parameters": {
+				"value": "0"
+			},
+			"blockname": "c_zero",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/c_use_div",
+			"executionorder": "31",
+			"parameters": {
+				"value": "use_division"
+			},
+			"blockname": "c_use_div",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch",
+			"executionorder": "35",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch1",
+			"executionorder": "36",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch1",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"sampletime": 5,
+			"blocktype": "stateflow",
+			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/binary_search_ratio",
+			"parameters": {},
+			"blockname": "binary_search_ratio"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/whlradius",
+			"executionorder": "98",
+			"parameters": {
+				"initialvalue": "",
+				"gain": "r"
+			},
+			"blockname": "whlradius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/v_wr",
+			"executionorder": "99",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "v_wr",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr",
+			"executionorder": "102",
+			"parameters": {
+				"mode": "max"
+			},
+			"blockname": "max_v_wr",
+			"sampletime": 5,
+			"blocktype": "minmax"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/radius",
+			"executionorder": "112",
+			"parameters": {
+				"gain": "r"
+			},
+			"blockname": "radius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/times100",
+			"executionorder": "100",
+			"parameters": {
+				"gain": "100"
+			},
+			"blockname": "times100",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/subtract",
+			"executionorder": "113",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "subtract",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/product",
+			"executionorder": "111",
+			"parameters": {
+				"inputs": "**"
+			},
+			"blockname": "product",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/sign",
+			"executionorder": "110",
+			"parameters": {},
+			"blockname": "sign",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/ts_over_inertia",
+			"executionorder": "115",
+			"parameters": {
+				"gain": "t_veh/i"
+			},
+			"blockname": "ts_over_inertia",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/abs",
+			"executionorder": "101",
+			"parameters": {},
+			"blockname": "abs",
+			"sampletime": 5,
+			"blocktype": "abs"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/sum",
+			"executionorder": "116",
+			"parameters": {
+				"signs": "++"
+			},
+			"blockname": "add",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/w_radps",
+			"executionorder": "96",
+			"parameters": {},
+			"blockname": "w_radps",
+			"sampletime": 5,
+			"blocktype": "unitdelay"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/saturation",
+			"executionorder": "97",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "w_max"
+			},
+			"blockname": "saturation",
+			"sampletime": 5,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/friction_force_n",
+			"executionorder": "109",
+			"parameters": {},
+			"blockname": "friction_force_n",
+			"sampletime": 5,
+			"blocktype": "lookup"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/w (rpm)",
+			"executionorder": "117",
+			"parameters": {
+				"gain": "30/pi"
+			},
+			"blockname": "w(rpm)",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/divide",
+			"executionorder": "105",
+			"parameters": {
+				"inputs": "*/"
+			},
+			"blockname": "divide",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/c_zero",
+			"executionorder": "106",
+			"parameters": {
+				"value": "0"
+			},
+			"blockname": "c_zero",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/c_use_div",
+			"executionorder": "103",
+			"parameters": {
+				"value": "use_division"
+			},
+			"blockname": "c_use_div",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch",
+			"executionorder": "107",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch1",
+			"executionorder": "108",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch1",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"sampletime": 5,
+			"blocktype": "stateflow",
+			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/binary_search_ratio",
+			"parameters": {},
+			"blockname": "binary_search_ratio"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/whlradius",
+			"executionorder": "74",
+			"parameters": {
+				"initialvalue": "",
+				"gain": "r"
+			},
+			"blockname": "whlradius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/v_wr",
+			"executionorder": "75",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "v_wr",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr",
+			"executionorder": "78",
+			"parameters": {
+				"mode": "max"
+			},
+			"blockname": "max_v_wr",
+			"sampletime": 5,
+			"blocktype": "minmax"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/radius",
+			"executionorder": "88",
+			"parameters": {
+				"gain": "r"
+			},
+			"blockname": "radius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/times100",
+			"executionorder": "76",
+			"parameters": {
+				"gain": "100"
+			},
+			"blockname": "times100",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/subtract",
+			"executionorder": "89",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "subtract",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/product",
+			"executionorder": "87",
+			"parameters": {
+				"inputs": "**"
+			},
+			"blockname": "product",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/sign",
+			"executionorder": "86",
+			"parameters": {},
+			"blockname": "sign",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/ts_over_inertia",
+			"executionorder": "91",
+			"parameters": {
+				"gain": "t_veh/i"
+			},
+			"blockname": "ts_over_inertia",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/abs",
+			"executionorder": "77",
+			"parameters": {},
+			"blockname": "abs",
+			"sampletime": 5,
+			"blocktype": "abs"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/sum",
+			"executionorder": "92",
+			"parameters": {
+				"signs": "++"
+			},
+			"blockname": "add",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/w_radps",
+			"executionorder": "72",
+			"parameters": {},
+			"blockname": "w_radps",
+			"sampletime": 5,
+			"blocktype": "unitdelay"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/saturation",
+			"executionorder": "73",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "w_max"
+			},
+			"blockname": "saturation",
+			"sampletime": 5,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/friction_force_n",
+			"executionorder": "85",
+			"parameters": {},
+			"blockname": "friction_force_n",
+			"sampletime": 5,
+			"blocktype": "lookup"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/w (rpm)",
+			"executionorder": "93",
+			"parameters": {
+				"gain": "30/pi"
+			},
+			"blockname": "w(rpm)",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/divide",
+			"executionorder": "81",
+			"parameters": {
+				"inputs": "*/"
+			},
+			"blockname": "divide",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_zero",
+			"executionorder": "82",
+			"parameters": {
+				"value": "0"
+			},
+			"blockname": "c_zero",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_use_div",
+			"executionorder": "79",
+			"parameters": {
+				"value": "use_division"
+			},
+			"blockname": "c_use_div",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch",
+			"executionorder": "83",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch1",
+			"executionorder": "84",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch1",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"sampletime": 5,
+			"blocktype": "stateflow",
+			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/binary_search_ratio",
+			"parameters": {},
+			"blockname": "binary_search_ratio"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/whlradius",
+			"executionorder": "50",
+			"parameters": {
+				"initialvalue": "",
+				"gain": "r"
+			},
+			"blockname": "whlradius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/v_wr",
+			"executionorder": "51",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "v_wr",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr",
+			"executionorder": "54",
+			"parameters": {
+				"mode": "max"
+			},
+			"blockname": "max_v_wr",
+			"sampletime": 5,
+			"blocktype": "minmax"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/radius",
+			"executionorder": "64",
+			"parameters": {
+				"gain": "r"
+			},
+			"blockname": "radius",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/times100",
+			"executionorder": "52",
+			"parameters": {
+				"gain": "100"
+			},
+			"blockname": "times100",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/subtract",
+			"executionorder": "65",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "subtract",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/product",
+			"executionorder": "63",
+			"parameters": {
+				"inputs": "**"
+			},
+			"blockname": "product",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/sign",
+			"executionorder": "62",
+			"parameters": {},
+			"blockname": "sign",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/ts_over_inertia",
+			"executionorder": "67",
+			"parameters": {
+				"gain": "t_veh/i"
+			},
+			"blockname": "ts_over_inertia",
+			"sampletime": 5,
+			"blocktype": "signum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/abs",
+			"executionorder": "53",
+			"parameters": {},
+			"blockname": "abs",
+			"sampletime": 5,
+			"blocktype": "abs"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/sum",
+			"executionorder": "68",
+			"parameters": {
+				"signs": "++"
+			},
+			"blockname": "add",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/w_radps",
+			"executionorder": "48",
+			"parameters": {},
+			"blockname": "w_radps",
+			"sampletime": 5,
+			"blocktype": "unitdelay"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/saturation",
+			"executionorder": "49",
+			"parameters": {
+				"lowerlimit": 0,
+				"upperlimit": "w_max"
+			},
+			"blockname": "saturation",
+			"sampletime": 5,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/friction_force_n",
+			"executionorder": "61",
+			"parameters": {},
+			"blockname": "friction_force_n",
+			"sampletime": 5,
+			"blocktype": "lookup"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/w (rpm)",
+			"executionorder": "69",
+			"parameters": {
+				"gain": "30/pi"
+			},
+			"blockname": "w(rpm)",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/divide",
+			"executionorder": "57",
+			"parameters": {
+				"inputs": "*/"
+			},
+			"blockname": "divide",
+			"sampletime": 5,
+			"blocktype": "product"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/c_zero",
+			"executionorder": "58",
+			"parameters": {
+				"value": "0"
+			},
+			"blockname": "c_zero",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/c_use_div",
+			"executionorder": "55",
+			"parameters": {
+				"value": "use_division"
+			},
+			"blockname": "c_use_div",
+			"sampletime": 5,
+			"blocktype": "constant"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch",
+			"executionorder": "59",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch1",
+			"executionorder": "60",
+			"parameters": {
+				"initialvalue": "",
+				"condition": "u2 > 0"
+			},
+			"blockname": "switch1",
+			"sampletime": 5,
+			"blocktype": "switch"
+		}, {
+			"sampletime": 5,
+			"blocktype": "stateflow",
+			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/binary_search_ratio",
+			"parameters": {},
+			"blockname": "binary_search_ratio"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/vehicle model/add",
+			"executionorder": "19",
+			"parameters": {
+				"signs": "++++"
+			},
+			"blockname": "add",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/vehicle model/sample_time_over_mass",
+			"executionorder": "20",
+			"parameters": {
+				"gain": "t_veh/m"
+			},
+			"blockname": "sample_time_over_mass",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/vehicle model/sum",
+			"executionorder": "21",
+			"parameters": {
+				"signs": "+-"
+			},
+			"blockname": "add1",
+			"sampletime": 5,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/vehicle model/unit delay",
+			"executionorder": "22",
+			"parameters": {
+				"initialvalue": "v0"
+			},
+			"blockname": "unit delay",
+			"sampletime": 5,
+			"blocktype": "unitdelay"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
+			"executionorder": "23",
+			"parameters": {
+				"lowerlimit": "0",
+				"upperlimit": "v_max"
+			},
+			"blockname": "saturation",
+			"sampletime": 5,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"executionorder": "118",
+			"parameters": {
+				"gain": "3,6"
+			},
+			"blockname": "v (km/h)",
+			"sampletime": 5,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/hw_rrencoder/to_int",
+			"executionorder": "135",
+			"parameters": {},
+			"blockname": "to_int",
+			"sampletime": 0,
+			"blocktype": "round"
+		}, {
+			"blockid": "bbw/hw_rlencoder/to_int",
+			"executionorder": "167",
+			"parameters": {},
+			"blockname": "to_int",
+			"sampletime": 0,
+			"blocktype": "round"
+		}, {
+			"blockid": "bbw/hw_frencoder/to_int",
+			"executionorder": "119",
+			"parameters": {},
+			"blockname": "to_int",
+			"sampletime": 0,
+			"blocktype": "round"
+		}, {
+			"blockid": "bbw/hw_flencoder/to_int1",
+			"executionorder": "151",
+			"parameters": {},
+			"blockname": "to_int",
+			"sampletime": 0,
+			"blocktype": "round"
+		}, {
+			"blockid": "bbw/veh_speed_estimator/add",
+			"executionorder": "201",
+			"parameters": {
+				"signs": "++++"
+			},
+			"blockname": "add",
+			"sampletime": 20,
+			"blocktype": "sum"
+		}, {
+			"blockid": "bbw/veh_speed_estimator/average_rpm",
+			"executionorder": "202",
+			"parameters": {
+				"gain": "0,25"
+			},
+			"blockname": "average_rpm",
+			"sampletime": 20,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/veh_speed_estimator/w (grad//s)",
+			"executionorder": "203",
+			"parameters": {
+				"gain": "pi/30"
+			},
+			"blockname": "w (grad//s)",
+			"sampletime": 20,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/veh_speed_estimator/v (km//h)",
+			"executionorder": "204",
+			"parameters": {
+				"gain": "3,6*r"
+			},
+			"blockname": "v (km//h)",
+			"sampletime": 20,
+			"blocktype": "gain"
+		}, {
+			"blockid": "bbw/hw_accel_pedal/pedal_map",
+			"executionorder": "13",
+			"parameters": {
+				"lowerlimit": "0",
+				"upperlimit": "100"
+			},
+			"blockname": "pedal_map",
+			"sampletime": 0,
+			"blocktype": "saturate"
+		}, {
+			"blockid": "bbw/ldm_accel_peddal/to_int",
+			"executionorder": "14",
+			"parameters": {},
+			"blockname": "to_int",
+			"sampletime": 0,
+			"blocktype": "round"
+		}],
+		"outputs": [{
+			"type": "real",
+			"id": "o1",
+			"name": "vehspdreal"
+		}],
+		"connections": [{
+			"sourceblockid": "bbw/hw_brakepedal/pedal_map",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c1",
+			"destinationblockid": "bbw/ldm_brakepedal/round_to_int"
+		}, {
+			"sourceblockid": "bbw/ldm_brakepedal/round_to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c2",
+			"destinationblockid": "bbw/brake_torq_calculation/gain1"
+		}, {
+			"sourceblockid": "bbw/brake_torq_calculation/gain1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c3",
+			"destinationblockid": "bbw/global brake controller/distribution"
+		}, {
+			"sourceblockid": "bbw/brake_torq_calculation/gain1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c4",
+			"destinationblockid": "bbw/global brake controller/distribution"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c5",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c6",
+			"destinationblockid": "bbw/abs_rr_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c7",
+			"destinationblockid": "bbw/abs_rr_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c8",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/v (m//s)"
+		}, {
+			"sourceblockid": "bbw/hw_rrencoder/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c9",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/whespd (m//s)"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/whespd (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c10",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c11",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c12",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/positive"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/positive",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c13",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/times_10"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c14",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/slip_abs_on_times_10"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c15",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c16",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/releasebrake",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c17",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/relational operator",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c18",
+			"destinationblockid": "bbw/abs_rr_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c19",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c20",
+			"destinationblockid": "bbw/abs_rl_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c21",
+			"destinationblockid": "bbw/abs_rl_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c22",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/v (m//s)"
+		}, {
+			"sourceblockid": "bbw/hw_rlencoder/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c23",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/whespd (m//s)"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/whespd (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c24",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c25",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c26",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/positive"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/positive",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c27",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/times_10"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c28",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/slip_abs_on_times_10"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c29",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c30",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/releasebrake",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c31",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/relational operator",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c32",
+			"destinationblockid": "bbw/abs_rl_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c33",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c34",
+			"destinationblockid": "bbw/abs_fr_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c35",
+			"destinationblockid": "bbw/abs_fr_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c36",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/v (m//s)"
+		}, {
+			"sourceblockid": "bbw/hw_frencoder/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c37",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/whespd (m//s)"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/whespd (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c38",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c39",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c40",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/positive"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/positive",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c41",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/times_10"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c42",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/slip_abs_on_times_10"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c43",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c44",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/releasebrake",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c45",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/relational operator",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c46",
+			"destinationblockid": "bbw/abs_fr_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c47",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c48",
+			"destinationblockid": "bbw/abs_fl_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c49",
+			"destinationblockid": "bbw/abs_fl_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c50",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/v (m//s)"
+		}, {
+			"sourceblockid": "bbw/hw_flencoder/to_int1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c51",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/whespd (m//s)"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/whespd (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c52",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c53",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/subtract"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c54",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/positive"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/positive",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c55",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/times_10"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/v (m//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c56",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/slip_abs_on_times_10"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c57",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/slip_abs_on_times_10",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c58",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/relational operator"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/releasebrake",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c59",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/relational operator",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c60",
+			"destinationblockid": "bbw/abs_fl_wheel/if v>=10 km//h/lockdetect"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c61",
+			"destinationblockid": "bbw/vehicle_body_wheels/negative"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c62",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c63",
+			"destinationblockid": "bbw/vehicle_body_wheels/negative1"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c64",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c65",
+			"destinationblockid": "bbw/vehicle_body_wheels/negative2"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c66",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c67",
+			"destinationblockid": "bbw/vehicle_body_wheels/negative3"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/threshold_10km//h",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c68",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl"
+		}, {
+			"sourceblockid": "bbw/hw_accel_pedal/pedalmap",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c69",
+			"destinationblockid": "bbw/ldm_accel_peddal/to_int"
+		}, {
+			"sourceblockid": "bbw/ldm_accel_peddal/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c70",
+			"destinationblockid": "bbw/vehicle_body_wheels/half"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/half",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c71",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/half",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c72",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/half",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c73",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/half",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c74",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/negative",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c75",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/negative1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c76",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/negative2",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c77",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/negative3",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c78",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl"
+		}, {
+			"sourceblockid": "bbw/hw_rrencoder/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c79",
+			"destinationblockid": "bbw/veh_speed_estimator/add"
+		}, {
+			"sourceblockid": "bbw/hw_rlencoder/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c80",
+			"destinationblockid": "bbw/veh_speed_estimator/add"
+		}, {
+			"sourceblockid": "bbw/hw_frencoder/to_int",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c81",
+			"destinationblockid": "bbw/veh_speed_estimator/add"
+		}, {
+			"sourceblockid": "bbw/hw_flencoder/to_int1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 4,
+			"name": "c82",
+			"destinationblockid": "bbw/veh_speed_estimator/add"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/add",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c83",
+			"destinationblockid": "bbw/veh_speed_estimator/average_rpm"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/average_rpm",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c84",
+			"destinationblockid": "bbw/veh_speed_estimator/w (grad//s)"
+		}, {
+			"sourceblockid": "bbw/veh_speed_estimator/w (grad//s)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c85",
+			"destinationblockid": "bbw/veh_speed_estimator/v (km//h)"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c86",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c87",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c88",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c89",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c90",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c91",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c92",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c93",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c94",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c95",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c96",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c97",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c98",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c99",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c100",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/times100"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c101",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sign"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c102",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/abs"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/sign",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c103",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c104",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/radius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/radius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c105",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c106",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/ts_over_inertia"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/ts_over_inertia",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c107",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c108",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c109",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/whlradius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/sum",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c110",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/w_radps"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/w_radps",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c111",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/saturation"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c112",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/w (rpm)"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c113",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c114",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c115",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c116",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c117",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/divide",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c118",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/c_zero",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c119",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c120",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/c_use_div",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c121",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/binary_search_ratio",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c122",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/switch1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c123",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/friction_force_n"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/friction_force_n",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c124",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c125",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/add"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rr_wheel/w (rpm)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c126",
+			"destinationblockid": "bbw/hw_rrencoder/to_int"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c127",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c128",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c129",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/times100"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c130",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/sign"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c131",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/abs"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/sign",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c132",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c133",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/radius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/radius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c134",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c135",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/ts_over_inertia"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/ts_over_inertia",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c136",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c137",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c138",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/whlradius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/sum",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c139",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/w_radps"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/w_radps",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c141",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/saturation"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c142",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/w (rpm)"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c143",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c144",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c145",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c146",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c147",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/divide",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c148",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/c_zero",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c149",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c150",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/c_use_div",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c151",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/binary_search_ratio",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c152",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/switch1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c153",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/friction_force_n"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/friction_force_n",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c154",
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c155",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/add"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/w (rpm)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c156",
+			"destinationblockid": "bbw/hw_rlencoder/to_int"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c157",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c158",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c159",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/times100"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c160",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/sign"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c161",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/abs"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/sign",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c162",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c163",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/radius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/radius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c164",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c165",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/ts_over_inertia"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/ts_over_inertia",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c166",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c167",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c168",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/whlradius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/sum",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c169",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/w_radps"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/w_radps",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c171",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/saturation"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c172",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/w (rpm)"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c173",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c174",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c175",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c176",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c177",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/divide",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c178",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_zero",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c179",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c180",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_use_div",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c181",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/binary_search_ratio",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c182",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/switch1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c183",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/friction_force_n"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/friction_force_n",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c184",
+			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c185",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/add"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/w (rpm)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c186",
+			"destinationblockid": "bbw/hw_frencoder/to_int"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c187",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/whlradius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c188",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c189",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/times100"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c190",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/sign"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/times100",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c191",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/abs"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/sign",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c192",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c193",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/radius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/radius",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c194",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/subtract"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/subtract",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c195",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/ts_over_inertia"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/ts_over_inertia",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c196",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c197",
+			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c198",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/whlradius"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/sum",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c199",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/w_radps"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/w_radps",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c201",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/saturation"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c202",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/w (rpm)"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c203",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/abs",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c204",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c205",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/divide"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c206",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c207",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/binary_search_ratio"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/divide",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c208",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/c_zero",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c209",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c210",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/c_use_div",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c211",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/binary_search_ratio",
+			"sourceportnumber": 1,
+			"destinationportnumber": 3,
+			"name": "c212",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/switch1",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c213",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/friction_force_n"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/friction_force_n",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c214",
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/product"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/product",
+			"sourceportnumber": 1,
+			"destinationportnumber": 4,
+			"name": "c215",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/add"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/w (rpm)",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c216",
+			"destinationblockid": "bbw/hw_flencoder/to_int1"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/add",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c217",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/sample_time_over_mass"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/sample_time_over_mass",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c218",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
+			"sourceportnumber": 1,
+			"destinationportnumber": 2,
+			"name": "c219",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/sum"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/sum",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c220",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/unit delay"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/unit delay",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c221",
+			"destinationblockid": "bbw/vehicle_body_wheels/vehicle model/saturation"
+		}, {
+			"sourceblockid": "bbw/abs_rr_wheel/if v>=10 km//h/lockdetect",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c223",
+			"destinationblockid": "bbw/abs_rr_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/abs_rl_wheel/if v>=10 km//h/lockdetect",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c224",
+			"destinationblockid": "bbw/abs_rl_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/abs_fr_wheel/if v>=10 km//h/lockdetect",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c225",
+			"destinationblockid": "bbw/abs_fr_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/abs_fl_wheel/if v>=10 km//h/lockdetect",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c226",
+			"destinationblockid": "bbw/abs_fl_wheel/threshold_10km//h"
+		}, {
+			"sourceblockid": "bbw/hw_accel_pedal/pedal_map",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c227",
+			"destinationblockid": "bbw/ldm_accel_peddal/to_int"
+		}]
+	}
+}
