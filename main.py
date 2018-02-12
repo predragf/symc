@@ -12,7 +12,7 @@ import re
 import logging
 from modules.modelchecker.simc import *
 from modules.modelchecker.statespacemanager import *
-from modules.simulink.simulinkmodelloader import *
+from modules.simulink.simulinkmodelmanager import *
 from modules.utils.jsonmanager import *
 
 def printlist(_list, keyname=""):
@@ -45,15 +45,39 @@ def testScenario(modelname):
     result = modelChecker.checkModel(modelname, 0.1, 20, [])
     print(result)
 
+def isInFeedbackLoop(blockTransformationPackage):
+    inloop = False
+    execOrder = blockTransformationPackage.get("executionorder")
+    try:
+        execOrder = int(execOrder)
+    except:
+        return False
+    for iconn in blockTransformationPackage.get("inputs"):
+        sourceblk = iconn.get("sourceblock")
+        sourceblkeo = sourceblk.get("executionorder")
+        try:
+            sourceblkeo = int(sourceblkeo)
+            if(sourceblkeo > execOrder):
+                inloop = True
+                print("{0} ({1}): {2}({3})".format(blockTransformationPackage.get("blockid"), execOrder, sourceblk.get("blockid"), sourceblkeo))
+        except:
+            continue
+    return inloop
+
+
 def main():
+
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    allBlocks = sModel.getAllBlocks()
+    testingblockid = "bbw/vehicle_body_wheels/vehicle model/add"
+    testingBlock = sModel.packBlockForTransformation(testingblockid)
 
-    for blk in allBlocks:
-        data = blk.get("executionorder", "nema")
-        stime = blk.get("sampletime", "0")
-        print("{0}: {1}: {2}".format(data, blk["blockid"], stime))
+    for blk in sModel.getAllBlocks():
+        pkg = sModel.packBlockForTransformation(blk.get("blockid"))
+        if(isInFeedbackLoop(pkg)):
+            pass
+            #print(pkg.get("blockid"))
+
 """
     slist = slistAsList("./models/slist-bbw.txt")
     for line in slist:

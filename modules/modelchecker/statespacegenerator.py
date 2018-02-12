@@ -5,13 +5,15 @@ class StateSpaceGenerator:
     def __init__(self):
         pass
 
-    def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime, simulationDuration):
+    def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime,
+                                                            simulationDuration):
         simulationHorizon = (simulationDuration / simulationStepSize)
         if fundamentalSampleTime > 0:
             simulationHorizon = (simulationDuration / fundamentalSampleTime)
         return int(simulationHorizon)
 
-    def __calculateBlockStepSize(self, blockSampleTime, fundamentalSampleTime, simulationStepSize):
+    def __calculateBlockStepSize(self, blockSampleTime, fundamentalSampleTime,
+                                                            simulationStepSize):
         blockStepSize = (blockSampleTime / simulationStepSize)
         if fundamentalSampleTime > 0:
             blockStepSize = (blockSampleTime / fundamentalSampleTime)
@@ -22,8 +24,8 @@ class StateSpaceGenerator:
         blockType = sBlockPackage["blocktype"]
         result = "";
 
-        if blockType == "add":
-            result = ag.add(sBlockPackage, step)
+        if blockType == "sum":
+            result = ag.sum(sBlockPackage, step)
         elif blockType == "gain":
             result = ag.gain(sBlockPackage, step)
         elif blockType == "abs":
@@ -55,7 +57,6 @@ class StateSpaceGenerator:
                 statespace.append(self.__generateSymbolicState(sBlockPackage,
                                                                 step))
             else:
-                print("copying previous step")
                 equalToPrevious = "(= {0}_{1} {0}_{2})"
                 signalname = sBlockPackage["signalname"]
                 statespace.append(equalToPrevious.format(signalname,
