@@ -14,6 +14,7 @@ from modules.modelchecker.simc import *
 from modules.modelchecker.statespacemanager import *
 from modules.simulink.simulinkmodelmanager import *
 from modules.utils.jsonmanager import *
+from modules.assertiongenerators.assertiontemplategenerator import *
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -69,9 +70,13 @@ def main():
 
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    testingblockid = "bbw/veh_speed_estimator/add"
+    testingblockid = "bbw/vehicle_body_wheels/vehicle model/add"
     testingBlock = sModel.packBlockForTransformation(testingblockid)
     print(json.dumps(testingBlock, indent=2))
+    assertion = AssertionTemplateGenerator.sum(testingBlock)
+    print(assertion.format("6"))
+
+
 
 
 """
