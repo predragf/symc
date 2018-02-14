@@ -69,14 +69,10 @@ def main():
 
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    testingblockid = "bbw/vehicle_body_wheels/vehicle model/add"
+    testingblockid = "bbw/veh_speed_estimator/add"
     testingBlock = sModel.packBlockForTransformation(testingblockid)
+    print(json.dumps(testingBlock, indent=2))
 
-    for blk in sModel.getAllBlocks():
-        pkg = sModel.packBlockForTransformation(blk.get("blockid"))
-        if(isInFeedbackLoop(pkg)):
-            pass
-            #print(pkg.get("blockid"))
 
 """
     slist = slistAsList("./models/slist-bbw.txt")
