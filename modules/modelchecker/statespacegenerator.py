@@ -5,7 +5,6 @@ class StateSpaceGenerator:
     def __init__(self):
         pass
 
-
     def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime,
                                                             simulationDuration):
         simulationHorizon = (simulationDuration / simulationStepSize)

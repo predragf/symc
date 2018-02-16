@@ -15,6 +15,8 @@ from modules.modelchecker.statespacemanager import *
 from modules.simulink.simulinkmodelmanager import *
 from modules.utils.jsonmanager import *
 from modules.assertiongenerators.assertiontemplategenerator import *
+from types import FunctionType
+
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -29,7 +31,6 @@ def slistAsList(slistLocation):
     for line in slistFile:
         lines.append(line)
     return lines
-
 
 def generateAssertionsForTheTestScenario():
     assumptions = ["(assert (= PI 3.14))", "(assert (= R 0.5))", "(assert (= SLIP_ABS_ON 0.1))"]
@@ -67,39 +68,11 @@ def isInFeedbackLoop(blockTransformationPackage):
 
 
 def main():
-
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    testingblockid = "bbw/vehicle_body_wheels/vehicle model/add"
+    testingblockid = "bbw/vehicle_body_wheels/rl_wheel/product"
     testingBlock = sModel.packBlockForTransformation(testingblockid)
-    print(json.dumps(testingBlock, indent=2))
-    assertion = AssertionTemplateGenerator.sum(testingBlock)
-    print(assertion.format("6"))
-
-
-
-
-"""
-    slist = slistAsList("./models/slist-bbw.txt")
-    for line in slist:
-        parts = line.split(' "')
-        blockid = parts[1].replace('"\n', "")
-        ordernumber = parts[0].split(" ")[0]
-        print(blockid)
-        print(ordernumber)
-        blk = sModel.getBlockById(blockid)
-        blk["executionorder"] = ordernumber
-
-    allBlocks = sModel.getAllBlocks()
-    for blk in allBlocks:
-        print(blk)
-
-    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-    print(sModel.simulinkModelJson)
-    model = {}
-    sModel.simulinkModelJson["signalvariables"] = {}
-    model["simulinkmodel"] = sModel.simulinkModelJson
-    saveJsonToFile(model, "./models/bbw-eo.json")
-"""
+    resutl = AssertionTemplateGenerator.generateBlockAssertion(testingBlock)
+    print(resutl)
 
 main()
