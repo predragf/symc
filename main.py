@@ -66,13 +66,16 @@ def isInFeedbackLoop(blockTransformationPackage):
             continue
     return inloop
 
-
 def main():
+    start = time.time()
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    testingblockid = "bbw/vehicle_body_wheels/rl_wheel/product"
-    testingBlock = sModel.packBlockForTransformation(testingblockid)
-    resutl = AssertionTemplateGenerator.generateBlockAssertion(testingBlock)
-    print(resutl)
+    SSGenerator = StateSpaceGenerator()
+    sSpace = SSGenerator.generateStateSpace(sModel, 1, 20)
+    print(SSGenerator.blocksForTransformation)
+    #print(sSpace.getDeclarations())
+
+
+
 
 main()

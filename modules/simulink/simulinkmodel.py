@@ -4,6 +4,7 @@ class SimulinkModel:
     def __init__(self, _simulinkmodeljson):
         self.simulinkModelJson = _simulinkmodeljson.get("simulinkmodel")
         self.simulinkModelJson["signalvariables"] = self.__createVariables()
+        self.simulinkModelJson["internalstatevariables"] = self.__createInternalStateVariables()
 
     def __getLinesFromSameSource(self, _pivot, _allLines):
         samelines = []
@@ -31,6 +32,19 @@ class SimulinkModel:
 
         return variables
 
+    def __createInternalStateVariables(self):
+        allBlocks = self.getAllBlocks()
+        internalstatevariables = dict()
+        internalstatenum = 0
+        for blk in allBlocks:
+            _blockid = blk.get("blockid")
+            _parameters = blk.get("parameters")
+            _initialvalue = _parameters.get("initialvalue", "")
+            if _initialvalue != "":
+                internalstatenum = internalstatenum + 1
+                internalstatevariables[_blockid] = "internalstate_{0}".format(internalstatenum)
+        return internalstatevariables
+
     def getAllBlocks(self):
         return self.simulinkModelJson.get("blocks")
 
@@ -57,6 +71,9 @@ class SimulinkModel:
 
     def getSignalVariables(self):
         return self.simulinkModelJson.get("signalvariables")
+
+    def getInternalStateVariables(self):
+        return self.simulinkModelJson["internalstatevariables"]
 
     def getConnectionSignalVariable(self, _lineName):
         allSignalVariables = self.getSignalVariables()
@@ -130,10 +147,20 @@ class SimulinkModel:
             signalname = outConns[0].get("name")
             blockForTransformation["signalname"] = signalname
             blockForTransformation["signalvariable"] = self.getSignalVariables().get(signalname)
+            #blockForTransformation["internalstatevariable"] = self.getInternalStateVariables().get(blockid, "")
         else:
             blockForTransformation["signalname"] = ""
 
         return blockForTransformation
+
+    def packAllBlocksForTransformation(self):
+        allBlocksPacked = []
+        allBlocks = self.getAllBlocks()
+        for block in allBlocks:
+            blockid = block.get("blockid")
+            blockPackage = self.packBlockForTransformation(blockid)
+            allBlocksPacked.append(blockPackage)
+        return allBlocksPacked
 
     def calculateFundamentalSampleTime(self):
         allBlocks = self.getAllBlocks()
@@ -148,3 +175,9 @@ class SimulinkModel:
             else:
                 sampletimes.add(ts)
         return gcdList(list(sampletimes))
+
+    def getModelVariables(self):
+        modelVariables = self.getSignalVariables().values()
+        modelVariables.extend(self.getInternalStateVariables().values())
+        noDuplicates = set(modelVariables)
+        return list(noDuplicates)

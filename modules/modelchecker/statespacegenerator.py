@@ -1,9 +1,28 @@
 from modules.modelchecker.statespace import *
 from modules.assertiongenerators.assertiongenerator import *
+from modules.assertiongenerators.assertiontemplategenerator import *
 
 class StateSpaceGenerator:
     def __init__(self):
-        pass
+        self.fundamentalSampleTime = 0
+        self.simulationTimeHorizon = 0
+        self.blocksStepSize = dict()
+        self.blocksForTransformation = []
+        self.assertionTemplates = dict()
+
+    def __calculateBlockStepSize(self, blockSampleTime, simulationStepSize):
+        blockStepSize = (blockSampleTime / simulationStepSize)
+        if self.fundamentalSampleTime > 0:
+            blockStepSize = (blockSampleTime / self.fundamentalSampleTime)
+        return int(blockStepSize)
+
+    def __calculateStepSizeForAllBlocks(self, allBlocks, simulationStepSize):
+        blocksStepSize = dict()
+        for block in allBlocks:
+            blockid = block.get("id")
+            blockSampleTime = block.get("sampletime", "0")
+            blocksStepSize["blockid"] = self.__calculateBlockStepSize(blockSampleTime, simulationStepSize)
+        return blocksStepSize
 
     def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime,
                                                             simulationDuration):
@@ -12,72 +31,48 @@ class StateSpaceGenerator:
             simulationHorizon = (simulationDuration / fundamentalSampleTime)
         return int(simulationHorizon)
 
-    def __calculateBlockStepSize(self, blockSampleTime, fundamentalSampleTime,
-                                                            simulationStepSize):
-        blockStepSize = (blockSampleTime / simulationStepSize)
-        if fundamentalSampleTime > 0:
-            blockStepSize = (blockSampleTime / fundamentalSampleTime)
-        return int(blockStepSize)
+    def __preprocessModel(self, sModel, simulationStepSize, simulationDuration):
+        self.fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
+        self.simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
+                                        self.fundamentalSampleTime, simulationDuration)
+        self.blocksStepSize = self.__calculateStepSizeForAllBlocks(sModel.getAllBlocks(),
+                                                            simulationStepSize)
+        self.blocksForTransformation = sModel.packAllBlocksForTransformation()
+        for block in self.blocksForTransformation:
+            blockid = block.get("id")
+            self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(block)
 
-    def __generateSymbolicState(self, sBlockPackage, step):
-        ag = AssertionGenerator()
-        blockType = sBlockPackage["blocktype"]
-        result = "";
+    def __generateBlockSymbolicState(self, block, step):
+        blockid = block.get("blockid")
+        assertiontemplate = self.assertionTemplates.get(blockid)
+        return assertiontemplate
 
-        if blockType == "sum":
-            result = ag.sum(sBlockPackage, step)
-        elif blockType == "gain":
-            result = ag.gain(sBlockPackage, step)
-        elif blockType == "abs":
-            result = ag.abs(sBlockPackage, step)
-        elif blockType == "constant":
-            result = ag.constant(sBlockPackage, step)
-        elif blockType == "switch":
-            result = ag.switch(sBlockPackage, step)
-        elif blockType == "subtract":
-            result = ag.subtract(sBlockPackage, step)
-        elif blockType == "relationaloperator":
-            result = ag.relational(sBlockPackage, step)
-        elif blockType == "saturate":
-            result = ag.saturate(sBlockPackage, step)
+    def __generateSymbolicState(self, step):
+        symbolicState = []
+        for block in self.blocksForTransformation:
+            symbolicState.append(self.__generateBlockSymbolicState(block, step))
+        return symbolicState
 
-        return result;
+    def generateStateSpace(self, sModel, simulationStepSize, simulationDuration):
+        self.__preprocessModel(sModel, simulationStepSize, simulationDuration)
+        return self.__generateModelStateSpaceNew(sModel)
 
-    def generateSignalStateSpace(self, sBlockPackage, simulationStepSize,
-                                fundamentalSampleTime, simulationTimeHorizon):
-        #for continuous blocks this will be 0, meaning that a new
-        #output must be computed at each simulation step
-        statespace = []
-        blockSampleTime = sBlockPackage["sampletime"];
-        blockStepSize = self.__calculateBlockStepSize(blockSampleTime,
-                                    fundamentalSampleTime, simulationStepSize)
-        statespace.append(self.__generateSymbolicState(sBlockPackage, 0))
-        for step in range(1, simulationTimeHorizon):
-            if ((blockStepSize == 0) or ((step % blockStepSize) == 0)):
-                statespace.append(self.__generateSymbolicState(sBlockPackage,
-                                                                step))
-            else:
-                equalToPrevious = "(= {0}_{1} {0}_{2})"
-                signalname = sBlockPackage["signalname"]
-                statespace.append(equalToPrevious.format(signalname,
-                                                        step, step - 1))
-        return statespace
 
-    def __generateModelStateSpace(self, sModel, simulationStepSize,
-                                    fundamentalSampleTime, simulationTimeHorizon):
-        simulinkModelStateSpace = StateSpace()
-        allBlocks = sModel.getAllBlocks()
-        for block in allBlocks:
-            blockpackage = sModel.packBlockForTransformation(block["blockid"])
-            signalStateSpace = self.generateSignalStateSpace(blockpackage,
-                                    simulationStepSize, fundamentalSampleTime,
-                                    simulationTimeHorizon)
-            simulinkModelStateSpace.addTrace(block["blockid"], signalStateSpace)
-        return simulinkModelStateSpace
+    def __prepareDeclarationsForVariables(self, modelVariables):
+        declarationString = "";
+        for modelVariable in modelVariables:
+            declarationString += "{0} \n".format(
+            AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
+        return declarationString
 
-    def generateStateSpace(self, sModel, simulationStepSize, simuationDuration):
-        fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
-        simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
-                                        fundamentalSampleTime, simuationDuration)
-        return self.__generateModelStateSpace(sModel, simulationStepSize,
-                                fundamentalSampleTime, simulationTimeHorizon)
+    def __generateModelStateSpaceNew(self, sModel):
+        declaration = "";
+        simulationTimeHorizon = self.simulationTimeHorizon
+        declarationTemplate = self.__prepareDeclarationsForVariables(sModel.getModelVariables())
+        sSpace = StateSpace()
+        for step in range(0, simulationTimeHorizon):
+            declaration += declarationTemplate.format(step)
+            state = self.__generateSymbolicState(step)
+            sSpace.addState(step, state)
+        sSpace.setDeclarations(declaration)
+        return sSpace
