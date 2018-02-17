@@ -606,7 +606,9 @@
 		}, {
 			"blockid": "bbw/vehicle_body_wheels/rr_wheel/w_radps",
 			"executionorder": "24",
-			"parameters": {},
+			"parameters": {
+				"initialvalue": "16"
+			},
 			"blockname": "w_radps",
 			"sampletime": 5,
 			"blocktype": "unitdelay"
@@ -788,7 +790,9 @@
 		}, {
 			"blockid": "bbw/vehicle_body_wheels/rl_wheel/w_radps",
 			"executionorder": "96",
-			"parameters": {},
+			"parameters": {
+				"initialvalue": "16"
+			},
 			"blockname": "w_radps",
 			"sampletime": 5,
 			"blocktype": "unitdelay"
@@ -970,7 +974,9 @@
 		}, {
 			"blockid": "bbw/vehicle_body_wheels/fr_wheel/w_radps",
 			"executionorder": "72",
-			"parameters": {},
+			"parameters": {
+				"initialvalue": "16"
+			},
 			"blockname": "w_radps",
 			"sampletime": 5,
 			"blocktype": "unitdelay"
@@ -1152,7 +1158,9 @@
 		}, {
 			"blockid": "bbw/vehicle_body_wheels/fl_wheel/w_radps",
 			"executionorder": "48",
-			"parameters": {},
+			"parameters": {
+				"initialvalue": "16"
+			},
 			"blockname": "w_radps",
 			"sampletime": 5,
 			"blocktype": "unitdelay"
@@ -1266,7 +1274,7 @@
 			"blockid": "bbw/vehicle_body_wheels/vehicle model/unit delay",
 			"executionorder": "22",
 			"parameters": {
-				"initialvalue": "v0"
+				"initialvalue": "V0"
 			},
 			"blockname": "unit delay",
 			"sampletime": 5,
@@ -1281,15 +1289,6 @@
 			"blockname": "saturation",
 			"sampletime": 5,
 			"blocktype": "saturate"
-		}, {
-			"blockid": "bbw/vehicle_body_wheels/v (km//h)",
-			"executionorder": "118",
-			"parameters": {
-				"gain": "3,6"
-			},
-			"blockname": "v (km/h)",
-			"sampletime": 5,
-			"blocktype": "gain"
 		}, {
 			"blockid": "bbw/hw_rrencoder/to_int",
 			"executionorder": "135",
@@ -2083,49 +2082,49 @@
 			"name": "c89",
 			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/subtract"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c90",
 			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/max_v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c91",
 			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/max_v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c92",
 			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/max_v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c93",
 			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/max_v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 2,
 			"name": "c94",
 			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 2,
 			"name": "c95",
 			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 2,
 			"name": "c96",
 			"destinationblockid": "bbw/vehicle_body_wheels/fr_wheel/v_wr"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/v (km//h)",
+			"sourceblockid": "bbw/vehicle_body_wheels/vehicle model/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 2,
 			"name": "c97",
@@ -2363,13 +2362,13 @@
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c136",
-			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/sum"
 		}, {
 			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 2,
 			"name": "c137",
-			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+			"destinationblockid": "bbw/vehicle_body_wheels/rl_wheel/sum"
 		}, {
 			"sourceblockid": "bbw/vehicle_body_wheels/rl_wheel/saturation",
 			"sourceportnumber": 1,
@@ -2711,13 +2710,13 @@
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c196",
-			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/sum"
 		}, {
 			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/saturation",
 			"sourceportnumber": 1,
 			"destinationportnumber": 2,
 			"name": "c197",
-			"destinationblockid": "bbw/vehicle_body_wheels/rr_wheel/sum"
+			"destinationblockid": "bbw/vehicle_body_wheels/fl_wheel/sum"
 		}, {
 			"sourceblockid": "bbw/vehicle_body_wheels/fl_wheel/saturation",
 			"sourceportnumber": 1,
@@ -2970,6 +2969,42 @@
 			"destinationportnumber": 1,
 			"name": "c241",
 			"destinationblockid": "bbw/rt8"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c242",
+			"destinationblockid": "bbw/rt"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c243",
+			"destinationblockid": "bbw/rt1"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c244",
+			"destinationblockid": "bbw/rt2"
+		}, {
+			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c245",
+			"destinationblockid": "bbw/rt3"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_zero",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c246",
+			"destinationblockid": "bbw/hw_brakepedal/pedal_map"
+		}, {
+			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_zero",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c247",
+			"destinationblockid": "bbw/hw_accel_pedal/pedal_map"
 		}]
 	}
 }

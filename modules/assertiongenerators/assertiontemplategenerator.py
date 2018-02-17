@@ -1,3 +1,5 @@
+from modules.assertiongenerators.assertiongeneratorutils import *
+
 class AssertionTemplateGenerator:
 
     @staticmethod
@@ -45,22 +47,15 @@ class AssertionTemplateGenerator:
     def product(blockForTransformation):
         _inputs = blockForTransformation.get("inputs")
         _outSignalName = blockForTransformation.get("signalvariable")
-        _inputSignalNames = []
-        for _input in _inputs:
-            _signalName = _input.get("signalvariable")
-            _inputSignalNames.append("{0}_{{0}}".format(_signalName))
-
-        return "(assert (= {0}_{{0}} (* {1})))".format(_outSignalName, " ".join(_inputSignalNames))
+        _inputsString = AssertionGeneratorUtils.parseProductInputs(blockForTransformation)
+        return "(assert (= {0}_{{0}} {1}))".format(_outSignalName, _inputsString)
 
     @staticmethod
     def sum(blockForTransformation):
         _inputs = blockForTransformation.get("inputs")
         _outSignalName = blockForTransformation.get("signalvariable")
-        _inputSignalNames = []
-        for _input in _inputs:
-            _signalName = _input.get("signalvariable")
-            _inputSignalNames.append("{0}_{{0}}".format(_signalName))
-        return "(assert (= {0}_{{0}} (+ {1})))".format(_outSignalName, " ".join(_inputSignalNames))
+        _inputsString = AssertionGeneratorUtils.parseSumInputs(blockForTransformation)
+        return "(assert (= {0}_{{0}} {1}))".format(_outSignalName, _inputsString)
 
     @staticmethod
     def relationaloperator(blockForTransformation):

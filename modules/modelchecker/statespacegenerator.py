@@ -1,6 +1,7 @@
 from modules.modelchecker.statespace import *
 from modules.assertiongenerators.assertiongenerator import *
 from modules.assertiongenerators.assertiontemplategenerator import *
+from modules.assertiongenerators.assertioninstantiator import *
 
 class StateSpaceGenerator:
     def __init__(self):
@@ -17,14 +18,15 @@ class StateSpaceGenerator:
         blockStepSize = (blockSampleTime / simulationStepSize)
         if self.fundamentalSampleTime > 0:
             blockStepSize = (blockSampleTime / self.fundamentalSampleTime)
-        return int(blockStepSize)
+        intvalue = int(blockStepSize)
+        return intvalue
 
     def __calculateStepSizeForAllBlocks(self, allBlocks, simulationStepSize):
         blocksStepSize = dict()
         for block in allBlocks:
-            blockid = block.get("id")
-            blockSampleTime = block.get("sampletime", "0")
-            blocksStepSize["blockid"] = self.__calculateBlockStepSize(blockSampleTime, simulationStepSize)
+            blockid = block.get("blockid")
+            blockSampleTime = block.get("sampletime", 0)
+            blocksStepSize[blockid] = self.__calculateBlockStepSize(blockSampleTime, simulationStepSize)
         return blocksStepSize
 
     def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime,
@@ -46,9 +48,11 @@ class StateSpaceGenerator:
             self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(block)
 
     def __generateBlockSymbolicState(self, block, step):
-        blockid = block.get("blockid")
-        assertiontemplate = self.assertionTemplates.get(blockid, "")
-        return assertiontemplate.format(step, step - 1)
+        blockStepSize = self.blocksStepSize.get(block.get("blockid"))
+        symbolicState = AssertionInstantiator.instantiateAssertion(block, step, blockStepSize)
+        if symbolicState == "list index out of range":
+            print(block.get("blockid"))
+        return symbolicState
 
     def __generateSymbolicState(self, step):
         symbolicState = []

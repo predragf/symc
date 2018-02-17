@@ -143,6 +143,7 @@ class SimulinkModel:
         blockForTransformation = self.getBlockById(blockid).copy()
         outConns = self.getBlockOutputConnections(blockid)
         blockForTransformation["inputs"] = self.__createInputs(blockid)
+        blockForTransformation["internalstatevariable"] = self.simulinkModelJson["internalstatevariables"].get(blockid, "")
         if len(outConns) > 0:
             signalname = outConns[0].get("name")
             blockForTransformation["signalname"] = signalname

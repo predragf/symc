@@ -16,6 +16,8 @@ from modules.simulink.simulinkmodelmanager import *
 from modules.utils.jsonmanager import *
 from modules.assertiongenerators.assertiontemplategenerator import *
 from types import FunctionType
+from modules.assertiongenerators.assertiongeneratorutils import *
+from modules.assertiongenerators.assertioninstantiator import *
 
 
 def printlist(_list, keyname=""):
@@ -70,14 +72,16 @@ def main():
     start = time.time()
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    testingId = "bbw/rt4"
+    testingId = "bbw/vehicle_body_wheels/rr_wheel/sum"
     testingpackage = sModel.packBlockForTransformation(testingId)
+    inputs = AssertionInstantiator.instantiateAssertion(testingpackage, 0, 10)
+
+    #print(json.dumps(testingpackage, indent=2))
+    #print(inputs)
     allPacked = sModel.packAllBlocksForTransformation()
     SSGenerator = StateSpaceGenerator()
-    sSpace = SSGenerator.generateStateSpace(sModel, 1, 200000)
+    sSpace = SSGenerator.generateStateSpace(sModel, 1, 2000000)
     print(time.time() - start)
-    #print(sSpace.getDeclarations())
-
 
 
 
