@@ -111,7 +111,7 @@ class SimulinkModel:
         connections = self.getAllConnections()
         for connection in connections:
             if connection.get("destinationblockid") == blockid:
-                result.append(connection)
+                result.append(connection.copy())
         return result
 
     def getBlockPredecessors(self, blockid):
@@ -140,14 +140,13 @@ class SimulinkModel:
         return inputs
 
     def packBlockForTransformation(self, blockid):
-        blockForTransformation = self.getBlockById(blockid)
+        blockForTransformation = self.getBlockById(blockid).copy()
         outConns = self.getBlockOutputConnections(blockid)
         blockForTransformation["inputs"] = self.__createInputs(blockid)
         if len(outConns) > 0:
             signalname = outConns[0].get("name")
             blockForTransformation["signalname"] = signalname
             blockForTransformation["signalvariable"] = self.getSignalVariables().get(signalname)
-            #blockForTransformation["internalstatevariable"] = self.getInternalStateVariables().get(blockid, "")
         else:
             blockForTransformation["signalname"] = ""
 

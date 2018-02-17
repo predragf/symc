@@ -4,6 +4,9 @@ from modules.assertiongenerators.assertiontemplategenerator import *
 
 class StateSpaceGenerator:
     def __init__(self):
+        self.__initialSetup()
+
+    def __initialSetup(self):
         self.fundamentalSampleTime = 0
         self.simulationTimeHorizon = 0
         self.blocksStepSize = dict()
@@ -39,13 +42,13 @@ class StateSpaceGenerator:
                                                             simulationStepSize)
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
         for block in self.blocksForTransformation:
-            blockid = block.get("id")
+            blockid = block.get("blockid")
             self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(block)
 
     def __generateBlockSymbolicState(self, block, step):
         blockid = block.get("blockid")
-        assertiontemplate = self.assertionTemplates.get(blockid)
-        return assertiontemplate
+        assertiontemplate = self.assertionTemplates.get(blockid, "")
+        return assertiontemplate.format(step, step - 1)
 
     def __generateSymbolicState(self, step):
         symbolicState = []
@@ -56,7 +59,6 @@ class StateSpaceGenerator:
     def generateStateSpace(self, sModel, simulationStepSize, simulationDuration):
         self.__preprocessModel(sModel, simulationStepSize, simulationDuration)
         return self.__generateModelStateSpaceNew(sModel)
-
 
     def __prepareDeclarationsForVariables(self, modelVariables):
         declarationString = "";

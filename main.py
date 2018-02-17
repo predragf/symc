@@ -70,10 +70,14 @@ def main():
     start = time.time()
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
+    testingId = "bbw/rt4"
+    testingpackage = sModel.packBlockForTransformation(testingId)
+    allPacked = sModel.packAllBlocksForTransformation()
     SSGenerator = StateSpaceGenerator()
-    sSpace = SSGenerator.generateStateSpace(sModel, 1, 20)
-    print(SSGenerator.blocksForTransformation)
+    sSpace = SSGenerator.generateStateSpace(sModel, 1, 200000)
+    print(time.time() - start)
     #print(sSpace.getDeclarations())
+
 
 
 
