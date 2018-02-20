@@ -50,13 +50,11 @@ class StateSpaceGenerator:
     def __generateBlockSymbolicState(self, block, step):
         blockStepSize = self.blocksStepSize.get(block.get("blockid"))
         symbolicState = AssertionInstantiator.instantiateAssertion(block, step, blockStepSize)
-        if symbolicState == "list index out of range":
-            print(block.get("blockid"))
         return symbolicState
 
     def __generateSymbolicState(self, step):
         symbolicState = []
-        for block in self.blocksForTransformation:
+        for block in self.blocksForTransformation:            
             symbolicState.append(self.__generateBlockSymbolicState(block, step))
         return symbolicState
 

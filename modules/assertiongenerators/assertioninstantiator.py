@@ -6,7 +6,7 @@ class AssertionInstantiator:
     @staticmethod
     def isStateless(block):
         #to be updated
-        blocksWithStates = ["unitdelay", "rt", "integrator"]
+        blocksWithStates = ["unitdelay", "rt", "integrator", "stateflow"]
         blocktype = block.get("blocktype")
         return not blocktype in blocksWithStates
 
@@ -24,7 +24,5 @@ class AssertionInstantiator:
             elif blockStepSize == 0 or step % blockStepSize == 0:
                 assertionTemplate = AssertionTemplateGenerator.generateBlockAssertion(block)
             else:
-                assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
-        if(assertionTemplate == "string index out of range"):
-            print(block.get("blockid"))           
+                assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)        
         return assertionTemplate.format(step, step - 1)

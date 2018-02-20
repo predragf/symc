@@ -59,16 +59,20 @@ class StateSpace:
             declarations.append("(declare-const {0} Real)".format(_var))
         return declarations
 
+    def __loadCustomFunctions(self, customFunctionsFileLocation):
+        cFunctions = ""
+        try:
+            _file = open(customFunctionsFileLocation, "r");
+            cFunctions = _file.read()
+        except:
+            print("{0} could not be loaded.".format(pathToJsonFile))
+        return cFunctions
+
     def genenrateSMT2Script(self, start=0, howmany=0):
         statesForParsing = self.__getStatesForParsing(start, howmany)
-        assertions = []
-        allVars = set()
+        customFunctions = self.__loadCustomFunctions("./models/custom-functions.smt2")
+        script = "{0} \n {1} \n".format("", customFunctions)
         for state in statesForParsing:
-            for assertion in state:
-                _vars = self.__extractVariables(assertion)
-                allVars = allVars | _vars
-                assertions.append("(assert {0})".format(assertion))
-        print("The model has {0} variables".format(len(allVars)))
-        declarationsAssertions = self.__generateDeclarations(allVars)
-        return "{0} \n {1}".format("\n".join(declarationsAssertions),
-                                    "\n".join(assertions))
+            pass
+            #script += "\n".join(state)
+        return script

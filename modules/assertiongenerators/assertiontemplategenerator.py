@@ -124,6 +124,23 @@ class AssertionTemplateGenerator:
         return result
 
     @staticmethod
+    def stateflow(blockForTransformation):
+        _outSignalName = blockForTransformation.get("signalvariable")
+        _input1 = blockForTransformation.get("inputs")[0]
+        _input2 = blockForTransformation.get("inputs")[1]
+        assertionTemplate = "(assert (= {0}_{{0}} (BSR {1}_{{0}} {2}_{{0}})))".format(_outSignalName,
+        _input1.get("signalvariable"), _input2.get("signalvariable"))
+        return assertionTemplate
+
+    @staticmethod
+    def lookup(blockForTransformation):
+        _outSignalName = blockForTransformation.get("signalvariable")
+        _input1 = blockForTransformation.get("inputs")[0]
+        assertionTemplate = "(assert (= {0}_{{0}} (LOOKUP {1}_{{0}})))".format(_outSignalName,
+        _input1.get("signalvariable"))
+        return assertionTemplate
+
+    @staticmethod
     def generateInitialConfiguration(blockForTransformation):
         _parameters = blockForTransformation.get("parameters")
         _outSignalName = blockForTransformation.get("signalvariable", "")
@@ -150,5 +167,5 @@ class AssertionTemplateGenerator:
 
     @staticmethod
     def generateConstantDeclarationAssertion(signalName):
-        declarationTemplate = "(delcare-const {0}_{{0}} Real)"
+        declarationTemplate = "(declare-const {0}_{{0}} Real)"
         return declarationTemplate.format(signalName)

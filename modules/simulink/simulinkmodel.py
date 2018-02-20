@@ -48,9 +48,6 @@ class SimulinkModel:
     def getAllBlocks(self):
         return self.simulinkModelJson.get("blocks")
 
-    def getAllConnections(self):
-        return self.simulinkModelJson.get("connections")
-
     def getAllInputs(self):
         return self.simulinkModelJson.get("inputs")
 
@@ -88,13 +85,13 @@ class SimulinkModel:
     def getModelJSON(self):
         return self.simulinkModelJson
 
-    def _getBlockConnections(self, blockid, connectionType):
+    def _getBlockConnections(self, blockid, connectionType="all"):
         allconnections = self.getAllConnections()
         blockConnections = []
         for connection in allconnections:
-            if ((connectionType == "ouput" and
+            if (((connectionType == "ouput" or connectionType == "all") and
                     connection.get("sourceblockid") == blockid)
-                or (connectionType == "input" and
+                or ((connectionType == "input" or connectionType == "all") and
                     connection.get("destinationblockid") == blockid)
                 ):
                 blockConnections.append(connection)
@@ -181,3 +178,24 @@ class SimulinkModel:
         modelVariables.extend(self.getInternalStateVariables().values())
         noDuplicates = set(modelVariables)
         return list(noDuplicates)
+
+    def __getBlockDataDependencyChain(self, blockid, direction="backward", visitedblocks=set()):
+        if blockid not in visitedblocks:
+            visitedblocks.add(blockid)
+            blocksForExamination = ""
+            if direction == "backward":
+                connections = self._getBlockConnections(blockid, "input")
+                blocksForExamination = "sourceblockid"
+            else:
+                connections = self._getBlockConnections(blockid, "ouput")
+                blocksForExamination = "destinationblockid"            
+            for bConn in connections:
+                visitedblocks = self.__getBlockDataDependencyChain(
+                                bConn.get(blocksForExamination), direction, visitedblocks)
+        return visitedblocks
+
+    def getBackwardBlockDataDependencyChain(self, blockid):
+        return self.__getBlockDataDependencyChain(blockid, "backward")
+
+    def getForwardBlockDataDependencyChain(self, blockid):
+        return self.__getBlockDataDependencyChain(blockid, "forward")

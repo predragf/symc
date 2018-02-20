@@ -18,6 +18,7 @@ from modules.assertiongenerators.assertiontemplategenerator import *
 from types import FunctionType
 from modules.assertiongenerators.assertiongeneratorutils import *
 from modules.assertiongenerators.assertioninstantiator import *
+from modules.simulationanalysis.symbolicfixedpoint import *
 
 
 def printlist(_list, keyname=""):
@@ -46,7 +47,7 @@ def generateAssertionsForTheTestScenario():
 def testScenario(modelname):
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel(modelname, 0.1, 20, [])
+    result = modelChecker.checkModel(modelname, 0.1, 2, [])
     print(result)
 
 def isInFeedbackLoop(blockTransformationPackage):
@@ -68,22 +69,49 @@ def isInFeedbackLoop(blockTransformationPackage):
             continue
     return inloop
 
-def main():
-    start = time.time()
-    modelname = "./models/bbw-eo.json"
-    sModel = loadModel(modelname)
-    testingId = "bbw/vehicle_body_wheels/rr_wheel/sum"
-    testingpackage = sModel.packBlockForTransformation(testingId)
-    inputs = AssertionInstantiator.instantiateAssertion(testingpackage, 0, 10)
+def searchRatio(a, b, _min, _max):
+    out = -3
+    if _min == _max:
+        out = _max + 1
+    else:
+        if _max > _min:
+            mid = int((_min + _max ) / 2)
+            if a < mid*b:
+                out = searchRatio(a, b, _min, mid)
+            else:
+                if a > (mid + 1) * b:
+                    out = searchRatio(a, b, mid + 1, _max)
+                else:
+                    if (a - mid) * b <= (mid + 1)*b - a:
+                        out = mid
+                    else:
+                        out = mid + 1
+        else:
+            out = 20
 
+    return out
+
+
+def main():
+    modelname = "./models/bbw-eo.json"
+    testScenario(modelname)
+    """
+    print(searchRatio(17, 3, 0, 99))
+    start = time.time()
+
+    sModel = loadModel(modelname)
+    testingId = "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/binary_search_ratio"
+    testingpackage = sModel.packBlockForTransformation(testingId)
     #print(json.dumps(testingpackage, indent=2))
-    #print(inputs)
+    #fChain = sModel.getForwardBlockDataDependencyChain(testingId)
+
+    testingId = "bbw/vehicle_body_wheels/rr_wheel/sum"
+
     allPacked = sModel.packAllBlocksForTransformation()
     SSGenerator = StateSpaceGenerator()
-    sSpace = SSGenerator.generateStateSpace(sModel, 1, 2000000)
-    print(time.time() - start)
-
-
+    sSpace = SSGenerator.generateStateSpace(sModel, 1, 5)
+    print(sSpace.genenrateSMT2Script())
+    """
 
 
 main()

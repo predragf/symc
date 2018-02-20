@@ -1541,6 +1541,15 @@
 			"blockname": "rt19",
 			"sampletime": 20,
 			"blocktype": "rt"
+		},{
+			"blockid": "bbw/rt14",
+			"executionorder": "195",
+			"parameters": {
+				"initialvalue": "(* W0 (/ PI 30))"
+			},
+			"blockname": "rt14",
+			"sampletime": 20,
+			"blocktype": "rt"
 		}],
 		"outputs": [{
 			"type": "real",
@@ -1956,7 +1965,7 @@
 			"name": "c68",
 			"destinationblockid": "bbw/vehicle_body_wheels/fl"
 		}, {
-			"sourceblockid": "bbw/hw_accel_pedal/pedalmap",
+			"sourceblockid": "bbw/hw_accel_pedal/pedal_map",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c69",
