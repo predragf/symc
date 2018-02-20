@@ -71,8 +71,8 @@ class StateSpace:
     def genenrateSMT2Script(self, start=0, howmany=0):
         statesForParsing = self.__getStatesForParsing(start, howmany)
         customFunctions = self.__loadCustomFunctions("./models/custom-functions.smt2")
-        script = "{0} \n {1} \n".format("", customFunctions)
+        script = "{0} \n {1} \n".format(self.declarations, customFunctions)
         for state in statesForParsing:
             pass
-            #script += "\n".join(state)
+            script += "\n".join(state)
         return script

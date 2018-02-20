@@ -6,8 +6,4 @@
 (define-fun-rec R ((a Real) (b Real) (min Int) (max Int)) Real
     (ite (= min max) (+ 1 max) (ite (> max min) (ite (< a (* b (/ (+ min max) 2))) (R a b min (to_int (/ (+ min max) 2))) (ite (> a (* b (+ 1 (/ (+ min max) 2)))) (R a b (+ (to_int (/ (+ min max) 2)) 1) max) (ite (<= (* b (- a (/ (+ min max) 2))) (- (* b (+ 1 (/ (+ min max) 2))) a)) (/ (+ min max) 2) (+ 1 (/ (+ min max) 2))))) 20)))
 
-(declare-const out Real)
-(declare-const out1 Real)
-
-(assert (= out (LOOKUP 7)))
-(assert (= out1 (R 17 3 0 99)))
+(define-fun BSR ((m Real) (g Real)) Real (ite (or (= m 0) (= g 0)) 0 (ite (> m (* 100 g)) 100 (R m g 0 99))))
