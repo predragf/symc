@@ -19,9 +19,11 @@
 (declare-const v_max Real)
 (declare-const w0 Real)
 (declare-const i Real)
+(declare-const v0 Real)
 
+(assert (=  v0 0))
 (assert (=  maxbraketorque 3000))
-(assert (=  distrib value))
+(assert (=  distrib 3))
 (assert (=  r 0.5))
 (assert (=  _pi 3.14))
 (assert (=  slip_abs_on 0.1))
