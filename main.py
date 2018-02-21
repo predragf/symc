@@ -47,7 +47,7 @@ def generateAssertionsForTheTestScenario():
 def testScenario(modelname):
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel(modelname, 1, 2, [])
+    result = modelChecker.checkModel(modelname, 1, 5, [])
     print(result)
 
 def isInFeedbackLoop(blockTransformationPackage):
@@ -95,9 +95,9 @@ def searchRatio(a, b, _min, _max):
 def main():
     modelname = "./models/bbw-eo.json"
 
-    describe_tactics()
+    #describe_tactics()
     #testScenario(modelname)
-    """
+
     print(searchRatio(17, 3, 0, 99))
     start = time.time()
     sModel = loadModel(modelname)
@@ -113,9 +113,6 @@ def main():
     SSGenerator = StateSpaceGenerator()
     sSpace = SSGenerator.generateStateSpace(sModel, 1, 2)
     sSpace.genenrateSMT2Script()
-    #print(sModel.simulinkModelJson["internalstatevariables"])
-    #print(sModel.simulinkModelJson["signalvariables"])
-    """
 
 
 

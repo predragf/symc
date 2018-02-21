@@ -37,12 +37,10 @@ class AssertionGeneratorUtils:
 
     @staticmethod
     def generateInitialState(block):
-        print(block.get("blockid"))
         _internalstatevariable = block.get("internalstatevariable")
         _outSignalName = block.get("signalvariable")
         _parameters = block.get("parameters")
         _initialvalue = _parameters.get("initialvalue", "-726")
         assertion = "(and (= {0}_0 {2}) (= {0}_0 {1}_0))".format(
                         _internalstatevariable, _outSignalName, _initialvalue)
-        print(assertion)
         return assertion

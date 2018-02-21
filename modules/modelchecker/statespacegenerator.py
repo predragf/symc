@@ -67,7 +67,6 @@ class StateSpaceGenerator:
         for modelVariable in modelVariables:
             declarationString += "{0} \n".format(
             AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
-        print(declarationString)
         return declarationString
 
     def __generateModelStateSpaceNew(self, sModel):

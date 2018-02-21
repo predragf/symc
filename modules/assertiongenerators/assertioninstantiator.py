@@ -2,6 +2,7 @@ from modules.assertiongenerators.assertiontemplategenerator import *
 from modules.assertiongenerators.assertiongeneratorutils import *
 import random
 import string
+import modules.utils.utils as customUtils
 
 class AssertionInstantiator:
 
@@ -28,4 +29,4 @@ class AssertionInstantiator:
             else:
                 assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
         instantiatedAssertion = assertionTemplate.format(step, step - 1)
-        return "(assert (! {0} :named {1}))".format(instantiatedAssertion, ''.join(random.choice(string.ascii_uppercase) for _ in range(9)))
+        return "(assert (! {0} :named {1}))".format(instantiatedAssertion, customUtils.generateRandomLetterSequence(12))
