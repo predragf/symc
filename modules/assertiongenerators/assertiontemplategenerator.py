@@ -23,7 +23,7 @@ class AssertionTemplateGenerator:
         signalName = blockForTransformation.get("signalvariable")
         parameters = blockForTransformation.get("parameters")
         gain = parameters.get("gain")
-        return "(assert (= {0}_{{0}} (* {1}_{{0}} {2}))".format(signalName,
+        return "(assert (= {0}_{{0}} (* {1}_{{0}} {2})))".format(signalName,
                                                         inputSignalName, gain)
 
     @staticmethod
@@ -41,7 +41,7 @@ class AssertionTemplateGenerator:
         if _mode.lower() == "max":
             _operator = ">"
 
-        return "(assert (ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} {1}_{{0}}) (= {3}_{{0}} {1}_{{0}}) ))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
+        return "(assert (ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} {1}_{{0}}) (= {3}_{{0}} {1}_{{0}})))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
 
     @staticmethod
     def product(blockForTransformation):
@@ -106,7 +106,7 @@ class AssertionTemplateGenerator:
     def round(blockForTransformation):
         _input = blockForTransformation.get("inputs")[0]
         _outSignalName = blockForTransformation.get("signalvariable")
-        return """(assert (ite (> 0.5 (- {0}_{{0}} (to_int {0}_{{0}}))) (= {1}_{{0}} (to_int {0}_{{0}})) (= {0}_{{0}}
+        return """(assert (ite (>= 0.5 (- {0}_{{0}} (to_int {0}_{{0}}))) (= {1}_{{0}} (to_int {0}_{{0}})) (= {0}_{{0}}
         (+ 1 (to_int {0}_{{0}})))))""".format(
                                             _input.get("signalvariable"), _outSignalName)
 
