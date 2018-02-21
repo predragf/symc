@@ -7,14 +7,14 @@ class AssertionTemplateGenerator:
         _input = blockForTransformation.get("inputs")[0]
         inputSignalName = _input.get("signalvariable")
         signalName = blockForTransformation.get("signalvariable")
-        return "(assert (ite (>= {0}_{{0}} 0.0) (= {1}_{{0}} {0}_{{0}}) (= {1}_{{0}} (- {0}_{{0}}))))".format(inputSignalName, signalName)
+        return "(ite (>= {0}_{{0}} 0.0) (= {1}_{{0}} {0}_{{0}}) (= {1}_{{0}} (- {0}_{{0}})))".format(inputSignalName, signalName)
 
     @staticmethod
     def constant(blockForTransformation):
         signalName = blockForTransformation.get("signalvariable")
         parameters = blockForTransformation.get("parameters")
         constantValue = parameters.get("value")
-        return "(assert (= {0}_{{0}} {1}))".format(signalName, constantValue)
+        return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod
     def gain(blockForTransformation):
@@ -23,7 +23,7 @@ class AssertionTemplateGenerator:
         signalName = blockForTransformation.get("signalvariable")
         parameters = blockForTransformation.get("parameters")
         gain = parameters.get("gain")
-        return "(assert (= {0}_{{0}} (* {1}_{{0}} {2})))".format(signalName,
+        return "(= {0}_{{0}} (* {1}_{{0}} {2}))".format(signalName,
                                                         inputSignalName, gain)
 
     @staticmethod
@@ -41,21 +41,21 @@ class AssertionTemplateGenerator:
         if _mode.lower() == "max":
             _operator = ">"
 
-        return "(assert (ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} {1}_{{0}}) (= {3}_{{0}} {1}_{{0}})))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
+        return "(ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} {1}_{{0}}) (= {3}_{{0}} {1}_{{0}}))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
 
     @staticmethod
     def product(blockForTransformation):
         _inputs = blockForTransformation.get("inputs")
         _outSignalName = blockForTransformation.get("signalvariable")
         _inputsString = AssertionGeneratorUtils.parseProductInputs(blockForTransformation)
-        return "(assert (= {0}_{{0}} {1}))".format(_outSignalName, _inputsString)
+        return "(= {0}_{{0}} {1})".format(_outSignalName, _inputsString)
 
     @staticmethod
     def sum(blockForTransformation):
         _inputs = blockForTransformation.get("inputs")
         _outSignalName = blockForTransformation.get("signalvariable")
         _inputsString = AssertionGeneratorUtils.parseSumInputs(blockForTransformation)
-        return "(assert (= {0}_{{0}} {1}))".format(_outSignalName, _inputsString)
+        return "(= {0}_{{0}} {1})".format(_outSignalName, _inputsString)
 
     @staticmethod
     def relationaloperator(blockForTransformation):
@@ -70,7 +70,7 @@ class AssertionTemplateGenerator:
         _firstSignalName = _firstInput.get("signalvariable")
         _secondSignalName = _secondInput.get("signalvariable")
 
-        return "(assert (ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} 1) (= {3}_{{0}} 0)))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
+        return "(ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} 1) (= {3}_{{0}} 0))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
 
     @staticmethod
     def saturate(blockForTransformation):
@@ -82,14 +82,14 @@ class AssertionTemplateGenerator:
         _lowerLimit = _parameters.get("lowerlimit")
         _upperLimit = _parameters.get("upperlimit")
 
-        return "(assert (ite (> {0}_{{0}} {2}) (= {1}_{{0}} {2}) (ite (< {0}_{{0}} {3}) (= {1}_{{0}} {3}) (= {0}_{{0}} {1}_{{0}}))))".format(_inputSignalName, _outSignalName, _upperLimit, _lowerLimit)
+        return "(ite (> {0}_{{0}} {2}) (= {1}_{{0}} {2}) (ite (< {0}_{{0}} {3}) (= {1}_{{0}} {3}) (= {0}_{{0}} {1}_{{0}})))".format(_inputSignalName, _outSignalName, _upperLimit, _lowerLimit)
 
     @staticmethod
     def signum(blockForTransformation):
         _input = blockForTransformation.get("inputs")[0]
         _inputSignalName = _input.get("signalvariable")
         _outSignalName = blockForTransformation.get("signalvariable")
-        return "(assert (ite (= {0}_{{0}} 0) (= {1}_{{0}} 0) (ite (< {0}_{{0}} 0) (= {1}_{{0}} -1) (= 1 {1}_{{0}}))))".format(_inputSignalName, _outSignalName)
+        return "(ite (= {0}_{{0}} 0) (= {1}_{{0}} 0) (ite (< {0}_{{0}} 0) (= {1}_{{0}} -1) (= 1 {1}_{{0}})))".format(_inputSignalName, _outSignalName)
 
     @staticmethod
     def switch(blockForTransformation):
@@ -100,14 +100,14 @@ class AssertionTemplateGenerator:
         _outSignalName = blockForTransformation.get("signalvariable")
         condition = _parameters.get("condition")
         condition = condition.split(" ")
-        return "(assert (ite ({0} {1}_{{0}} {2}) (= {3}_{{0}} {5}_{{0}}) (= {3}_{{0}} {5}_{{0}})))".format(condition[1], _controlInput.get("signalvariable"), condition[2], _outSignalName, _firstInput.get("signalvariable"), _secondInput.get("signalvariable"))
+        return "(ite ({0} {1}_{{0}} {2}) (= {3}_{{0}} {5}_{{0}}) (= {3}_{{0}} {5}_{{0}}))".format(condition[1], _controlInput.get("signalvariable"), condition[2], _outSignalName, _firstInput.get("signalvariable"), _secondInput.get("signalvariable"))
 
     @staticmethod
     def round(blockForTransformation):
         _input = blockForTransformation.get("inputs")[0]
         _outSignalName = blockForTransformation.get("signalvariable")
-        return """(assert (ite (>= 0.5 (- {0}_{{0}} (to_int {0}_{{0}}))) (= {1}_{{0}} (to_int {0}_{{0}})) (= {0}_{{0}}
-        (+ 1 (to_int {0}_{{0}})))))""".format(
+        return """(ite (>= 0.5 (- {0}_{{0}} (to_int {0}_{{0}}))) (= {1}_{{0}} (to_int {0}_{{0}})) (= {1}_{{0}}
+        (+ 1 (to_int {0}_{{0}}))))""".format(
                                             _input.get("signalvariable"), _outSignalName)
 
     @staticmethod
@@ -115,8 +115,10 @@ class AssertionTemplateGenerator:
         _outSignalName = blockForTransformation.get("signalvariable")
         _stateVariable = _outSignalName.replace("signal", "internalstate")
         _input = blockForTransformation.get("inputs")[0]
-        return """(assert (and (= {0}_{{0}} {1}_{{1}}) (= {1}_{{0}} {2}_{{0}})))""".format(
+        assertion = """(and (= {0}_{{0}} {1}_{{1}}) (= {1}_{{0}} {2}_{{0}}))""".format(
                                         _outSignalName, _stateVariable, _input.get("signalvariable"))
+        print(assertion)
+        return assertion
 
     @staticmethod
     def rt(blockForTransformation):
@@ -128,7 +130,7 @@ class AssertionTemplateGenerator:
         _outSignalName = blockForTransformation.get("signalvariable")
         _input1 = blockForTransformation.get("inputs")[0]
         _input2 = blockForTransformation.get("inputs")[1]
-        assertionTemplate = "(assert (= {0}_{{0}} (BSR {1}_{{0}} {2}_{{0}})))".format(_outSignalName,
+        assertionTemplate = "(= {0}_{{0}} (BSR {1}_{{0}} {2}_{{0}}))".format(_outSignalName,
         _input1.get("signalvariable"), _input2.get("signalvariable"))
         return assertionTemplate
 
@@ -136,7 +138,7 @@ class AssertionTemplateGenerator:
     def lookup(blockForTransformation):
         _outSignalName = blockForTransformation.get("signalvariable")
         _input1 = blockForTransformation.get("inputs")[0]
-        assertionTemplate = "(assert (= {0}_{{0}} (LOOKUP {1}_{{0}})))".format(_outSignalName,
+        assertionTemplate = "(= {0}_{{0}} (LOOKUP {1}_{{0}}))".format(_outSignalName,
         _input1.get("signalvariable"))
         return assertionTemplate
 
@@ -148,7 +150,7 @@ class AssertionTemplateGenerator:
         _initalvalue = _parameters.get("initialvalue", "")
         _initialConditionAssertion = "no initial state"
         if not (_initalvalue == ""):
-            _initialConditionAssertion = "(assert (= {0}_0 {1}))".format(_outSignalName,
+            _initialConditionAssertion = "(= {0}_0 {1})".format(_outSignalName,
             _initalvalue)
         return _initialConditionAssertion
 

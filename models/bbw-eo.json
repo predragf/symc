@@ -54,7 +54,7 @@
 			"blockid": "bbw/abs_rr_wheel/if v>=10 km//h/whespd (m//s)",
 			"executionorder": "138",
 			"parameters": {
-				"gain": "(/ (* r pi) 30)"
+				"gain": "(/ (* r _pi ) 30)"
 			},
 			"blockname": "whespd (m//s)",
 			"sampletime": 10,
@@ -148,7 +148,7 @@
 			"blockid": "bbw/abs_rl_wheel/if v>=10 km//h/whespd (m//s)",
 			"executionorder": "170",
 			"parameters": {
-				"gain": "(/ (* r pi) 30)"
+				"gain": "(/ (* r _pi ) 30)"
 			},
 			"blockname": "whespd (m//s)",
 			"sampletime": 10,
@@ -242,7 +242,7 @@
 			"blockid": "bbw/abs_fr_wheel/if v>=10 km//h/whespd (m//s)",
 			"executionorder": "122",
 			"parameters": {
-				"gain": "(/ (* r pi) 30)"
+				"gain": "(/ (* r _pi ) 30)"
 			},
 			"blockname": "whespd (m//s)",
 			"sampletime": 10,
@@ -336,7 +336,7 @@
 			"blockid": "bbw/abs_fl_wheel/if v>=10 km//h/whespd (m//s)",
 			"executionorder": "184",
 			"parameters": {
-				"gain": "(/ (* r pi) 30)"
+				"gain": "(/ (* r _pi ) 30)"
 			},
 			"blockname": "whespd (m//s)",
 			"sampletime": 10,
@@ -633,7 +633,7 @@
 			"blockid": "bbw/vehicle_body_wheels/rr_wheel/w (rpm)",
 			"executionorder": "45",
 			"parameters": {
-				"gain": "(/ 30 pi)"
+				"gain": "(/ 30 _pi )"
 			},
 			"blockname": "w(rpm)",
 			"sampletime": 5,
@@ -817,7 +817,7 @@
 			"blockid": "bbw/vehicle_body_wheels/rl_wheel/w (rpm)",
 			"executionorder": "117",
 			"parameters": {
-				"gain": "(/ 30 pi)"
+				"gain": "(/ 30 _pi )"
 			},
 			"blockname": "w(rpm)",
 			"sampletime": 5,
@@ -1001,7 +1001,7 @@
 			"blockid": "bbw/vehicle_body_wheels/fr_wheel/w (rpm)",
 			"executionorder": "93",
 			"parameters": {
-				"gain": "(/ 30 pi)"
+				"gain": "(/ 30 _pi )"
 			},
 			"blockname": "w(rpm)",
 			"sampletime": 5,
@@ -1185,7 +1185,7 @@
 			"blockid": "bbw/vehicle_body_wheels/fl_wheel/w (rpm)",
 			"executionorder": "69",
 			"parameters": {
-				"gain": "(/ 30 pi)"
+				"gain": "(/ 30 _pi )"
 			},
 			"blockname": "w(rpm)",
 			"sampletime": 5,
