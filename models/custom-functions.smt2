@@ -1,5 +1,3 @@
-(set-option :smt.mbqi true)
-
 (define-fun LOOKUP ((x Real)) Real
   (ite (= x 0.0) 0.0 (ite (and (> x 0) (< x 20)) (/ (* x 147) 2) (ite (= x 20) 1470 (ite (and (> x 20) (< x 30)) (- 1470 (* 49 (- x 20))) 980)))))
 
@@ -7,3 +5,31 @@
     (ite (= min max) (+ 1 max) (ite (> max min) (ite (< a (* b (/ (+ min max) 2))) (R a b min (to_int (/ (+ min max) 2))) (ite (> a (* b (+ 1 (/ (+ min max) 2)))) (R a b (+ (to_int (/ (+ min max) 2)) 1) max) (ite (<= (* b (- a (/ (+ min max) 2))) (- (* b (+ 1 (/ (+ min max) 2))) a)) (/ (+ min max) 2) (+ 1 (/ (+ min max) 2))))) 20)))
 
 (define-fun BSR ((m Real) (g Real)) Real (ite (or (= m 0) (= g 0)) 0 (ite (> m (* 100 g)) 100 (R m g 0 99))))
+
+(declare-const maxbraketorque Real)
+(declare-const distrib Real)
+(declare-const r Real)
+(declare-const _pi Real)
+(declare-const slip_abs_on Real)
+(declare-const t_veh Real)
+
+(declare-const use_division Real)
+(declare-const w_max Real)
+(declare-const m Real)
+(declare-const v_max Real)
+(declare-const w0 Real)
+(declare-const i Real)
+
+(assert (=  maxbraketorque 3000))
+(assert (=  distrib value))
+(assert (=  r 0.5))
+(assert (=  _pi 3.14))
+(assert (=  slip_abs_on 0.1))
+(assert (=  t_veh 0.005))
+
+(assert (=  use_division 0))
+(assert (=  w_max 112))
+(assert (=  m 2000))
+(assert (=  v_max 56))
+(assert (=  w0 (/ v0 r)))
+(assert (=  i (/ (* m (* r r)))))
