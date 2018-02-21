@@ -94,7 +94,9 @@ def searchRatio(a, b, _min, _max):
 
 def main():
     modelname = "./models/bbw-eo.json"
-    testScenario(modelname)
+
+    describe_tactics()
+    #testScenario(modelname)
     """
     print(searchRatio(17, 3, 0, 99))
     start = time.time()

@@ -19,8 +19,8 @@ class SiMC:
 
     def __createSolver(self, _goal):
         #z3.set_option(rational_to_decimal=True)
-        tactic = Then("simplify", 'solve-eqs')
-        solver = Solver()        
+        tactic = Then("elim-term-ite", "elim-and", "solve-eqs", "split-clause")
+        solver = Solver()
         solver.add(tactic(_goal).as_expr())
         return solver
 
