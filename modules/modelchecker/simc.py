@@ -32,10 +32,7 @@ class SiMC:
                         sModel.getModelName(), simulationDuration))
         return stateSpace;
 
-    def __generateScriptForChecking(self, smtScript):
-        text_file = open("./models/bbw-model.smt2", "w")
-        text_file.write(smtScript)
-        text_file.close()
+    def __generateScriptForChecking(self, smtScript):        
         return z3.parse_smt2_string(smtScript)
 
     def __createAndPopulateSolver(self, pathToModel, stepsize, simulationDuration,

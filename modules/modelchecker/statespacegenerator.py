@@ -54,7 +54,7 @@ class StateSpaceGenerator:
 
     def __generateSymbolicState(self, step):
         symbolicState = []
-        for block in self.blocksForTransformation:            
+        for block in self.blocksForTransformation:
             symbolicState.append(self.__generateBlockSymbolicState(block, step))
         return symbolicState
 
@@ -67,6 +67,7 @@ class StateSpaceGenerator:
         for modelVariable in modelVariables:
             declarationString += "{0} \n".format(
             AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
+        print(declarationString)
         return declarationString
 
     def __generateModelStateSpaceNew(self, sModel):

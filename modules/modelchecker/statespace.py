@@ -74,5 +74,5 @@ class StateSpace:
         script = "{0} \n {1} \n".format(self.declarations, customFunctions)
         for state in statesForParsing:
             pass
-            script += "\n".join(state)
+            script += "\n".join(state)        
         return script

@@ -23,7 +23,7 @@ class AssertionTemplateGenerator:
         signalName = blockForTransformation.get("signalvariable")
         parameters = blockForTransformation.get("parameters")
         gain = parameters.get("gain")
-        return "(assert (= {0}_{{0}} (* {1} {2}))".format(signalName,
+        return "(assert (= {0}_{{0}} (* {1}_{{0}} {2}))".format(signalName,
                                                         inputSignalName, gain)
 
     @staticmethod
