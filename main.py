@@ -94,26 +94,5 @@ def searchRatio(a, b, _min, _max):
 
 def main():
     modelname = "./models/bbw-eo.json"
-
-    #describe_tactics()
-    #testScenario(modelname)
-
-    print(searchRatio(17, 3, 0, 99))
-    start = time.time()
-    sModel = loadModel(modelname)
-    testingId = "bbw/rt13"
-    testingpackage = sModel.packBlockForTransformation(testingId)
-    print(json.dumps(testingpackage, indent=2))
-    #fChain = sModel.getForwardBlockDataDependencyChain(testingId)
-
-    testingId = "bbw/vehicle_body_wheels/rr_wheel/sum"
-
-    allPacked = sModel.packAllBlocksForTransformation()
-    #print(sModel.simulinkModelJson["signalvariables"])
-    SSGenerator = StateSpaceGenerator()
-    sSpace = SSGenerator.generateStateSpace(sModel, 1, 2)
-    sSpace.genenrateSMT2Script()
-
-
-
+    testScenario(modelname)
 main()
