@@ -112,8 +112,8 @@ class AssertionTemplateGenerator:
 
     @staticmethod
     def unitdelay(blockForTransformation):
-        _outSignalName = blockForTransformation.get("signalvariable")
-        _stateVariable = _outSignalName.replace("signal", "internalstate")
+        _outSignalName = blockForTransformation.get("signalvariable")        
+        _stateVariable = blockForTransformation.get("internalstatevariable", "")
         _input = blockForTransformation.get("inputs")[0]
         assertion = """(and (= {0}_{{0}} {1}_{{1}}) (= {1}_{{0}} {2}_{{0}}))""".format(
                                         _outSignalName, _stateVariable, _input.get("signalvariable"))

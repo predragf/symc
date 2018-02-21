@@ -18,9 +18,9 @@ class SiMC:
         return goal
 
     def __createSolver(self, _goal):
-        z3.set_option(rational_to_decimal=True)
-        tactic = Then("simplify", 'qe')
-        solver = Solver()
+        #z3.set_option(rational_to_decimal=True)
+        tactic = Then("simplify", 'solve-eqs')
+        solver = Solver()        
         solver.add(tactic(_goal).as_expr())
         return solver
 
@@ -32,7 +32,7 @@ class SiMC:
                         sModel.getModelName(), simulationDuration))
         return stateSpace;
 
-    def __generateScriptForChecking(self, smtScript):        
+    def __generateScriptForChecking(self, smtScript):
         return z3.parse_smt2_string(smtScript)
 
     def __createAndPopulateSolver(self, pathToModel, stepsize, simulationDuration,
