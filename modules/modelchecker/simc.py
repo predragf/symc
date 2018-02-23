@@ -70,3 +70,10 @@ class SiMC:
         end = time.time()
         print("Model checking finished. It took {0} seconds.".format(end - start))
         return result
+
+    def solve(self, assertions):
+        scriptForChecking = self.__generateScriptForChecking(assertions)
+        goal = self.__createGoal()
+        goal.add(scriptForChecking)
+        solver = self.__createSolver(goal)
+        return self.__executeSolver(solver)

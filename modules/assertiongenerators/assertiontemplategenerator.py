@@ -115,8 +115,9 @@ class AssertionTemplateGenerator:
         _outSignalName = blockForTransformation.get("signalvariable")
         _stateVariable = blockForTransformation.get("internalstatevariable", "")
         _input = blockForTransformation.get("inputs")[0]
-        assertion = """(and (= {0}_{{0}} {1}_{{1}}) (= {1}_{{0}} {2}_{{0}}))""".format(
-                                        _outSignalName, _stateVariable, _input.get("signalvariable"))        
+        #assertion = """(and (= {0}_{{0}} {1}_{{1}}) (= {1}_{{0}} {2}_{{0}}))""".format(
+                                        #_outSignalName, _stateVariable, _input.get("signalvariable"))
+        assertion = "(= {0}_{{0}} {1}_{{1}})".format(_outSignalName, _input.get("signalvariable"))
         return assertion
 
     @staticmethod
@@ -144,8 +145,7 @@ class AssertionTemplateGenerator:
     @staticmethod
     def generateInitialConfiguration(blockForTransformation):
         _parameters = blockForTransformation.get("parameters")
-        _outSignalName = blockForTransformation.get("signalvariable", "")
-        _outSignalName = _outSignalName.replace("signal", "internalstate")
+        _outSignalName = blockForTransformation.get("signalvariable", "")        
         _initalvalue = _parameters.get("initialvalue", "")
         _initialConditionAssertion = "no initial state"
         if not (_initalvalue == ""):

@@ -26,7 +26,10 @@ def printlist(_list, keyname=""):
         _list = sorted(_list, key=lambda k: k[keyname])
     print("The size of the list is: {0}".format(len(_list)))
     for itm in _list:
-        print(itm)
+        if type(itm) == list:
+            printlist(itm)
+        else:
+            print(itm)
 
 def slistAsList(slistLocation):
     slistFile = open(slistLocation, "r");
@@ -94,5 +97,13 @@ def searchRatio(a, b, _min, _max):
 
 def main():
     modelname = "./models/bbw-eo.json"
-    testScenario(modelname)
+    sModel = loadModel(modelname)
+    ssg = StateSpaceGenerator()
+    sSpace = ssg.generateStateSpace(sModel, 1, 30)
+    printlist(sSpace.getStatesRange(0,1))
+    script = sSpace.genenrateSMT2Script(0,1)
+    simc = SiMC()
+    print(simc.solve(script))
+    #testScenario(modelname)
+    #describe_tactics()
 main()
