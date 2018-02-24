@@ -24,12 +24,14 @@ class SiMC:
         solver.add(tactic(_goal).as_expr())
         return solver
 
-    def __obtainModelStateSpace(self, pathToModel, stepsize, simulationDuration):
+    def __obtainModelStateSpace(self, pathToModel, stepsize, simulationDuration,
+                                saveScript=False):
         sModel = loadModel(pathToModel)
         ssg = StateSpaceGenerator()
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
-        StateSpaceManager.saveStateSpaceToFile(stateSpace, "./models/{0}{1}.ss".format(
-                        sModel.getModelName(), simulationDuration))
+        if saveScript:
+            StateSpaceManager.saveStateSpaceToFile(stateSpace,
+            "./models/{0}{1}.ss".format(sModel.getModelName(), simulationDuration))
         return stateSpace;
 
     def __generateScriptForChecking(self, smtScript):
@@ -67,13 +69,5 @@ class SiMC:
         print("Model checking started.")
         start = time.time()
         result = self.__executeSolver(solver)
-        end = time.time()
-        print("Model checking finished. It took {0} seconds.".format(end - start))
+        print("Model checking finished. It took {0} seconds.".format(time.time() - start))
         return result
-
-    def solve(self, assertions):
-        scriptForChecking = self.__generateScriptForChecking(assertions)
-        goal = self.__createGoal()
-        goal.add(scriptForChecking)
-        solver = self.__createSolver(goal)
-        return self.__executeSolver(solver)

@@ -18,7 +18,9 @@ from modules.assertiongenerators.assertiontemplategenerator import *
 from types import FunctionType
 from modules.assertiongenerators.assertiongeneratorutils import *
 from modules.assertiongenerators.assertioninstantiator import *
-from modules.simulationanalysis.symbolicfixedpoint import *
+from modules.modelchecker.symbolicfixpoint import *
+import modules.utils.utils as cUtils
+import math
 
 
 def printlist(_list, keyname=""):
@@ -50,7 +52,7 @@ def generateAssertionsForTheTestScenario():
 def testScenario(modelname):
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel(modelname, 1, 5, [])
+    result = modelChecker.checkModel(modelname, 1, 1, [])
     print(result)
 
 def isInFeedbackLoop(blockTransformationPackage):
@@ -94,16 +96,10 @@ def searchRatio(a, b, _min, _max):
 
     return out
 
-
 def main():
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    ssg = StateSpaceGenerator()
-    sSpace = ssg.generateStateSpace(sModel, 1, 30)
-    printlist(sSpace.getStatesRange(0,1))
-    script = sSpace.genenrateSMT2Script(0,1)
-    simc = SiMC()
-    print(simc.solve(script))
+    print(sModel.symbolicFixedPoint)
     #testScenario(modelname)
     #describe_tactics()
 main()

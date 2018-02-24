@@ -1,10 +1,13 @@
 from modules.utils.gcd import *
+import modules.utils.utils as cUtils
 
 class SimulinkModel:
+
     def __init__(self, _simulinkmodeljson):
         self.simulinkModelJson = _simulinkmodeljson.get("simulinkmodel")
         self.simulinkModelJson["signalvariables"] = self.__createVariables()
         self.simulinkModelJson["internalstatevariables"] = self.__createInternalStateVariables()
+        self.symbolicFixedPoint = self.__calculateModelFixedPoint()
 
     def __getLinesFromSameSource(self, _pivot, _allLines):
         samelines = []
@@ -188,7 +191,7 @@ class SimulinkModel:
                 blocksForExamination = "sourceblockid"
             else:
                 connections = self._getBlockConnections(blockid, "ouput")
-                blocksForExamination = "destinationblockid"            
+                blocksForExamination = "destinationblockid"
             for bConn in connections:
                 visitedblocks = self.__getBlockDataDependencyChain(
                                 bConn.get(blocksForExamination), direction, visitedblocks)
@@ -199,3 +202,48 @@ class SimulinkModel:
 
     def getForwardBlockDataDependencyChain(self, blockid):
         return self.__getBlockDataDependencyChain(blockid, "forward")
+
+    def __determineFixedPoint(self, outTs, predecessorsTs):
+        fixedPoint = outTs
+        for predecessorTs in predecessorsTs:
+            if(predecessorTs < outTs):
+                continue
+            if(predecessorTs >= outTs):
+                interFP = (int(predecessorTs / outTs) +
+                                            (predecessorTs % outTs > 0)) * outTs
+                fixedPoint = max(fixedPoint, interFP)
+        return fixedPoint
+
+    def __calculateBlockSymbolicFixedPointResursively(self, sBlock, predecessors):
+        predecessorsFixedPoints = []
+        blockSampleTime = sBlock.get("sampletime", "0")
+        for prd in predecessors:
+            predecessorsFixedPoints.append(self.__calculateBlockSymbolicFixedPoint(prd))
+        return self.__determineFixedPoint(blockSampleTime, predecessorsFixedPoints)
+
+    def __calculateBlockSymbolicFixedPoint(self, sBlock):
+        sfp = cUtils.to_int(sBlock.get("symbolicfixedpoint", "-1"))
+        if sfp > -1:
+            return sfp
+        _blockInputs = self.getBlockPredecessors(sBlock.get("blockid"))
+        blockExecutionOrderId = cUtils.to_int(sBlock.get("executionorder", ""))
+        blockSymbolicFixedPoint = cUtils.to_int(sBlock.get("sampletime", "0"))
+        predecessorsForProcessing = []
+        for blk in self.getBlockPredecessors(sBlock.get("blockid")):
+            execId = cUtils.to_int(blk.get("executionorder", ""))
+            if execId < blockExecutionOrderId:
+                predecessorsForProcessing.append(blk)
+        if(len(predecessorsForProcessing) > 0 and blockSymbolicFixedPoint != 0):            
+            blockSymbolicFixedPoint = self.__calculateBlockSymbolicFixedPointResursively(sBlock,
+                                                                predecessorsForProcessing)
+        sBlock["symbolicfixedpoint"] = blockSymbolicFixedPoint
+        return blockSymbolicFixedPoint
+
+    def __calculateModelFixedPoint(self):
+        allBlocks = self.getAllBlocks()
+        fixedPoint = -1
+        counter = 0
+        for blk in allBlocks:
+            interFP = self.__calculateBlockSymbolicFixedPoint(blk)
+            fixedPoint = max(fixedPoint, interFP)
+        return fixedPoint

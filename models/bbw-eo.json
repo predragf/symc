@@ -689,6 +689,7 @@
 			"sampletime": 5,
 			"blocktype": "stateflow",
 			"blockid": "bbw/vehicle_body_wheels/rr_wheel/slip_ratio_percentage/binary_search_ratio",
+			"executionorder": "32",
 			"parameters": {},
 			"blockname": "binary_search_ratio"
 		}, {
@@ -873,6 +874,7 @@
 			"sampletime": 5,
 			"blocktype": "stateflow",
 			"blockid": "bbw/vehicle_body_wheels/rl_wheel/slip_ratio_percentage/binary_search_ratio",
+			"executionorder": "104",
 			"parameters": {},
 			"blockname": "binary_search_ratio"
 		}, {
@@ -1057,6 +1059,7 @@
 			"sampletime": 5,
 			"blocktype": "stateflow",
 			"blockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/binary_search_ratio",
+			"executionorder": "80",
 			"parameters": {},
 			"blockname": "binary_search_ratio"
 		}, {
@@ -1241,6 +1244,7 @@
 			"sampletime": 5,
 			"blocktype": "stateflow",
 			"blockid": "bbw/vehicle_body_wheels/fl_wheel/slip_ratio_percentage/binary_search_ratio",
+			"executionorder": "56",
 			"parameters": {},
 			"blockname": "binary_search_ratio"
 		}, {
