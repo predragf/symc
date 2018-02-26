@@ -88,11 +88,11 @@ class SimulinkModel:
     def getModelJSON(self):
         return self.simulinkModelJson
 
-    def _getBlockConnections(self, blockid, connectionType="all"):
+    def __getBlockConnections(self, blockid, connectionType="all"):
         allconnections = self.getAllConnections()
         blockConnections = []
         for connection in allconnections:
-            if (((connectionType == "ouput" or connectionType == "all") and
+            if (((connectionType == "output" or connectionType == "all") and
                     connection.get("sourceblockid") == blockid)
                 or ((connectionType == "input" or connectionType == "all") and
                     connection.get("destinationblockid") == blockid)
@@ -100,11 +100,19 @@ class SimulinkModel:
                 blockConnections.append(connection)
         return blockConnections
 
+    def __getConnectionByName(self, cName):
+        result = None
+        for conn in self.getAllConnections():
+            if conn.get("name") == cName:
+                result = conn
+                break
+        return result
+
     def getBlockOutputConnections(self, blockid):
-        return self._getBlockConnections(blockid, "ouput")
+        return self.__getBlockConnections(blockid, "output")
 
     def getBlockInputConnections(self, blockid):
-        return self._getBlockConnections(blockid, "input")
+        return self.__getBlockConnections(blockid, "input")
 
     def getBlockInputs(self, blockid):
         result = []
@@ -187,10 +195,10 @@ class SimulinkModel:
             visitedblocks.add(blockid)
             blocksForExamination = ""
             if direction == "backward":
-                connections = self._getBlockConnections(blockid, "input")
+                connections = self.__getBlockConnections(blockid, "input")
                 blocksForExamination = "sourceblockid"
             else:
-                connections = self._getBlockConnections(blockid, "ouput")
+                connections = self.__getBlockConnections(blockid, "ouput")
                 blocksForExamination = "destinationblockid"
             for bConn in connections:
                 visitedblocks = self.__getBlockDataDependencyChain(
@@ -233,11 +241,66 @@ class SimulinkModel:
             execId = cUtils.to_int(blk.get("executionorder", ""))
             if execId < blockExecutionOrderId:
                 predecessorsForProcessing.append(blk)
-        if(len(predecessorsForProcessing) > 0 and blockSymbolicFixedPoint != 0):            
+        if(len(predecessorsForProcessing) > 0 and blockSymbolicFixedPoint != 0):
             blockSymbolicFixedPoint = self.__calculateBlockSymbolicFixedPointResursively(sBlock,
                                                                 predecessorsForProcessing)
         sBlock["symbolicfixedpoint"] = blockSymbolicFixedPoint
         return blockSymbolicFixedPoint
+
+    def __getLoopCreatingConnections(self, sBlock):
+        loopCreatingConnections = []
+        blockExecutionOrder = cUtils.to_int(sBlock.get("executionorder"))
+        outlines = self.getBlockOutputConnections(sBlock.get("blockid"))
+        for outline in outlines:
+            successorBlock = self.getBlockById(outline.get("destinationblockid"))
+            successorExecutionOrder = cUtils.to_int(successorBlock.get("executionorder"))
+            if(successorExecutionOrder < blockExecutionOrder):
+                loopCreatingConnections.append(outline)
+        return loopCreatingConnections[:]
+
+    def __buildLoops(self, currentBlockId, loopEndBlockId, loops):
+        result = []
+        if len(loops) < 1:
+            return result
+        elif loopEndBlockId == currentBlockId:
+            for loop in loops:
+                loop.append(currentBlockId)
+            result = loops
+        else:
+            outlines = self.getBlockOutputConnections(currentBlockId)
+            loopsForParsing = []
+            for outLine in outlines:
+                for loop in loops:
+                    if (currentBlockId in loop):
+                        continue
+                    else:
+                        temp = loop[:]
+                        temp.append(currentBlockId)
+                        loopsForParsing.append(temp)
+
+                #result.extend(self.__buildLoops(outLine.get("destinationblockid"), loopEndBlockId, loopsForParsing))
+        return loopsForParsing
+
+    def __findAllLoopCreatingConnections(self):
+        loopCreatingConnections = []
+        allBlocks = self.getAllBlocks()
+        for blk in allBlocks:
+            blockLoopCreatingConnections = self.__getLoopCreatingConnections(blk)
+            loopCreatingConnections.extend(blockLoopCreatingConnections)
+        return loopCreatingConnections
+
+    def __findAllLoops(self):
+        allLoops = []
+        loopCreatingConnections = self.__findAllLoopCreatingConnections()
+        dummyLoops = []
+        dummyLoops.append([])
+        for loopCreatingConnection in loopCreatingConnections:
+            allLoops.append(self.__buildLoops(loopCreatingConnection,
+            loopCreatingConnection.get("sourceblockid"), dummyLoops))
+        return allLoops
+
+    def test(self):
+        return self.__findAllLoopCreatingConnections()
 
     def __calculateModelFixedPoint(self):
         allBlocks = self.getAllBlocks()

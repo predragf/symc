@@ -99,7 +99,8 @@ def searchRatio(a, b, _min, _max):
 def main():
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    print(sModel.symbolicFixedPoint)
+    test = sModel.test()
+    printlist(test)    
     #testScenario(modelname)
     #describe_tactics()
 main()
