@@ -28,7 +28,6 @@
 (assert (! (=  _pi 3.14) :named init5))
 (assert (! (=  slip_abs_on 0.1) :named init6))
 (assert (! (=  t_veh 0.005) :named init7))
-
 (assert (! (=  use_division 0) :named init8))
 (assert (! (=  w_max 112) :named init9))
 (assert (! (=  m 2000) :named init10))

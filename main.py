@@ -52,8 +52,8 @@ def generateAssertionsForTheTestScenario():
 def testScenario(modelname):
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel(modelname, 1, 1, [])
-    print(result)
+    result = modelChecker.checkModel(modelname, 1, [])
+    print(result)  
 
 def isInFeedbackLoop(blockTransformationPackage):
     inloop = False
@@ -98,9 +98,6 @@ def searchRatio(a, b, _min, _max):
 
 def main():
     modelname = "./models/bbw-eo.json"
-    sModel = loadModel(modelname)
-    test = sModel.test()
-    printlist(test)    
-    #testScenario(modelname)
+    testScenario(modelname)
     #describe_tactics()
 main()

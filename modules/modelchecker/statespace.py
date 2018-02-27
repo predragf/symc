@@ -75,7 +75,7 @@ class StateSpace:
         for state in statesForParsing:
             pass
             script += "\n".join(state)
-        self._saveScript("./models/bbw-model.smt2", script)
+        self._saveScript("./models/bbw-model.smt2", script)        
         return script
 
     def _saveScript(self, location, text):

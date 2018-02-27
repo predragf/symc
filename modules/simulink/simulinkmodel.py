@@ -9,6 +9,9 @@ class SimulinkModel:
         self.simulinkModelJson["internalstatevariables"] = self.__createInternalStateVariables()
         self.symbolicFixedPoint = self.__calculateModelFixedPoint()
 
+    def getSymbolicFixedPoint(self):
+        return cUtils.to_int(self.symbolicFixedPoint)
+
     def __getLinesFromSameSource(self, _pivot, _allLines):
         samelines = []
         samelines.append(_pivot)
