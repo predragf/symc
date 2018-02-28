@@ -38,7 +38,7 @@ class SiMC:
                                 saveStateSpace=False):
         sModel = loadModel(pathToModel)
         ssg = StateSpaceGenerator()
-        simulationDuration = sModel.getSymbolicFixedPoint() * 5
+        simulationDuration = sModel.getSymbolicFixedPoint() * 2
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
         if saveStateSpace:
             StateSpaceManager.saveStateSpaceToFile(stateSpace,
