@@ -38,7 +38,7 @@ class SiMC:
                                 saveStateSpace=False):
         sModel = loadModel(pathToModel)
         ssg = StateSpaceGenerator()
-        simulationDuration = sModel.getSymbolicFixedPoint() * 2
+        simulationDuration = sModel.getSymbolicFixedPoint() * 5
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
         if saveStateSpace:
             StateSpaceManager.saveStateSpaceToFile(stateSpace,
@@ -73,8 +73,7 @@ class SiMC:
         start = time.time()
         print("Creating model started at {0}".format(time.ctime()))
         solver = self.__createAndPopulateSolver(pathToModel, stepsize, assumptions)
-        end = time.time()
-        print("Creating model finished. It took {0} seconds.".format(end - start))
+        print("Creating model finished. It took {0} seconds.".format(time.time() - start))
         print("Model checking started.")
         start = time.time()
         result = self.__executeSolver(solver)

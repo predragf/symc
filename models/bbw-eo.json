@@ -7,6 +7,22 @@
 		}],
 		"modelname": "bbw",
 		"blocks": [{
+			"blockid": "bbw/driver_brake",
+			"executionorder": "155",
+			"parameters": {
+			},
+			"blockname": "driver_brake",
+			"sampletime": 0,
+			"blocktype": "modelinput"
+		},{
+			"blockid": "bbw/driver_accelerate",
+			"executionorder": "7",
+			"parameters": {
+			},
+			"blockname": "driver_accelerate",
+			"sampletime": 0,
+			"blocktype": "modelinput"
+		},{
 			"blockid": "bbw/hw_brakepedal/pedal_map",
 			"executionorder": "161",
 			"parameters": {
@@ -36,12 +52,43 @@
 			"blockid": "bbw/global brake controller/distribution",
 			"executionorder": "199",
 			"parameters": {
-				"gain": "distrib"
+				"gain": 0.31
 			},
 			"blockname": "distribution",
 			"sampletime": 20,
 			"blocktype": "gain"
-		}, {
+		},
+		{
+			"blockid": "bbw/global brake controller/distribution2",
+			"executionorder": "199",
+			"parameters": {
+				"gain": 0.29
+			},
+			"blockname": "distribution",
+			"sampletime": 20,
+			"blocktype": "gain"
+		},
+		{
+			"blockid": "bbw/global brake controller/distribution3",
+			"executionorder": "199",
+			"parameters": {
+				"gain": 0.21
+			},
+			"blockname": "distribution",
+			"sampletime": 20,
+			"blocktype": "gain"
+		},
+		{
+			"blockid": "bbw/global brake controller/distribution4",
+			"executionorder": "199",
+			"parameters": {
+				"gain": 0.19
+			},
+			"blockname": "distribution",
+			"sampletime": 20,
+			"blocktype": "gain"
+		},
+		 {
 			"blockid": "bbw/abs_rr_wheel/threshold_10km//h",
 			"executionorder": "148",
 			"parameters": {
@@ -1585,6 +1632,24 @@
 			"name": "c4",
 			"destinationblockid": "bbw/global brake controller/distribution"
 		}, {
+			"sourceblockid": "bbw/rt14",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c248",
+			"destinationblockid": "bbw/global brake controller/distribution2"
+		},{
+			"sourceblockid": "bbw/rt14",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c249",
+			"destinationblockid": "bbw/global brake controller/distribution3"
+		},{
+			"sourceblockid": "bbw/rt14",
+			"sourceportnumber": 1,
+			"destinationportnumber": 1,
+			"name": "c250",
+			"destinationblockid": "bbw/global brake controller/distribution4"
+		},{
 			"sourceblockid": "bbw/rt",
 			"sourceportnumber": 1,
 			"destinationportnumber": 3,
@@ -2989,31 +3054,31 @@
 			"name": "c242",
 			"destinationblockid": "bbw/rt"
 		}, {
-			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceblockid": "bbw/global brake controller/distribution2",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c243",
 			"destinationblockid": "bbw/rt1"
 		}, {
-			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceblockid": "bbw/global brake controller/distribution3",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c244",
 			"destinationblockid": "bbw/rt2"
 		}, {
-			"sourceblockid": "bbw/global brake controller/distribution",
+			"sourceblockid": "bbw/global brake controller/distribution4",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c245",
 			"destinationblockid": "bbw/rt3"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_zero",
+			"sourceblockid": "bbw/driver_brake",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c246",
 			"destinationblockid": "bbw/hw_brakepedal/pedal_map"
 		}, {
-			"sourceblockid": "bbw/vehicle_body_wheels/fr_wheel/slip_ratio_percentage/c_zero",
+			"sourceblockid": "bbw/driver_accelerate",
 			"sourceportnumber": 1,
 			"destinationportnumber": 1,
 			"name": "c247",

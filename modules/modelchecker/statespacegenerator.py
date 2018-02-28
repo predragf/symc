@@ -43,7 +43,7 @@ class StateSpaceGenerator:
         self.blocksStepSize = self.__calculateStepSizeForAllBlocks(sModel.getAllBlocks(),
                                                             simulationStepSize)
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
-        for block in self.blocksForTransformation:
+        for block in self.blocksForTransformation:            
             blockid = block.get("blockid")
             self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(block)
 

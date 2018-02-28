@@ -49,11 +49,30 @@ def generateAssertionsForTheTestScenario():
         #assumptions.append("(assert (= c12_{0} 0))".format(i))
     return assumptions
 
-def testScenario(modelname):
+def r3BBW(modelname):
+    template = "(> signal_1_{0} 100)"
+    constraint = ""
+    for i in range(0,40):
+        constraint += template.format(i)
+    final = "(assert (! (or {0}) :named {1}))".format(constraint, "r3")
+    _assumptions = []
+    _assumptions.append(final)
+    check(modelname, _assumptions)
+
+def r4BBW(modelname):
+        template = "(and (> signal_82_{0} 0.2) (not (= signal_153_{0} 0)))"
+        constraint = ""
+        for i in range(0, 100):
+            constraint += template.format(i)
+        final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
+        _assumptions = [final]
+        check(modelname, _assumptions)
+
+def check(modelname, _assumptions=[]):
     modelChecker = SiMC()
     assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel(modelname, 1, [])
-    print(result)  
+    result = modelChecker.checkModel(modelname, 1, _assumptions)
+    print(result)
 
 def isInFeedbackLoop(blockTransformationPackage):
     inloop = False
@@ -97,7 +116,23 @@ def searchRatio(a, b, _min, _max):
     return out
 
 def main():
+    cUtils.clearScreen()
     modelname = "./models/bbw-eo.json"
+    sModel = loadModel(modelname)
+    #r3BBW(modelname)
+    bpp = sModel.packBlockForTransformation("bbw/abs_rr_wheel/if v>=10 km//h/lockdetect")
+    #print(json.dumps(bpp, indent=2))
+
+    r4BBW(modelname)
+    """
+
+
+
+
+    ssG = StateSpaceGenerator()
+    sSpace = ssG.generateStateSpace(sModel, 1, 1)
+    print(sSpace.getStateSpace())
     testScenario(modelname)
     #describe_tactics()
+    """
 main()

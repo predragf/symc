@@ -5,7 +5,7 @@ class SimulinkModel:
 
     def __init__(self, _simulinkmodeljson):
         self.simulinkModelJson = _simulinkmodeljson.get("simulinkmodel")
-        self.simulinkModelJson["signalvariables"] = self.__createVariables()
+        self.simulinkModelJson["signalvariables"] = self.__createSignalVariables()
         self.simulinkModelJson["internalstatevariables"] = self.__createInternalStateVariables()
         self.symbolicFixedPoint = self.__calculateModelFixedPoint()
 
@@ -17,14 +17,14 @@ class SimulinkModel:
         samelines.append(_pivot)
         indexesForPopping = []
         for i in range(0, len(_allLines)):
-            if(_allLines[i].get("sourceblockid") == _pivot.get("sourceblockid") and
+            if (_allLines[i].get("sourceblockid") == _pivot.get("sourceblockid") and
                 _allLines[i].get("sourceportnumber") == _pivot.get("sourceportnumber")):
                 indexesForPopping.append(i)
         for itm in reversed(indexesForPopping):
             samelines.append(_allLines.pop(itm))
         return samelines
 
-    def __createVariables(self):
+    def __createSignalVariables(self):
         #get a local copy of all connections
         variables = {}
         allConnections = self.getAllConnections()[:]

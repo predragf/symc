@@ -41,7 +41,7 @@ class AssertionTemplateGenerator:
         if _mode.lower() == "max":
             _operator = ">"
 
-        return "(ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} {1}_{{0}}) (= {3}_{{0}} {1}_{{0}}))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
+        return "(ite ({0} {1}_{{0}} {2}_{{0}}) (= {3}_{{0}} {1}_{{0}}) (= {3}_{{0}} {2}_{{0}}))".format(_operator, _firstSignalName, _secondSignalName, _outSignalName)
 
     @staticmethod
     def product(blockForTransformation):
@@ -100,7 +100,7 @@ class AssertionTemplateGenerator:
         _outSignalName = blockForTransformation.get("signalvariable")
         condition = _parameters.get("condition")
         condition = condition.split(" ")
-        return "(ite ({0} {1}_{{0}} {2}) (= {3}_{{0}} {5}_{{0}}) (= {3}_{{0}} {5}_{{0}}))".format(condition[1], _controlInput.get("signalvariable"), condition[2], _outSignalName, _firstInput.get("signalvariable"), _secondInput.get("signalvariable"))
+        return "(ite ({0} {1}_{{0}} {2}) (= {3}_{{0}} {4}_{{0}}) (= {3}_{{0}} {5}_{{0}}))".format(condition[1], _controlInput.get("signalvariable"), condition[2], _outSignalName, _firstInput.get("signalvariable"), _secondInput.get("signalvariable"))
 
     @staticmethod
     def round(blockForTransformation):
@@ -145,13 +145,18 @@ class AssertionTemplateGenerator:
     @staticmethod
     def generateInitialConfiguration(blockForTransformation):
         _parameters = blockForTransformation.get("parameters")
-        _outSignalName = blockForTransformation.get("signalvariable", "")        
+        _outSignalName = blockForTransformation.get("signalvariable", "")
         _initalvalue = _parameters.get("initialvalue", "")
         _initialConditionAssertion = "no initial state"
         if not (_initalvalue == ""):
             _initialConditionAssertion = "(= {0}_0 {1})".format(_outSignalName,
             _initalvalue)
         return _initialConditionAssertion
+
+
+    @staticmethod
+    def modelinput(blockForTransformation):
+        return ""
 
     @staticmethod
     def generateBlockAssertion(blockForTransformation):

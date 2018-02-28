@@ -29,4 +29,8 @@ class AssertionInstantiator:
             else:
                 assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
         instantiatedAssertion = assertionTemplate.format(step, step - 1)
-        return "(assert (! {0} :named {1}))".format(instantiatedAssertion, customUtils.generateRandomLetterSequence(12))
+        _assertion = "(assert (! {0} :named {1}))".format(instantiatedAssertion,
+        customUtils.generateRandomLetterSequence(12))
+        if instantiatedAssertion == "":
+            _assertion = ""
+        return _assertion
