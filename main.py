@@ -10,7 +10,7 @@ from modules.utils.gcd import *
 import time
 import re
 import logging
-from modules.modelchecker.simc import *
+from modules.modelchecker.symc import *
 from modules.modelchecker.statespacemanager import *
 from modules.simulink.simulinkmodelmanager import *
 from modules.utils.jsonmanager import *
@@ -49,15 +49,28 @@ def generateAssertionsForTheTestScenario():
         #assumptions.append("(assert (= c12_{0} 0))".format(i))
     return assumptions
 
+def determineSatisfaction(result):
+    print(result["verdict"])
+    verdict = "violated"
+    if result["verdict"] == unsat:
+        verdict = "verified"
+    return verdict
+
+def check(modelname, _assumptions=[], reuseExistingModel=False):
+    modelChecker = SyMC()
+    assumptions = generateAssertionsForTheTestScenario()
+    result = modelChecker.checkModel(modelname, 1, _assumptions, reuseExistingModel)
+    print(determineSatisfaction(result))
+
 def r3BBW(modelname):
     template = "(> signal_1_{0} 100)"
     constraint = ""
-    for i in range(0,40):
+    for i in range(0, 40):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r3")
     _assumptions = []
     _assumptions.append(final)
-    check(modelname, _assumptions)
+    check(modelname, _assumptions, True)
 
 def r4BBW(modelname):
         template = "(and (> signal_82_{0} 0.2) (not (= signal_153_{0} 0)))"
@@ -66,73 +79,14 @@ def r4BBW(modelname):
             constraint += template.format(i)
         final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
         _assumptions = [final]
-        check(modelname, _assumptions)
-
-def check(modelname, _assumptions=[]):
-    modelChecker = SiMC()
-    assumptions = generateAssertionsForTheTestScenario()
-    result = modelChecker.checkModel(modelname, 1, _assumptions)
-    print(result)
-
-def isInFeedbackLoop(blockTransformationPackage):
-    inloop = False
-    execOrder = blockTransformationPackage.get("executionorder")
-    try:
-        execOrder = int(execOrder)
-    except:
-        return False
-    for iconn in blockTransformationPackage.get("inputs"):
-        sourceblk = iconn.get("sourceblock")
-        sourceblkeo = sourceblk.get("executionorder")
-        try:
-            sourceblkeo = int(sourceblkeo)
-            if(sourceblkeo > execOrder):
-                inloop = True
-                print("{0} ({1}): {2}({3})".format(blockTransformationPackage.get("blockid"), execOrder, sourceblk.get("blockid"), sourceblkeo))
-        except:
-            continue
-    return inloop
-
-def searchRatio(a, b, _min, _max):
-    out = -3
-    if _min == _max:
-        out = _max + 1
-    else:
-        if _max > _min:
-            mid = int((_min + _max ) / 2)
-            if a < mid*b:
-                out = searchRatio(a, b, _min, mid)
-            else:
-                if a > (mid + 1) * b:
-                    out = searchRatio(a, b, mid + 1, _max)
-                else:
-                    if (a - mid) * b <= (mid + 1)*b - a:
-                        out = mid
-                    else:
-                        out = mid + 1
-        else:
-            out = 20
-
-    return out
+        check(modelname, _assumptions, True)
 
 def main():
     cUtils.clearScreen()
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    #r3BBW(modelname)
-    bpp = sModel.packBlockForTransformation("bbw/abs_rr_wheel/if v>=10 km//h/lockdetect")
-    #print(json.dumps(bpp, indent=2))
-
+    r3BBW(modelname)
     r4BBW(modelname)
-    """
 
 
-
-
-    ssG = StateSpaceGenerator()
-    sSpace = ssG.generateStateSpace(sModel, 1, 1)
-    print(sSpace.getStateSpace())
-    testScenario(modelname)
-    #describe_tactics()
-    """
 main()

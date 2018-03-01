@@ -11,7 +11,6 @@ def openAndLoadJson(pathToJsonFile):
     return jsonObject
 
 def saveJsonToFile(jsonObject, pathToFile):
-
     try:
         with open(pathToFile, 'w') as jsonFile:
             jsonString = json.dumps(jsonObject, indent=2)

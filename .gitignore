@@ -100,6 +100,9 @@ venv.bak/
 # Temporary folders and files
 temp/
 
+# Executable models
+models/exec/
+
 # Rope project settings
 .ropeproject
 

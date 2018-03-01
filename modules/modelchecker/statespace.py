@@ -68,20 +68,11 @@ class StateSpace:
             print("{0} could not be loaded.".format(pathToJsonFile))
         return cFunctions
 
-    def genenrateSMT2Script(self, start=0, howmany=0, _saveScript = False):
+    def genenrateSMT2Script(self, start=0, howmany=0):
         statesForParsing = self.__getStatesForParsing(start, howmany)
         customFunctions = self.__loadCustomFunctions("./models/custom-functions.smt2")
         script = "{0} \n {1} \n".format(self.declarations, customFunctions)
         for state in statesForParsing:
             pass
             script += "\n".join(state)
-        if _saveScript:
-            print("I am saving the script")
-            self._saveScript("./models/bbw-model.smt2", script)
-            print("Script saved.")
         return script
-
-    def _saveScript(self, location, text):
-        text_file = open(location, "w")
-        text_file.write(text)
-        text_file.close()
