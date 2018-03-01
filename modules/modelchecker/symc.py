@@ -10,7 +10,7 @@ from modules.utils.gcd import *
 import time
 
 class SyMC:
-    
+
     def __init__(self):
         pass
 
@@ -56,30 +56,38 @@ class SyMC:
         return stateSpace;
 
     def __generateScriptForChecking(self, smtScript):
-        return z3.parse_smt2_string(smtScript)
+        parsedSMTScript = ""
+        try:
+            parsedSMTScript = z3.parse_smt2_string(smtScript)
+        except Exception as ex:
+            print("Script parsing faild. \n Reason: {0}".format(ex))
+            parsedSMTScript = ""
+        return parsedSMTScript
+
+    def __constructPathToModel(self, modelname, stepsize):
+        return "./models/exec/{0}-{1}.smt2".format(modelname, stepsize)
 
     def __saveExistingSMTModel(self, modelname="", stepsize="", _smtModel=""):
-        pathToSMTModel = "./models/exec/{0}-{1}.smt2".format(modelname, stepsize)
-        print(pathToSMTModel)
+        pathToSMTModel = self.__constructPathToModel(modelname, stepsize)
         try:
-            print("I am saving the script")
+            print("Script saving in progress ...")
             text_file = open(pathToSMTModel, "w")
             text_file.write(_smtModel)
             text_file.close()
             print("Script saved.")
-        except:
-            print("model saving failed")
+        except Exception as ex:
+            print("Script saving failed. \n Reason: {0}".format(ex))
 
     def __loadExistingSMTModel(self, modelname="", stepsize=""):
         existingSmtModel = ""
-        pathToSMTModel = "./models/exec/{0}-{1}.smt2".format(modelname, stepsize)
-        print(pathToSMTModel)
+        pathToSMTModel = self.__constructPathToModel(modelname, stepsize)
         try:
+            print("Loading existing model in progress ...")
             with open(pathToSMTModel, 'r') as smtModelFile:
                 existingSmtModel = smtModelFile.read()
                 print("Existing model loaded.")
-        except:
-            print("cannot load existing model")
+        except Exception as ex:
+            print("Loading existing model failed. \n Reason: {0}".format(ex))
             existingSmtModel = ""
         return existingSmtModel
 
@@ -100,17 +108,19 @@ class SyMC:
         sModel = loadModel(pathToModel)
         smtModel = self.__getSMTScript(sModel, stepsize, assumptions, reuseExistingModel)
         goal = self.__createGoal()
-        goal.add(self.__generateScriptForChecking(smtModel))
+        smtScript = self.__generateScriptForChecking(smtModel)
+        goal.add(smtScript)
         solver = self.__createAndInitializeSolver(goal)
         return solver
 
     def checkModel(self, pathToModel, stepsize, assumptions=[], reuseExistingModel=False):
         start = time.time()
-        print("Creating model started at {0}".format(time.ctime()))
+        print("Symbolic verification started at {0}".format(time.strftime("%H:%M:%S")))
+        print("Creating model ...")
         solver = self.__createAndPopulateSolver(pathToModel, stepsize, assumptions, reuseExistingModel)
-        print("Creating model finished. It took {0} seconds.".format(time.time() - start))
-        print("Model checking started.")
+        print("Creating model finished in {0:.3f} seconds.".format(time.time() - start))
+        print("Model checking ...")
         start = time.time()
         result = self.__executeSolver(solver)
-        print("Model checking finished. It took {0} seconds.".format(time.time() - start))
+        print("Model checking finished in {0:.3f} seconds.".format(time.time() - start))
         return result
