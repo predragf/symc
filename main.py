@@ -31,7 +31,7 @@ def r3BBW(modelname):
     """
     template = "(> signal_1_{0} 100)"
     constraint = ""
-    for i in range(0, 40):
+    for i in range(0, 200):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r3")
     _assumptions = []
@@ -45,7 +45,7 @@ def r4BBW(modelname):
     """
     template = "(and (> signal_82_{0} 0.2) (not (= signal_153_{0} 0)))"
     constraint = ""
-    for i in range(0, 40):
+    for i in range(0, 200):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
     _assumptions = [final]

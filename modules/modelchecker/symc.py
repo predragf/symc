@@ -47,7 +47,8 @@ class SyMC:
 
     def __obtainModelStateSpace(self, sModel, stepsize, saveStateSpace=False):
         ssg = StateSpaceGenerator()
-        simulationDuration = sModel.getSymbolicFixedPoint() * 2
+        _wceCoeficient = 10
+        simulationDuration = sModel.getSymbolicFixedPoint() * _wceCoeficient
         stateSpace = StateSpace()
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
         if saveStateSpace:
@@ -95,13 +96,11 @@ class SyMC:
         baseModel = ""
         if reuseExistingModel:
             baseModel = self.__loadExistingSMTModel(sModel.getModelName(), stepsize)
-
         if baseModel == "":
             stateSpaceForChecking = self.__obtainModelStateSpace(sModel,
                                                 stepsize, reuseExistingModel)
             baseModel = stateSpaceForChecking.genenrateSMT2Script()
-            self.__saveExistingSMTModel(sModel.getModelName(), stepsize, smtModel)
-
+            self.__saveExistingSMTModel(sModel.getModelName(), stepsize, baseModel)
         return "{0} \n {1}".format(baseModel, "\n".join(assumptions))
 
     def __createAndPopulateSolver(self, pathToModel, stepsize, assumptions, reuseExistingModel=False):
