@@ -11,8 +11,14 @@ import time
 
 class SyMC:
 
-    def __init__(self):
-        pass
+    def __init__(self, _configuration=dict()):
+        self.__configure(_configuration)
+
+    def __configure(self, _configuration=dict()):
+        self.reuseExistingModel = _configuration.get(
+                                            "reuseExistingModel", "") == True
+        self.saveStateSpace = _configuration.get("saveStateSpace", "") == True
+        self.useTactics = _configuration.get("useTactics", "") == True
 
     def __createGoal(self):
         goal = Goal()
@@ -35,25 +41,29 @@ class SyMC:
             result["unsatcore"] = solver.unsat_core()
         return result
 
-    def __createAndInitializeSolver(self, _goal, useTactics=False):
+    def __createAndInitializeSolver(self, _goal):
         solver = self.__createSolver()
-        if useTactics:
+        if self.useTactics:
             tactic = Then("smt", "elim-term-ite", "elim-and")
+            print("Applying tactics on the goal ...")
+            _time = time.time()
             parsedAssertions = tactic(_goal).as_expr()
+            print("Applying tactic on the goal completed. Time: {0}".format(
+            time.time() - _time))
             solver.add(parsedAssertions)
         else:
             solver.add(_goal)
         return solver
 
-    def __obtainModelStateSpace(self, sModel, stepsize, saveStateSpace=False):
+    def __obtainModelStateSpace(self, sModel, stepsize):
         ssg = StateSpaceGenerator()
         _wceCoeficient = 10
         simulationDuration = sModel.getSymbolicFixedPoint() * _wceCoeficient
         stateSpace = StateSpace()
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
-        if saveStateSpace:
+        if self.saveStateSpace:
             StateSpaceManager.saveStateSpaceToFile(stateSpace,
-            "./models/{0}{1}.ss".format(sModel.getModelName(), simulationDuration))
+            "./models/exec/{0}{1}.ss".format(sModel.getModelName(), simulationDuration))
         return stateSpace;
 
     def __generateScriptForChecking(self, smtScript):
@@ -92,31 +102,34 @@ class SyMC:
             existingSmtModel = ""
         return existingSmtModel
 
-    def __getSMTScript(self, sModel, stepsize, assumptions, reuseExistingModel):
+    def __getSMTScript(self, sModel, stepsize, assumptions):
         baseModel = ""
-        if reuseExistingModel:
+        if self.reuseExistingModel:
             baseModel = self.__loadExistingSMTModel(sModel.getModelName(), stepsize)
         if baseModel == "":
             stateSpaceForChecking = self.__obtainModelStateSpace(sModel,
-                                                stepsize, reuseExistingModel)
+                                                stepsize)
             baseModel = stateSpaceForChecking.genenrateSMT2Script()
             self.__saveExistingSMTModel(sModel.getModelName(), stepsize, baseModel)
         return "{0} \n {1}".format(baseModel, "\n".join(assumptions))
 
-    def __createAndPopulateSolver(self, pathToModel, stepsize, assumptions, reuseExistingModel=False):
+    def __createAndPopulateSolver(self, pathToModel, stepsize, assumptions):
         sModel = loadModel(pathToModel)
-        smtModel = self.__getSMTScript(sModel, stepsize, assumptions, reuseExistingModel)
+        smtModel = self.__getSMTScript(sModel, stepsize, assumptions)
         goal = self.__createGoal()
         smtScript = self.__generateScriptForChecking(smtModel)
         goal.add(smtScript)
         solver = self.__createAndInitializeSolver(goal)
         return solver
 
-    def checkModel(self, pathToModel, stepsize, assumptions=[], reuseExistingModel=False):
+    def configure(self, _configuration=dict()):
+        self.__configure(_configuration)
+
+    def checkModel(self, pathToModel, stepsize, assumptions=[]):
         start = time.time()
         print("Symbolic verification started at {0}".format(time.strftime("%H:%M:%S")))
         print("Creating model ...")
-        solver = self.__createAndPopulateSolver(pathToModel, stepsize, assumptions, reuseExistingModel)
+        solver = self.__createAndPopulateSolver(pathToModel, stepsize, assumptions)
         print("Creating model finished in {0:.3f} seconds.".format(time.time() - start))
         print("Model checking ...")
         start = time.time()

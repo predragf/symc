@@ -19,12 +19,18 @@ def determineSatisfaction(result):
         verdict = "verified"
     return verdict
 
-def check(modelname, _assumptions=[], reuseExistingModel=False):
-    modelChecker = SyMC()
-    result = modelChecker.checkModel(modelname, 1, _assumptions, reuseExistingModel)
+def createMCConfig():
+    _configuration = dict()
+    _configuration["useTactics"] = False
+    _configuration["reuseExistingModel"] = True
+    _configuration["saveStateSpace"] = True
+    return _configuration
+
+def check(modelname, modelChecker, _assumptions=[]):
+    result = modelChecker.checkModel(modelname, 1, _assumptions)
     print(determineSatisfaction(result))
 
-def r3BBW(modelname):
+def r3BBW(modelname, modelChecker):
     """
     R3: The value of the brake pedal position shall not exceed its maximal
     value of 100
@@ -36,9 +42,9 @@ def r3BBW(modelname):
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r3")
     _assumptions = []
     _assumptions.append(final)
-    check(modelname, _assumptions, True)
+    check(modelname, modelChecker, _assumptions)
 
-def r4BBW(modelname):
+def r4BBW(modelname, modelChecker):
     """
     If the slip rate exceeds 0.2, then the applied brake torque shall be set
     to 0.
@@ -49,28 +55,16 @@ def r4BBW(modelname):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
     _assumptions = [final]
-    check(modelname, _assumptions, True)
+    check(modelname, modelChecker, _assumptions)
 
-def block(ts, _initial, _function):
-    block = {}
-    block["ts"] = ts
-    block["initial"] = _initial
-    block["f"] = _function
-    return block
-
-
-
-def buildTransitionTable(steps):
-    b1 = block(3, "k1", "f1(S0, #same# #2#)")
-    b1 = block(3, "k1", "f2(S0, #S1# #S2#)")
-    blocks = [b1, b2]
-
+def verifyModel(modelname):
+    modelChecker = SyMC(createMCConfig())
+    r3BBW(modelname, modelChecker)
+    r4BBW(modelname, modelChecker)
 
 def main():
     cUtils.clearScreen()
     modelname = "./models/bbw-eo.json"
-    sModel = loadModel(modelname)
-    r3BBW(modelname)
-    r4BBW(modelname)
+    verifyModel(modelname)
 
 main()
