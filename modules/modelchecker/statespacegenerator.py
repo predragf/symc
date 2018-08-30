@@ -43,7 +43,7 @@ class StateSpaceGenerator:
         self.blocksStepSize = self.__calculateStepSizeForAllBlocks(sModel.getAllBlocks(),
                                                             simulationStepSize)
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
-        for block in self.blocksForTransformation:            
+        for block in self.blocksForTransformation:
             blockid = block.get("blockid")
             self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(block)
 
@@ -72,6 +72,7 @@ class StateSpaceGenerator:
     def __generateModelStateSpaceNew(self, sModel):
         declaration = "";
         simulationTimeHorizon = self.simulationTimeHorizon
+        print("Simulation time horizon is: {0}".format(simulationTimeHorizon))
         declarationTemplate = self.__prepareDeclarationsForVariables(sModel.getModelVariables())
         sSpace = StateSpace()
         for step in range(0, simulationTimeHorizon):

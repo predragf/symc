@@ -2,6 +2,9 @@ from modules.simulink.simulinkmodel import *
 from modules.simulink.simulinkmodelloader import *
 from modules.modelchecker.symc import *
 import modules.utils.utils as cUtils
+from modules.utils.gcd import *
+from modules.modelchecker.ct import *
+import z3
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -22,22 +25,22 @@ def determineSatisfaction(result):
 def createMCConfig():
     _configuration = dict()
     _configuration["useTactics"] = False
-    _configuration["reuseExistingModel"] = True
+    _configuration["reuseExistingModel"] = False
     _configuration["saveStateSpace"] = True
     return _configuration
 
 def check(modelname, modelChecker, _assumptions=[]):
     result = modelChecker.checkModel(modelname, 1, _assumptions)
-    print(determineSatisfaction(result))
+    print("Property status: {0}".format(determineSatisfaction(result)))
 
 def r3BBW(modelname, modelChecker):
     """
-    R3: The value of the brake pedal position shall not exceed its maximal
+    The value of the brake pedal position shall not exceed its maximal
     value of 100
     """
     template = "(> signal_1_{0} 100)"
     constraint = ""
-    for i in range(0, 200):
+    for i in range(0, 40):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r3")
     _assumptions = []
@@ -51,7 +54,7 @@ def r4BBW(modelname, modelChecker):
     """
     template = "(and (> signal_82_{0} 0.2) (not (= signal_153_{0} 0)))"
     constraint = ""
-    for i in range(0, 200):
+    for i in range(0, 40):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
     _assumptions = [final]
@@ -65,6 +68,11 @@ def verifyModel(modelname):
 def main():
     cUtils.clearScreen()
     modelname = "./models/bbw-eo.json"
-    verifyModel(modelname)
+    sModel = loadModel(modelname)
+    print(calculateCT(sModel, "bbw/rt14"))
+    #print(gcdList([5,3,2]))
+    #print(len(sModel.getAllConnections()))
+    #print(sModel.getSignalVariables())
+    #verifyModel(modelname)
 
 main()

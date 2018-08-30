@@ -57,7 +57,7 @@ class SyMC:
 
     def __obtainModelStateSpace(self, sModel, stepsize):
         ssg = StateSpaceGenerator()
-        _wceCoeficient = 10
+        _wceCoeficient = 2
         simulationDuration = sModel.getSymbolicFixedPoint() * _wceCoeficient
         stateSpace = StateSpace()
         stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
@@ -127,7 +127,7 @@ class SyMC:
 
     def checkModel(self, pathToModel, stepsize, assumptions=[]):
         start = time.time()
-        print("Symbolic verification started at {0}".format(time.strftime("%H:%M:%S")))
+        print("Model verification started at {0}".format(time.strftime("%H:%M:%S")))
         print("Creating model ...")
         solver = self.__createAndPopulateSolver(pathToModel, stepsize, assumptions)
         print("Creating model finished in {0:.3f} seconds.".format(time.time() - start))

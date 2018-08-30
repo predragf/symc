@@ -9,9 +9,6 @@ class SimulinkModel:
         self.simulinkModelJson["internalstatevariables"] = self.__createInternalStateVariables()
         self.symbolicFixedPoint = self.__calculateModelFixedPoint()
 
-    def getSymbolicFixedPoint(self):
-        return cUtils.to_int(self.symbolicFixedPoint)
-
     def __getLinesFromSameSource(self, _pivot, _allLines):
         samelines = []
         samelines.append(_pivot)
@@ -51,46 +48,6 @@ class SimulinkModel:
                 internalstatevariables[_blockid] = "internalstate_{0}".format(internalstatenum)
         return internalstatevariables
 
-    def getAllBlocks(self):
-        return self.simulinkModelJson.get("blocks")
-
-    def getAllInputs(self):
-        return self.simulinkModelJson.get("inputs")
-
-    def getAllOutputs(self):
-        return self.simulinkModelJson.get("outputs")
-
-    def getBlockById(self, blockid):
-        result = {}
-        allBlocks = self.getAllBlocks()
-        for block in allBlocks:
-            if block.get("blockid") == blockid:
-                result = block
-                break
-        return result
-
-    def getAllConnections(self):
-        return self.simulinkModelJson.get("connections")
-
-    def getSignalVariables(self):
-        return self.simulinkModelJson.get("signalvariables")
-
-    def getInternalStateVariables(self):
-        return self.simulinkModelJson["internalstatevariables"]
-
-    def getConnectionSignalVariable(self, _lineName):
-        allSignalVariables = self.getSignalVariables()
-        return allSignalVariables[_lineName]
-
-    def getModelName(self):
-        modelName = self.simulinkModelJson.get("modelname")
-        if modelName is None:
-            modelName = ""
-        return modelName
-
-    def getModelJSON(self):
-        return self.simulinkModelJson
-
     def __getBlockConnections(self, blockid, connectionType="all"):
         allconnections = self.getAllConnections()
         blockConnections = []
@@ -111,30 +68,6 @@ class SimulinkModel:
                 break
         return result
 
-    def getBlockOutputConnections(self, blockid):
-        return self.__getBlockConnections(blockid, "output")
-
-    def getBlockInputConnections(self, blockid):
-        return self.__getBlockConnections(blockid, "input")
-
-    def getBlockInputs(self, blockid):
-        result = []
-        connections = self.getAllConnections()
-        for connection in connections:
-            if connection.get("destinationblockid") == blockid:
-                result.append(connection.copy())
-        return result
-
-    def getBlockPredecessors(self, blockid):
-        predecessors = []
-        modelConnections = self.getAllConnections()
-        for connection in modelConnections:
-            if connection.get("destinationblockid") == blockid:
-                sourceblockid = connection.get("sourceblockid")
-                sourceBlock = self.getBlockById(sourceblockid)
-                predecessors.append(sourceBlock)
-        return predecessors
-
     def __parseConnection(self, iconn):
         sourceBlock = self.getBlockById(iconn.get("sourceblockid"))
         _input = {}
@@ -149,70 +82,6 @@ class SimulinkModel:
         for iconn in inputconnections:
             inputs.append(self.__parseConnection(iconn))
         return inputs
-
-    def packBlockForTransformation(self, blockid):
-        blockForTransformation = self.getBlockById(blockid).copy()
-        outConns = self.getBlockOutputConnections(blockid)
-        blockForTransformation["inputs"] = self.__createInputs(blockid)
-        blockForTransformation["internalstatevariable"] = self.simulinkModelJson["internalstatevariables"].get(blockid, "")
-        if len(outConns) > 0:
-            signalname = outConns[0].get("name")
-            blockForTransformation["signalname"] = signalname
-            blockForTransformation["signalvariable"] = self.getSignalVariables().get(signalname)
-        else:
-            blockForTransformation["signalname"] = ""
-
-        return blockForTransformation
-
-    def packAllBlocksForTransformation(self):
-        allBlocksPacked = []
-        allBlocks = self.getAllBlocks()
-        for block in allBlocks:
-            blockid = block.get("blockid")
-            blockPackage = self.packBlockForTransformation(blockid)
-            allBlocksPacked.append(blockPackage)
-        return allBlocksPacked
-
-    def calculateFundamentalSampleTime(self):
-        allBlocks = self.getAllBlocks()
-        sampletimes = set()
-        for block in allBlocks:
-            ts = block.get("sampletime")
-            if ts == 0:
-                '''-1 denotes that there is at least one continuous-time
-                block which means that we must construct the complete state space
-                '''
-                return -1
-            else:
-                sampletimes.add(ts)
-        return gcdList(list(sampletimes))
-
-    def getModelVariables(self):
-        modelVariables = self.getSignalVariables().values()
-        modelVariables.extend(self.getInternalStateVariables().values())
-        noDuplicates = set(modelVariables)
-        return list(noDuplicates)
-
-    def __getBlockDataDependencyChain(self, blockid, direction="backward", visitedblocks=set()):
-        if blockid not in visitedblocks:
-            visitedblocks.add(blockid)
-            blocksForExamination = ""
-            if direction == "backward":
-                connections = self.__getBlockConnections(blockid, "input")
-                blocksForExamination = "sourceblockid"
-            else:
-                connections = self.__getBlockConnections(blockid, "ouput")
-                blocksForExamination = "destinationblockid"
-            for bConn in connections:
-                visitedblocks = self.__getBlockDataDependencyChain(
-                                bConn.get(blocksForExamination), direction, visitedblocks)
-        return visitedblocks
-
-    def getBackwardBlockDataDependencyChain(self, blockid):
-        return self.__getBlockDataDependencyChain(blockid, "backward")
-
-    def getForwardBlockDataDependencyChain(self, blockid):
-        return self.__getBlockDataDependencyChain(blockid, "forward")
 
     def __determineFixedPoint(self, outTs, predecessorsTs):
         fixedPoint = outTs
@@ -302,8 +171,20 @@ class SimulinkModel:
             loopCreatingConnection.get("sourceblockid"), dummyLoops))
         return allLoops
 
-    def test(self):
-        return self.__findAllLoopCreatingConnections()
+    def __getBlockDataDependencyChain(self, blockid, direction="backward", visitedblocks=set()):
+        if blockid not in visitedblocks:
+            visitedblocks.add(blockid)
+            blocksForExamination = ""
+            if direction == "backward":
+                connections = self.__getBlockConnections(blockid, "input")
+                blocksForExamination = "sourceblockid"
+            else:
+                connections = self.__getBlockConnections(blockid, "ouput")
+                blocksForExamination = "destinationblockid"
+            for bConn in connections:
+                visitedblocks = self.__getBlockDataDependencyChain(
+                                bConn.get(blocksForExamination), direction, visitedblocks)
+        return visitedblocks
 
     def __calculateModelFixedPoint(self):
         allBlocks = self.getAllBlocks()
@@ -313,3 +194,119 @@ class SimulinkModel:
             interFP = self.__calculateBlockSymbolicFixedPoint(blk)
             fixedPoint = max(fixedPoint, interFP)
         return fixedPoint
+
+    def getAllBlocks(self):
+        return self.simulinkModelJson.get("blocks")
+
+    def getAllInputs(self):
+        return self.simulinkModelJson.get("inputs")
+
+    def getAllOutputs(self):
+        return self.simulinkModelJson.get("outputs")
+
+    def getBlockById(self, blockid):
+        result = {}
+        allBlocks = self.getAllBlocks()
+        for block in allBlocks:
+            if block.get("blockid") == blockid:
+                result = block
+                break
+        return result
+
+    def getAllConnections(self):
+        return self.simulinkModelJson.get("connections")
+
+    def getSignalVariables(self):
+        return self.simulinkModelJson.get("signalvariables")
+
+    def getInternalStateVariables(self):
+        return self.simulinkModelJson["internalstatevariables"]
+
+    def getConnectionSignalVariable(self, _lineName):
+        allSignalVariables = self.getSignalVariables()
+        return allSignalVariables[_lineName]
+
+    def getModelName(self):
+        modelName = self.simulinkModelJson.get("modelname")
+        if modelName is None:
+            modelName = ""
+        return modelName
+
+    def getModelJSON(self):
+        return self.simulinkModelJson
+
+    def getBlockOutputConnections(self, blockid):
+        return self.__getBlockConnections(blockid, "output")
+
+    def getBlockInputConnections(self, blockid):
+        return self.__getBlockConnections(blockid, "input")
+
+    def getBlockInputs(self, blockid):
+        result = []
+        connections = self.getAllConnections()
+        for connection in connections:
+            if connection.get("destinationblockid") == blockid:
+                result.append(connection.copy())
+        return result
+
+    def getBlockPredecessors(self, blockid):
+        predecessors = []
+        modelConnections = self.getAllConnections()
+        for connection in modelConnections:
+            if connection.get("destinationblockid") == blockid:
+                sourceblockid = connection.get("sourceblockid")
+                sourceBlock = self.getBlockById(sourceblockid)
+                predecessors.append(sourceBlock)
+        return predecessors
+
+    def packBlockForTransformation(self, blockid):
+        blockForTransformation = self.getBlockById(blockid).copy()
+        outConns = self.getBlockOutputConnections(blockid)
+        blockForTransformation["inputs"] = self.__createInputs(blockid)
+        blockForTransformation["internalstatevariable"] = self.simulinkModelJson["internalstatevariables"].get(blockid, "")
+        if len(outConns) > 0:
+            signalname = outConns[0].get("name")
+            blockForTransformation["signalname"] = signalname
+            blockForTransformation["signalvariable"] = self.getSignalVariables().get(signalname)
+        else:
+            blockForTransformation["signalname"] = ""
+
+        return blockForTransformation
+
+    def packAllBlocksForTransformation(self):
+        allBlocksPacked = []
+        allBlocks = self.getAllBlocks()
+        for block in allBlocks:
+            blockid = block.get("blockid")
+            blockPackage = self.packBlockForTransformation(blockid)
+            allBlocksPacked.append(blockPackage)
+        return allBlocksPacked
+
+    def calculateFundamentalSampleTime(self):
+        allBlocks = self.getAllBlocks()
+        sampletimes = set()
+        for block in allBlocks:
+            ts = block.get("sampletime")
+            if ts == 0:
+                '''-1 denotes that there is at least one continuous-time
+                block which means that we must construct the complete state space
+                '''
+                return -1
+            else:
+                sampletimes.add(ts)
+        return gcdList(list(sampletimes))
+
+    def getModelVariables(self):
+        modelVariables = self.getSignalVariables().values()
+        modelVariables.extend(self.getInternalStateVariables().values())
+        noDuplicates = set(modelVariables)
+        return list(noDuplicates)
+
+    def getBackwardBlockDataDependencyChain(self, blockid):
+        return self.__getBlockDataDependencyChain(blockid, "backward")
+
+    def getForwardBlockDataDependencyChain(self, blockid):
+        return self.__getBlockDataDependencyChain(blockid, "forward")
+
+    def getSymbolicFixedPoint(self):
+        return cUtils.to_int(self.symbolicFixedPoint)

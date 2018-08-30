@@ -7,4 +7,5 @@ def gcd(a=0, b=0):
         return gcd(b, a%b)
 
 def gcdList(_list=[]):
+    print(_list)
     return reduce(gcd, _list)
