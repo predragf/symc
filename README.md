@@ -1,6 +1,6 @@
 # README #
 
-### Simbolic Simulink - a Tool for SMT-based Bounded Model Checking of Simulink Models. ###
+### SyMC- a Tool for SMT-based Bounded Invariance Checking of Simulink Models. ###
 
 * Quick summary
 * V 0.0.1
