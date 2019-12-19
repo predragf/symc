@@ -1,6 +1,6 @@
 from z3 import *
 from modules.simulink.simulinkmodel import *
-from modules.simulink.simulinkmodelloader import *
+from modules.simulink.simulinkmodelmanager import *
 from modules.modelchecker.statespace import *
 from modules.modelchecker.statespacegenerator import *
 from modules.modelchecker.statespacemanager import *

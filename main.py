@@ -1,5 +1,5 @@
 from modules.simulink.simulinkmodel import *
-from modules.simulink.simulinkmodelloader import *
+from modules.simulink.simulinkmodelmanager import *
 from modules.modelchecker.symc import *
 import modules.utils.utils as cUtils
 from modules.utils.gcd import *
