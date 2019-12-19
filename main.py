@@ -69,10 +69,10 @@ def main():
     cUtils.clearScreen()
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
-    print(calculateCT(sModel, "bbw/rt14"))
+    print("The CT for bbw/rt14 is {} ". format(calculateCT(sModel, "bbw/rt14")))
     #print(gcdList([5,3,2]))
     #print(len(sModel.getAllConnections()))
     #print(sModel.getSignalVariables())
-    #verifyModel(modelname)
+    verifyModel(modelname)
 
 main()
