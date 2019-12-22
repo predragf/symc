@@ -7,7 +7,9 @@ from modules.modelchecker.statespacemanager import *
 from modules.routinegenerators.routinegenerator import *
 from modules.assertiongenerators.assertiongenerator import *
 from modules.utils.gcd import *
+from modules.utils.utils import *
 import time
+
 
 class SyMC:
 
@@ -16,9 +18,9 @@ class SyMC:
 
     def __configure(self, _configuration=dict()):
         self.reuseExistingModel = _configuration.get(
-                                            "reuseExistingModel", "") == True
-        self.saveStateSpace = _configuration.get("saveStateSpace", "") == True
-        self.useTactics = _configuration.get("useTactics", "") == True
+            "reuseExistingModel", "") is True
+        self.saveStateSpace = _configuration.get("saveStateSpace", "") is True
+        self.useTactics = _configuration.get("useTactics", "") is True
 
     def __createGoal(self):
         goal = Goal()
@@ -49,7 +51,7 @@ class SyMC:
             _time = time.time()
             parsedAssertions = tactic(_goal).as_expr()
             print("Applying tactic on the goal completed. Time: {0}".format(
-            time.time() - _time))
+                time.time() - _time))
             solver.add(parsedAssertions)
         else:
             solver.add(_goal)
@@ -58,13 +60,18 @@ class SyMC:
     def __obtainModelStateSpace(self, sModel, stepsize):
         ssg = StateSpaceGenerator()
         _wceCoeficient = 2
+        # the size of the simulation, that is the exexution traces is
+        # calculated as the symbolic fixed point of the model multiplied by
+        # the WCE coefficient.
         simulationDuration = sModel.getSymbolicFixedPoint() * _wceCoeficient
         stateSpace = StateSpace()
-        stateSpace = ssg.generateStateSpace(sModel, stepsize, simulationDuration)
+        stateSpace = ssg.generateStateSpace(sModel, stepsize,
+                                            100)  # simulationDuration)
         if self.saveStateSpace:
             StateSpaceManager.saveStateSpaceToFile(stateSpace,
-            "./models/exec/{0}{1}.ss".format(sModel.getModelName(), simulationDuration))
-        return stateSpace;
+                                                   "./models/exec/{0}{1}.ss".format(sModel.getModelName(),
+                                                                                    simulationDuration))
+        return stateSpace
 
     def __generateScriptForChecking(self, smtScript):
         parsedSMTScript = ""
@@ -80,9 +87,10 @@ class SyMC:
 
     def __saveExistingSMTModel(self, modelname="", stepsize="", _smtModel=""):
         pathToSMTModel = self.__constructPathToModel(modelname, stepsize)
+        absolutePathSMTModel = os.path.abspath(pathToSMTModel)
         try:
             print("Script saving in progress ...")
-            text_file = open(pathToSMTModel, "w")
+            text_file = openFile(absolutePathSMTModel, "w")
             text_file.write(_smtModel)
             text_file.close()
             print("Script saved.")
@@ -108,7 +116,7 @@ class SyMC:
             baseModel = self.__loadExistingSMTModel(sModel.getModelName(), stepsize)
         if baseModel == "":
             stateSpaceForChecking = self.__obtainModelStateSpace(sModel,
-                                                stepsize)
+                                                                 stepsize)
             baseModel = stateSpaceForChecking.genenrateSMT2Script()
             self.__saveExistingSMTModel(sModel.getModelName(), stepsize, baseModel)
         return "{0} \n {1}".format(baseModel, "\n".join(assumptions))
@@ -127,12 +135,16 @@ class SyMC:
 
     def checkModel(self, pathToModel, stepsize, assumptions=[]):
         start = time.time()
-        print("Model verification started at {0}".format(time.strftime("%H:%M:%S")))
+        print("Model verification started at {0}".format(
+            time.strftime("%H:%M:%S")))
         print("Creating model ...")
-        solver = self.__createAndPopulateSolver(pathToModel, stepsize, assumptions)
-        print("Creating model finished in {0:.3f} seconds.".format(time.time() - start))
+        solver = self.__createAndPopulateSolver(pathToModel, stepsize,
+                                                assumptions)
+        print("Creating model finished in {0:.3f} seconds.".format(time.time()
+                                                                   - start))
         print("Model checking ...")
         start = time.time()
         result = self.__executeSolver(solver)
-        print("Model checking finished in {0:.3f} seconds.".format(time.time() - start))
+        print("Model checking finished in {0:.3f} seconds.".format(time.time()
+                                                                   - start))
         return result

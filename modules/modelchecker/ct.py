@@ -1,19 +1,25 @@
-from modules.simulink.simulinkmodel import *
 import math
 import sys
 
-def calculateCT(simulinkModel, blockid):
-    return calculateCTRecursively(simulinkModel, blockid, [])
 
-def calculateCTRecursively(simulinkModel, blockid, visitedBlocks):
+def calculateCT(simulinkModel, blockid):
+    return __calculateCTRecursively(simulinkModel, blockid, [])
+
+
+def __calculateCTRecursively(simulinkModel, blockid, visitedBlocks):
+    """
+        This function works only for the linear compositions, and
+        not for the feedback loops. Should be fixed in the next iteration
+    """
     requiredBlock = simulinkModel.getBlockById(blockid)
     requiredBlockSampleTime = requiredBlock.get("sampletime", "1")
     predecessors = simulinkModel.getBlockPredecessors(blockid)
     requiredBlockSampleTime = int(requiredBlockSampleTime)
-    result = 100000
+    result = sys.maxint
     if requiredBlockSampleTime < 1:
         requiredBlockSampleTime = 1
-    if not predecessors: #block is the first in the composition
+    # block is the first in the composition
+    if not predecessors:
         result = requiredBlockSampleTime
     else:
         predecessorsCTs = []
@@ -22,10 +28,12 @@ def calculateCTRecursively(simulinkModel, blockid, visitedBlocks):
             predecessorId = predecessor.get("blockid")
             if predecessorId in visitedBlocks:
                 return sys.maxint
-            calculatedCT = calculateCTRecursively(simulinkModel, predecessorId, visitedBlocks)
+            calculatedCT = __calculateCTRecursively(simulinkModel,
+                                                    predecessorId,
+                                                    visitedBlocks)
             predecessorsCTs.append(calculatedCT)
         predecessorsCTs.sort(reverse=True)
         maxValue = predecessorsCTs[0]
-        ceiling = int(math.ceil(float(maxValue)/int(requiredBlockSampleTime)))        
+        ceiling = int(math.ceil(float(maxValue)/int(requiredBlockSampleTime)))
         result = int(ceiling * requiredBlockSampleTime)
     return result

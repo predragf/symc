@@ -1,5 +1,6 @@
 import re
 
+
 class AssertionGenerator:
     def __init__(self):
         pass
@@ -8,7 +9,7 @@ class AssertionGenerator:
         assertionPattern = "^\(.*\)$"
         numberPattern = "^[-]?[0-9]*([.,][0-9]+)?$"
         if (re.match(assertionPattern, _input) == None
-            and re.match(numberPattern, _input) == None):
+                and re.match(numberPattern, _input) == None):
             _input = "{0}_{1}".format(_input, step)
         return _input
 
@@ -21,13 +22,13 @@ class AssertionGenerator:
                 parts = _input.split("#")
                 portNumber = int(parts[0])
                 result[portNumber - 1] = self.__adjustInput(parts[1], step)
-            except:
-                print("I am failing for " + str(inputs))
+            except excp:
+                print("Filed to extract input: {}".format(str(inputs)))
         return result
 
     def sum(self, sBlockPackage, simulationstep):
-        #here one also needs to know the simulation step from which
-        #the inputs shall be taken
+        # here one also needs to know the simulation step from which
+        # the inputs shall be taken
         signalname = sBlockPackage["signalname"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         assertion = "(= {0}_{1} (+ {2}_{1}))"
@@ -53,7 +54,7 @@ class AssertionGenerator:
         operator = sBlockPackage["parameters"]["relationtype"]
         return """(ite ({1} {2} {3}) (= {0}_{4} 1)
         (= {0}_{4} 0))""".format(signalname, operator, inputs[0],
-                                inputs[1], simulationstep)
+                                 inputs[1], simulationstep)
 
     def subtract(self, sBlockPackage, simulationstep):
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
@@ -69,7 +70,7 @@ class AssertionGenerator:
         return """(and (=> (<= {2} {4}) (= {0}_{1} {4})) (=>
         (and (>= {2} {4}) (<= {2} {3})) (= {0}_{1} {2}))
         (=> (>= {2} {3}) (= {0}_{1} {3})))""".format(signalname, simulationstep,
-                                            inputs[0], upperLimit, lowerLimit)
+                                                     inputs[0], upperLimit, lowerLimit)
 
     def switch(self, sBlockPackage, simulationstep):
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
@@ -78,7 +79,7 @@ class AssertionGenerator:
         condition = condition.replace("u2", inputs[1]).split(" ")
         condition = "{0} {1} {2}".format(condition[1], condition[0], condition[2])
         return """(ite ({1}) (= {0}_{4} {2}) (= {0}_{4} {3}))""".format(signalname,
-                                condition, inputs[0], inputs[2], simulationstep)
+                                                                        condition, inputs[0], inputs[2], simulationstep)
 
     def constant(self, sBlockPackage, simulationstep):
         signalname = sBlockPackage["signalname"]
@@ -89,13 +90,13 @@ class AssertionGenerator:
         signalname = sBlockPackage["signalname"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         return """(ite (> {1} {2}) (= {0}_{3} {1}) (= {0}_{3} {2}))""".format(signalname,
-                                            inputs[0], inputs[1], simulationstep)
+                                                                              inputs[0], inputs[1], simulationstep)
 
     def abs(self, sBlockPackage, simulationstep):
         signalname = sBlockPackage["signalname"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
         return """(ite (> {1} 0) (= {0}_{3} {1}) (= {0}_{3} (* -1 {1})))""".format(
-                                                    signalname, inputs[0], simulationstep)
+            signalname, inputs[0], simulationstep)
 
     def product(self, sBlockPackage, simulationstep):
         signalname = sBlockPackage["signalname"]
@@ -105,11 +106,11 @@ class AssertionGenerator:
     def unitdelay(self, sBlockPackage, simulationstep):
         signalname = sBlockPackage["signalname"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
-        #TODO: Implement this function.
+        # TODO: Implement this function.
         return ""
 
     def divide(self, sBlockPackage, simulationstep):
         signalname = sBlockPackage["signalname"]
         inputs = self.__extractInputs(sBlockPackage, simulationstep)
-        #TODO: Implement this function.
+        # TODO: Implement this function.
         return ""

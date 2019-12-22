@@ -103,6 +103,9 @@ temp/
 # Executable models
 models/exec/
 
+#tags for atom.io
+.tags
+
 # Rope project settings
 .ropeproject
 

@@ -3,6 +3,7 @@ from modules.assertiongenerators.assertiongenerator import *
 from modules.assertiongenerators.assertiontemplategenerator import *
 from modules.assertiongenerators.assertioninstantiator import *
 
+
 class StateSpaceGenerator:
     def __init__(self):
         self.__initialSetup()
@@ -26,11 +27,12 @@ class StateSpaceGenerator:
         for block in allBlocks:
             blockid = block.get("blockid")
             blockSampleTime = block.get("sampletime", 0)
-            blocksStepSize[blockid] = self.__calculateBlockStepSize(blockSampleTime, simulationStepSize)
+            blocksStepSize[blockid] = self.__calculateBlockStepSize(
+                blockSampleTime, simulationStepSize)
         return blocksStepSize
 
     def __calculateSimulationHorizon(self, simulationStepSize, fundamentalSampleTime,
-                                                            simulationDuration):
+                                     simulationDuration):
         simulationHorizon = (simulationDuration / simulationStepSize)
         if fundamentalSampleTime > 0:
             simulationHorizon = (simulationDuration / fundamentalSampleTime)
@@ -39,13 +41,14 @@ class StateSpaceGenerator:
     def __preprocessModel(self, sModel, simulationStepSize, simulationDuration):
         self.fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
         self.simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
-                                        self.fundamentalSampleTime, simulationDuration)
+                                                                       self.fundamentalSampleTime, simulationDuration)
         self.blocksStepSize = self.__calculateStepSizeForAllBlocks(sModel.getAllBlocks(),
-                                                            simulationStepSize)
+                                                                   simulationStepSize)
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
         for block in self.blocksForTransformation:
             blockid = block.get("blockid")
-            self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(block)
+            self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(
+                block)
 
     def __generateBlockSymbolicState(self, block, step):
         blockStepSize = self.blocksStepSize.get(block.get("blockid"))
@@ -63,14 +66,14 @@ class StateSpaceGenerator:
         return self.__generateModelStateSpaceNew(sModel)
 
     def __prepareDeclarationsForVariables(self, modelVariables):
-        declarationString = "";
+        declarationString = ""
         for modelVariable in modelVariables:
-            declarationString += "{0} \n".format(
-            AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
+            declarationString += "{0}\n".format(
+                AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
         return declarationString
 
     def __generateModelStateSpaceNew(self, sModel):
-        declaration = "";
+        declaration = ""
         simulationTimeHorizon = self.simulationTimeHorizon
         print("Simulation time horizon is: {0}".format(simulationTimeHorizon))
         declarationTemplate = self.__prepareDeclarationsForVariables(sModel.getModelVariables())

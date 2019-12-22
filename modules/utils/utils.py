@@ -3,14 +3,18 @@ import random
 import os
 import platform
 
+
 def generateRandomLetterSequence(sequenceLength):
-    return ''.join(random.choice(string.ascii_uppercase) for _ in range(sequenceLength))
+    return ''.join(random.choice(string.ascii_uppercase) for _ in
+                   range(sequenceLength))
+
 
 def sortJsonList(jsonList, sortKey=""):
     sortedList = jsonList
     if sortKey != "":
         sortedList = sorted(jsonList, key=lambda k: k[sortKey])
     return sortedList
+
 
 def to_int(asString):
     number = -1
@@ -19,6 +23,21 @@ def to_int(asString):
     except Exception:
         pass
     return number
+
+
+def openFile(absoluteFileName, operation):
+    """
+        This fuction makes sure that if the directory where
+        the file is to be created exists. If the directory does
+        not exist, it will crate it.
+    """
+    # just in case make sure that it is an absultute path
+    absoluteFileName = os.path.abspath(absoluteFileName)
+    _directory = os.path.dirname(absoluteFileName)
+    if os.path.exists(_directory) is False:
+        os.mkdir(_directory)
+    return open(absoluteFileName, operation)
+
 
 def clearScreen():
     _platform = platform.system().lower()
