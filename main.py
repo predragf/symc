@@ -21,6 +21,18 @@ def printlist(_list, keyname=""):
             print(itm)
 
 
+def generateAssertionsFromProperty(property):
+    assertions = []
+    signalPattern = r'signal_\d+'
+    usedSignals = re.findall(signalPattern, property)
+    for i in range(0, 100):
+        assertion = property
+        for us in usedSignals:
+            assertion = assertion.replace(us, "{0}_{1}".format(us, i))
+        assertions.append(assertion)
+    return assertions
+
+
 def determineSatisfaction(result):
     verdict = "violated"
     if result["verdict"] == unsat:
@@ -36,8 +48,8 @@ def createMCConfig():
     return _configuration
 
 
-def check(modelname, modelChecker, propertyName="", _assumptions=[]):
-    result = modelChecker.checkModel(modelname, 1, _assumptions)
+def check(modelname, modelChecker, propertyName="", _property=""):
+    result = modelChecker.checkModel(modelname, 1, _property)
     mcResult = determineSatisfaction(result)
     print("Property status: {0}".format(mcResult))
     if mcResult == "violated":
@@ -83,12 +95,13 @@ def r4BBW(modelname, modelChecker):
     to 0.
     """
     template = "(and (> signal_82_{0} 0.2) (not (= signal_153_{0} 0)))"
+    property = "(and (> signal_82 0.2) (not (= signal_153 0)))"
     constraint = ""
     for i in range(0, simulationSize):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
     _assumptions = [final]
-    check(modelname, modelChecker, "r4bbw", _assumptions)
+    check(modelname, modelChecker, "r4bbw", property)
 
 
 def verifyModel(modelname, size):
@@ -102,7 +115,6 @@ def main():
     modelname = "./models/bbw-eo.json"
     sModel = loadModel(modelname)
     print(sModel.getModelVariables())
-    print("The CT for bbw/rt14 is {} ". format(calculateCT(sModel, "bbw/rt14")))
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())

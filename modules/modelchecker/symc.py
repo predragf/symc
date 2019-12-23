@@ -17,6 +17,7 @@ class SyMC:
         self.__configure(_configuration)
 
     def __configure(self, _configuration=dict()):
+        _wceCoeficient = 2
         self.reuseExistingModel = _configuration.get(
             "reuseExistingModel", "") is True
         self.saveStateSpace = _configuration.get("saveStateSpace", "") is True
@@ -59,18 +60,19 @@ class SyMC:
 
     def __obtainModelStateSpace(self, sModel, stepsize):
         ssg = StateSpaceGenerator()
-        _wceCoeficient = 2
         # the size of the simulation, that is the exexution traces is
         # calculated as the symbolic fixed point of the model multiplied by
         # the WCE coefficient.
-        simulationDuration = sModel.getSymbolicFixedPoint() * _wceCoeficient
         stateSpace = StateSpace()
         stateSpace = ssg.generateStateSpace(sModel, stepsize,
-                                            100)  # simulationDuration)
+                                            self.executionLenght)
         if self.saveStateSpace:
             StateSpaceManager.saveStateSpaceToFile(stateSpace,
-                                                   "./models/exec/{0}{1}.ss".format(sModel.getModelName(),
-                                                                                    simulationDuration))
+                                                   "./models/exec/{0}{1}.ss"
+                                                   .format(sModel
+                                                           .getModelName(),
+                                                           self.executionLenght
+                                                           ))
         return stateSpace
 
     def __generateScriptForChecking(self, smtScript):
@@ -110,7 +112,18 @@ class SyMC:
             existingSmtModel = ""
         return existingSmtModel
 
-    def __getSMTScript(self, sModel, stepsize, assumptions):
+    def __generateAssertionsFromProperty(self, property):
+        assertions = []
+        signalPattern = r'signal_\d+'
+        usedSignals = re.findall(signalPattern, property)
+        for i in range(0, self.executionLenght):
+            assertion = property
+            for us in usedSignals:
+                assertion = assertion.replace(us, "{0}_{1}".format(us, i))
+            assertions.append(assertion)
+        return assertions
+
+    def __getSMTScript(self, sModel, stepsize, property):
         baseModel = ""
         if self.reuseExistingModel:
             baseModel = self.__loadExistingSMTModel(sModel.getModelName(), stepsize)
@@ -119,11 +132,14 @@ class SyMC:
                                                                  stepsize)
             baseModel = stateSpaceForChecking.genenrateSMT2Script()
             self.__saveExistingSMTModel(sModel.getModelName(), stepsize, baseModel)
-        return "{0} \n {1}".format(baseModel, "\n".join(assumptions))
+            assertions = self.__generateAssertionsFromProperty(property)
+            print assertions
+        return "{0} \n {1}".format(baseModel, "\n".join(assertions))
 
-    def __createAndPopulateSolver(self, pathToModel, stepsize, assumptions):
+    def __createAndPopulateSolver(self, pathToModel, stepsize, property):
         sModel = loadModel(pathToModel)
-        smtModel = self.__getSMTScript(sModel, stepsize, assumptions)
+        self.executionLenght = sModel.getSymbolicFixedPoint() * 2
+        smtModel = self.__getSMTScript(sModel, stepsize, property)
         goal = self.__createGoal()
         smtScript = self.__generateScriptForChecking(smtModel)
         goal.add(smtScript)
@@ -133,13 +149,13 @@ class SyMC:
     def configure(self, _configuration=dict()):
         self.__configure(_configuration)
 
-    def checkModel(self, pathToModel, stepsize, assumptions=[]):
+    def checkModel(self, pathToModel, stepsize, property=""):
         start = time.time()
         print("Model verification started at {0}".format(
             time.strftime("%H:%M:%S")))
         print("Creating model ...")
         solver = self.__createAndPopulateSolver(pathToModel, stepsize,
-                                                assumptions)
+                                                property)
         print("Creating model finished in {0:.3f} seconds.".format(time.time()
                                                                    - start))
         print("Model checking ...")
