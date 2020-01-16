@@ -1,10 +1,13 @@
 from modules.simulink.simulinkmodel import *
+from modules.simulink.cocosimmodel import *
 from modules.simulink.simulinkmodelmanager import *
+from modules.simulink.cocosimmodelmanager import *
 from modules.modelchecker.symc import *
 import modules.utils.utils as cUtils
 from modules.utils.gcd import *
 from modules.modelchecker.ct import *
 import z3
+import json
 
 
 simulationSize = 100
@@ -112,13 +115,17 @@ def verifyModel(modelname, size):
 
 def main():
     cUtils.clearScreen()
-    modelname = "./models/bbw-eo.json"
-    sModel = loadModel(modelname)
-    print(sModel.getModelVariables())
+    modelPath = "./models/bbw_cocosim_export.json"
+    # sModel = loadModel(modelname)
+    cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath)
+    allBlocks = cocoSimMoldel.getAllBlocks()
+    for blk in allBlocks:
+        print(blk.get("BlockType"))
+
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())
-    verifyModel(modelname, 100)
+    # verifyModel(modelname, 100)
 
 
 main()

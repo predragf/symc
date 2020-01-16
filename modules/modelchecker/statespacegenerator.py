@@ -38,6 +38,13 @@ class StateSpaceGenerator:
             simulationHorizon = (simulationDuration / fundamentalSampleTime)
         return int(simulationHorizon)
 
+    def __prepareDeclarationsForVariables(self, modelVariables):
+        declarationString = ""
+        for modelVariable in modelVariables:
+            declarationString += "{0}\n".format(
+                AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
+        return declarationString
+
     def __preprocessModel(self, sModel, simulationStepSize, simulationDuration):
         self.fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
         self.simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
@@ -61,18 +68,7 @@ class StateSpaceGenerator:
             symbolicState.append(self.__generateBlockSymbolicState(block, step))
         return symbolicState
 
-    def generateStateSpace(self, sModel, simulationStepSize, simulationDuration):
-        self.__preprocessModel(sModel, simulationStepSize, simulationDuration)
-        return self.__generateModelStateSpaceNew(sModel)
-
-    def __prepareDeclarationsForVariables(self, modelVariables):
-        declarationString = ""
-        for modelVariable in modelVariables:
-            declarationString += "{0}\n".format(
-                AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
-        return declarationString
-
-    def __generateModelStateSpaceNew(self, sModel):
+    def __generateModelStateSpace(self, sModel):
         declaration = ""
         simulationTimeHorizon = self.simulationTimeHorizon
         print("Simulation time horizon is: {0}".format(simulationTimeHorizon))
@@ -84,3 +80,7 @@ class StateSpaceGenerator:
             sSpace.addState(step, state)
         sSpace.setDeclarations(declaration)
         return sSpace
+
+    def generateStateSpace(self, sModel, simulationStepSize, simulationDuration):
+        self.__preprocessModel(sModel, simulationStepSize, simulationDuration)
+        return self.__generateModelStateSpace(sModel)
