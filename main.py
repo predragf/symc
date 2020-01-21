@@ -70,7 +70,7 @@ def check(modelname, modelChecker, propertyName="", _property=""):
         try:
             errorFile.write(violationModelString)
         except e:
-            print e
+            print(e)
         finally:
             if errorFile.closed is False:
                 errorFile.close()

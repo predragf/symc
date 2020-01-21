@@ -1,7 +1,8 @@
 class CoCoSimModel:
 
     def __init__(self, _simulinkmodeljson, _slist):
-        self.simulinkModelJson = _simulinkmodeljson
+        self.rawSimulinkModelJson = _simulinkmodeljson
+        self.flatSimulinkModelJson = {}
         self.signalvariables = []
         self.internalstatevariables = []
         self.compositeBlockTypes = ["subsystem"]
@@ -22,11 +23,14 @@ class CoCoSimModel:
                 continue
         return atomicBlocks
 
+    def __flatenSimulinkModel(self):
+        
+
     def __getBlocksFirstLevel(self):
         # this is fully imeplemented
         blocks = []
         nonExisting = "Non-Existing"
-        content = self.simulinkModelJson.get(self.getModelName()).get("Content", {})
+        content = self.rawSimulinkModelJson.get(self.getModelName()).get("Content", {})
         for item in content:
             block = content.get(item)
             try:
@@ -60,7 +64,7 @@ class CoCoSimModel:
 
     def getModelJSON(self):
         # getter function
-        return self.simulinkModelJson
+        return self.rawSimulinkModelJson
 
     # mandatory set of functions start
 
