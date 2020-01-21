@@ -25,7 +25,7 @@ def to_int(asString):
     return number
 
 
-def openFile(absoluteFileName, operation):
+def openFile(absoluteFileName, operation="r"):
     """
         This fuction makes sure that if the directory where
         the file is to be created exists. If the directory does

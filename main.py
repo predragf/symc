@@ -116,12 +116,12 @@ def verifyModel(modelname, size):
 def main():
     cUtils.clearScreen()
     modelPath = "./models/bbw_cocosim_export.json"
+    slistPath = "./models/slist-bbw.txt"
     # sModel = loadModel(modelname)
-    cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath)
+    cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath)
     allBlocks = cocoSimMoldel.getAllBlocks()
     for blk in allBlocks:
-        print(blk.get("BlockType"))
-
+        print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())
