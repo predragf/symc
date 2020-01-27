@@ -130,7 +130,8 @@ def main():
     allBlocks = cocoSimMoldel.getAllBlocks()
     flatModel = cocoSimMoldel.flatenSimulinkModel()
     ctable = cocoSimMoldel.createConnectionTable()
-    # print(ctable)
+    for en in ctable:
+        print en
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())

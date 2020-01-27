@@ -24,7 +24,6 @@ class CoCoSimModel:
     def __getAllPortBlocks(self):
         # this needs to be optimized later
         allPortBlocks = []
-
         for blk in self.getAllBlocks():
             if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "None")) for s in self.portBlockTypes):
                 allPortBlocks.append(blk)
@@ -34,32 +33,40 @@ class CoCoSimModel:
         signalType = ""
         try:
             compiledInPortTypes = block.get("CompiledPortDataTypes", {})
+            if  not (cUtils.compareStringsIgnoreCase(block.get("BlockType", ""), "inport") or cUtils.compareStringsIgnoreCase(block.get("BlockType", ""), "Outport")):
+                compiledInPortTypes = compiledInPortTypes.get("Inport")
+            elif cUtils.compareStringsIgnoreCase(block.get("BlockType", ""), "inport"):
+                compiledInPortTypes = compiledInPortTypes.get("Outport")
+            elif cUtils.compareStringsIgnoreCase(block.get("BlockType", ""), "outport"):
+                compiledInPortTypes = compiledInPortTypes.get("Inport")
             if type(compiledInPortTypes) is not list:
                 compiledInPortTypes = [compiledInPortTypes]
-                signalType = compiledInPortTypes[portNumber - 1]
-        except:
+            signalType = compiledInPortTypes[int(portNumber) - 1]
+        except Exception as exc:
+            print("extract signal failed: {0}:{1}:{2}".format(block.get("BlockType"), block.get("Origin_path"), exc))
             pass
         return signalType
 
     def __createConnectionTableEntry(self, destinationBlock, outConnectionOfDestinationBlock, signalIdentifier):
-        """
-            destinationBlock - self descriptive
-            outConnectionOfDestinationBlock - the out connection of the desitnation block contains information about the source. From it, I can extract both ports of the source and destination, but also the handle for the source block.
 
-            compiledInPortTypes[int(connection.get("Type", 1)) - 1]
-        """
-        signalType = self.
-
-        result = {"SrcBlockHandle": outConnectionOfDestinationBlock.get("SrcBlock"), "SrcPort": outConnectionOfDestinationBlock.get("SrcPort"), "DstBlockHandle": blockInformation.get(
-            "Handle", ""), "DstPort": connection.get("Type", ""), "SignalType": blockInformation.get("SignalType", ""), "SignalName": "signal_{0}".format(signalIdentifier)}
-        print(result)
-        """
-        return blockInformation
+        result = {
+        "SrcBlockHandle": outConnectionOfDestinationBlock.get("SrcBlock"),
+        "SrcPort": outConnectionOfDestinationBlock.get("SrcPort",""),
+        "DstBlockHandle": destinationBlock.get("Handle"),
+        "DstPort": outConnectionOfDestinationBlock.get("Type", ""),
+        "SignalType": self.__extractSignalType(destinationBlock,
+                                outConnectionOfDestinationBlock.get("Type", "")),
+        "SignalName": "signal_{0}".format(signalIdentifier)
+        }
+        return result
 
     def __createAllDestinationEntries(self):
         destinationEntries = []
+        """
         destinationBlocks = self.__getAllComputationalBlocks()
         destinationBlocks.extend(self.__getAllPortBlocks())
+        """
+        destinationBlocks = self.getAllBlocks()
         identifier = 0
         for destinationBlock in destinationBlocks:
             outputBlockConnections = destinationBlock.get("PortConnectivity", {})
@@ -71,7 +78,6 @@ class CoCoSimModel:
                 # this is a check for incomming connection
                 if type(outputConnection.get("SrcBlock")) == float:
                     identifier += 1
-                    print("-----{0}".format(outputConnection))
                     destinationEntries.append(
                         self.__createConnectionTableEntry(destinationBlock, outputConnection, identifier))
         return destinationEntries
@@ -88,24 +94,30 @@ class CoCoSimModel:
         ssContent = ssBlock.get("Content", {})
         for blkId in ssContent:
             try:
-                blk = ssContent.get(blkId, {})
-                if cUtils.compareStringsIgnoreCase(blk.get("BlockType", ""), "Outport") and blk.get("Port", "-100") == connection.get("SrcPort", ""):
-                    _handle = repr(blk.get("Handle", ""))
-                    _port = blk.get("Port", "")
+                childBlock = ssContent.get(blkId, {})
+                portBlockPortNumber = childBlock.get("Port", "-100")
+                connectionPortNumber = connection.get("SrcPort", "-123")
+                print("-----+++++{0}".format(connectionPortNumber))
+                if connectionPortNumber == "":
+                    print(childBlock.get("BlockType"))
+                if cUtils.compareStringsIgnoreCase(childBlock.get("BlockType", ""), "Outport") and int(portBlockPortNumber) == int(connectionPortNumber) + 1:
+                    print("fnatre")
+                    _handle = repr(childBlock.get("Handle", ""))
+                    _port = childBlock.get("Port", "")
                     newConnection = self.__findEntryByDestination(_handle, _port, partialTable)
-                    if ssBlock.get("Origin_path") == "bbw_PP/Brake_Torq_Calculation":
-                        print(newConnection)
                     newConnection = self.__mapConnectionSource(newConnection, partialTable)
                     connection["SrcBlockHandle"] = newConnection.get("SrcBlockHandle", "")
                     connection["SrcPort"] = newConnection.get("SrcPort", "")
             except Exception as e:
-                print("failure: {0}".format(e))
+                print("failure: {0}:{1}".format(e, blkId))
                 pass
         return connection
 
     def __mapConnectionSource(self, connection, partialTable):
-        """ Initially the connections have been created. However, some of the sources might be
-        an atomic computational block and in such cases we must find the atomic computational block which writes to that signal"""
+        """
+        Initially the connections have been created. However, some of the sources might be
+        an atomic computational block and in such cases we must find the atomic computational block which writes to that signal
+        """
         sourceBlock = self.getBlockById(connection.get("SrcBlockHandle", ""))
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "subsystem"):
             connection = self.__traceSubSystem(sourceBlock, connection, partialTable)
@@ -120,7 +132,7 @@ class CoCoSimModel:
     def createConnectionTable(self):
         connectionTable = self.__createAllDestinationEntries()
         for connection in connectionTable:
-            # connection = self.__mapConnectionSource(connection, connectionTable)
+            connection = self.__mapConnectionSource(connection, connectionTable)
             pass
         return connectionTable
 
