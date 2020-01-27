@@ -46,3 +46,7 @@ def clearScreen():
     if _platform == 'windows':
         _command = 'cls'
     os.system(_command)
+
+
+def compareStringsIgnoreCase(_first, _second):
+    return _first is not None and _second is not None and _first.lower().strip() == _second.lower().strip()

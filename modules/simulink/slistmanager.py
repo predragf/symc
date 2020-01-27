@@ -9,8 +9,10 @@ class SListManager:
         slistFile = cUtils.openFile(pathToSList)
         slist = {}
         for line in slistFile:
-            lineContents = re.split("\s", line)
-            slist[lineContents[2].replace('"', "")] = lineContents[0]
+            lineContents = re.split('\s\(|\s"', line)
+            blockId = lineContents[2].replace('"', "").strip()
+            execOrder = lineContents[0]
+            slist[blockId] = execOrder
         return slist
 
     @staticmethod

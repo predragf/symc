@@ -48,6 +48,8 @@ def createMCConfig():
     _configuration["useTactics"] = False
     _configuration["reuseExistingModel"] = False
     _configuration["saveStateSpace"] = True
+    _configuration["noncomputationalblocks"] = ["SubSystem",
+                                                "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "none"]
     return _configuration
 
 
@@ -113,15 +115,22 @@ def verifyModel(modelname, size):
     r4BBW(modelname, modelChecker)
 
 
+def testFc(obj):
+    obj["name"] = "stole"
+    return obj
+
+
 def main():
     cUtils.clearScreen()
-    modelPath = "./models/bbw_cocosim_export.json"
+    modelPath = "./models/bbw_cocosim_adjusted.json"
     slistPath = "./models/slist-bbw.txt"
     # sModel = loadModel(modelname)
-    cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath)
+
+    cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
     allBlocks = cocoSimMoldel.getAllBlocks()
-    for blk in allBlocks:
-        print(blk)
+    flatModel = cocoSimMoldel.flatenSimulinkModel()
+    ctable = cocoSimMoldel.createConnectionTable()
+    # print(ctable)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())

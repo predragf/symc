@@ -7,10 +7,10 @@ from modules.simulink.slistmanager import SListManager
 class CoCoSimModelManager:
 
     @staticmethod
-    def loadModel(pathToModel, pathToSlist):
+    def loadModel(pathToModel, pathToSlist, _configuration={}):
         jsonData = jsonManager.openAndLoadJson(pathToModel)
         slist = SListManager.loadSList(pathToSlist)
-        return CoCoSimModel(jsonData, slist)
+        return CoCoSimModel(jsonData, slist, _configuration)
 
     @staticmethod
     def saveModel(cocoSimModel, pathToFile):
