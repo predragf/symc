@@ -83,34 +83,62 @@ class CoCoSimModel:
         return destinationEntries
 
     def __findEntryByDestination(self, _handle, _port, _partialTable):
-        result = {}
+        result = None
         for entry in _partialTable:
-            if entry.get("DstBlockHandle", "") == _handle and entry.get("DstPort") == _port:
+            if entry.get("DstBlockHandle", "") == _handle and (_port is None or entry.get("DstPort") == repr(_port)):
                 result = entry
                 break
         return result
 
-    def __traceSubSystem(self, ssBlock, connection, partialTable):
-        ssContent = ssBlock.get("Content", {})
-        for blkId in ssContent:
+    def findOutPortBlockByPortNumner(self, ssBlock, portNumber):
+        result = None
+        ssBlockContent = ssBlock.get("Content", {})
+        for innerBlockId in ssBlockContent:
             try:
-                childBlock = ssContent.get(blkId, {})
-                portBlockPortNumber = childBlock.get("Port", "-100")
-                connectionPortNumber = connection.get("SrcPort", "-123")
-                print("-----+++++{0}".format(connectionPortNumber))
-                if connectionPortNumber == "":
-                    print(childBlock.get("BlockType"))
-                if cUtils.compareStringsIgnoreCase(childBlock.get("BlockType", ""), "Outport") and int(portBlockPortNumber) == int(connectionPortNumber) + 1:
-                    print("fnatre")
-                    _handle = repr(childBlock.get("Handle", ""))
-                    _port = childBlock.get("Port", "")
-                    newConnection = self.__findEntryByDestination(_handle, _port, partialTable)
-                    newConnection = self.__mapConnectionSource(newConnection, partialTable)
-                    connection["SrcBlockHandle"] = newConnection.get("SrcBlockHandle", "")
-                    connection["SrcPort"] = newConnection.get("SrcPort", "")
+                ssInnerBlock = ssBlockContent.get(innerBlockId, {})
+                if not isinstance(portNumber, int):
+                    portNumber = int(portNumber)
+                intPortNumber = portNumber + 1
+                if cUtils.compareStringsIgnoreCase(ssInnerBlock.get("BlockType", ""), "Outport"):
+                    outPortBlockNumber = int(ssInnerBlock.get("Port", "-1"))
+                    if intPortNumber == outPortBlockNumber:
+                        result = ssInnerBlock
+                        break
             except Exception as e:
-                print("failure: {0}:{1}".format(e, blkId))
-                pass
+                print(e)
+        return result;
+
+    def __traceSubSystemBlock(self, ssBlock, connection, partialTable):
+        result = connection
+        portNumber = connection.get("SrcPort", "-1")
+        try:
+            outPortBlock = self.findOutPortBlockByPortNumner(ssBlock, portNumber)
+            newConnection = self.__findEntryByDestination(outPortBlock.get("Handle"), None, partialTable)
+            if not newConnection is None:
+                newConnection = self.__mapConnectionSource(newConnection, partialTable)
+                result["SrcBlockHandle"] = newConnection.get("SrcBlockHandle", "")
+                result["SrcPort"] = newConnection.get("SrcPort", "")
+        except Exception as exc:
+            print("{0}:{1}:{2}".format(ssBlock.get("Origin_path"), exc, portNumber))
+        return result
+
+    def __traceInPortBlock(self, inPortBlock, connection, partialTable):
+        ssBlock = self.getBlockById(inPortBlock.get("ParentHandle"))
+        portNumber = inPortBlock.get("Port", None)
+        newConnection = self.__findEntryByDestination(inPortBlock.get("ParentHandle"), portNumber, partialTable)
+        if newConnection is None:
+            return connection
+        newConnection = self.__traceSubSystemBlock(ssBlock, newConnection, partialTable)
+        connection["SrcPort"] = newConnection.get("SrcPort")
+        connection["SrcBlockHandle"] = newConnection.get("SrcBlockHandle")
+        return connection
+
+    def __traceMuxBlock(self, muxBlock, connection, partialTable):
+        #TODO: to be implemented
+        return connection
+
+    def __traceDemuxBlock(self, demuxBlock, connection, partialTable):
+        #TODO: to be implemented
         return connection
 
     def __mapConnectionSource(self, connection, partialTable):
@@ -120,21 +148,24 @@ class CoCoSimModel:
         """
         sourceBlock = self.getBlockById(connection.get("SrcBlockHandle", ""))
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "subsystem"):
-            connection = self.__traceSubSystem(sourceBlock, connection, partialTable)
+            connection = self.__traceSubSystemBlock(sourceBlock, connection, partialTable)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux"):
-            pass
+            connection = self.__traceDemuxBlock(sourceBlock, connection, partialTable)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "mux"):
-            pass
+            connection = self.__traceMuxBlock(sourceBlock, connection, partialTable)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "inport"):
-            pass
+            connection = self.__traceInPortBlock(sourceBlock, connection, partialTable)            
         return connection
 
     def createConnectionTable(self):
         connectionTable = self.__createAllDestinationEntries()
+        finalTable = []
         for connection in connectionTable:
             connection = self.__mapConnectionSource(connection, connectionTable)
+            if not connection is None:
+                finalTable.append(connection)
             pass
-        return connectionTable
+        return finalTable
 
     def __flattenSubSystem(self, ssBlock):
         # this is fully implemented

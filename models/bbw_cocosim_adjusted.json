@@ -2867,7 +2867,7 @@
               },
               "positive": {
                 "Path": "bbw_PP/ABS_FL_Wheel/if v>=10 km//h/positive",
-                "BlockType": "SubSystem",
+                "BlockType": "Saturate",
                 "Name": "positive",
                 "Origin_path": "bbw_PP/ABS_FL_Wheel/if v>=10 km//h/positive",
                 "Handle": 2033.00146484375,
@@ -6244,7 +6244,7 @@
               },
               "positive": {
                 "Path": "bbw_PP/ABS_FR_Wheel/if v>=10 km//h/positive",
-                "BlockType": "SubSystem",
+                "BlockType": "Saturate",
                 "Name": "positive",
                 "Origin_path": "bbw_PP/ABS_FR_Wheel/if v>=10 km//h/positive",
                 "Handle": 2091.000244140625,
@@ -9615,7 +9615,7 @@
               },
               "positive": {
                 "Path": "bbw_PP/ABS_RL_Wheel/if v>=10 km//h/positive",
-                "BlockType": "SubSystem",
+                "BlockType": "Saturate",
                 "Name": "positive",
                 "Origin_path": "bbw_PP/ABS_RL_Wheel/if v>=10 km//h/positive",
                 "Handle": 2149.000244140625,
@@ -12992,7 +12992,7 @@
               },
               "positive": {
                 "Path": "bbw_PP/ABS_RR_Wheel/if v>=10 km//h/positive",
-                "BlockType": "SubSystem",
+                "BlockType": "Saturate",
                 "Name": "positive",
                 "Origin_path": "bbw_PP/ABS_RR_Wheel/if v>=10 km//h/positive",
                 "Handle": 2207.000244140625,
@@ -19888,7 +19888,7 @@
           },
           "Pedal_map": {
             "Path": "bbw_PP/HW_Accel_pedal/Pedal_map",
-            "BlockType": "SubSystem",
+            "BlockType": "Saturate",
             "Name": "Pedal_map",
             "Origin_path": "bbw_PP/HW_Accel_pedal/Pedal_map",
             "Handle": 2289.000244140625,
@@ -21088,7 +21088,7 @@
           },
           "Pedal_map": {
             "Path": "bbw_PP/HW_BrakePedal/Pedal_map",
-            "BlockType": "SubSystem",
+            "BlockType": "Saturate",
             "Name": "Pedal_map",
             "Origin_path": "bbw_PP/HW_BrakePedal/Pedal_map",
             "Handle": 2306.000244140625,

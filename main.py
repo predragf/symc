@@ -127,11 +127,9 @@ def main():
     # sModel = loadModel(modelname)
 
     cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
-    allBlocks = cocoSimMoldel.getAllBlocks()
-    flatModel = cocoSimMoldel.flatenSimulinkModel()
     ctable = cocoSimMoldel.createConnectionTable()
-    for en in ctable:
-        print en
+    ssBlock = cocoSimMoldel.getBlockById("bbw_PP/Vehicle_Body_Wheels/Vehicle Model")    
+
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())
