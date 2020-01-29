@@ -48,5 +48,11 @@ def clearScreen():
     os.system(_command)
 
 
+def stringify(_input):
+    if not isinstance(_input, basestring):
+        _input = repr(_input)
+    return _input
+
+
 def compareStringsIgnoreCase(_first, _second):
-    return _first is not None and _second is not None and _first.lower().strip() == _second.lower().strip()
+    return _first is not None and _second is not None and stringify(_first).lower().strip() == stringify(_second).lower().strip()

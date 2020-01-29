@@ -128,7 +128,9 @@ def main():
 
     cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
     ctable = cocoSimMoldel.createConnectionTable()
-    ssBlock = cocoSimMoldel.getBlockById("bbw_PP/Vehicle_Body_Wheels/Vehicle Model")    
+    ssBlock = cocoSimMoldel.getBlockById("bbw_PP/Vehicle_Body_Wheels/Vehicle Model")
+    ctable = cocoSimMoldel.createConnectionTable()
+    print(ctable)
 
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
