@@ -127,15 +127,18 @@ def main():
     # sModel = loadModel(modelname)
 
     cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
-    ctable = cocoSimMoldel.createConnectionTable()
-    ssBlock = cocoSimMoldel.getBlockById("bbw_PP/Vehicle_Body_Wheels/Vehicle Model")
-    ctable = cocoSimMoldel.createConnectionTable()
-    print(ctable)
+
+    preds = cocoSimMoldel.getDependencyChain("2489.000244140625")
+
+    for pred in preds:
+        print(pred.get("Origin_path"))
 
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())
     # verifyModel(modelname, 100)
+
+    print("done")
 
 
 main()

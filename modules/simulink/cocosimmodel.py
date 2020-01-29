@@ -4,15 +4,17 @@ import modules.utils.utils as cUtils
 class CoCoSimModel:
 
     def __init__(self, _simulinkmodeljson, _slist, _configuration={}):
+        self.compositeBlockTypes = ["subsystem"]
+        self.noncomputationalBlocks = _configuration.get("noncomputationalblocks", [])
+        self.portBlockTypes = ["inport", "outport"]
         self.rawSimulinkModelJson = _simulinkmodeljson
         self.flatSimulinkModelJson = {}
         self.signalvariables = []
         self.internalstatevariables = []
-        self.compositeBlockTypes = ["subsystem"]
-        self.noncomputationalBlocks = _configuration.get("noncomputationalblocks", [])
-        self.portBlockTypes = ["inport", "outport"]
-        self.connectionTable = None
+        self.allBlocks = self.__getAllBlocks()
         self.__adjustExecutionOrder(_slist)
+        self.__calculateSampleTimes()
+        self.connectionTable = self.__createConnectionTable()
 
     def __getAllComputationalBlocks(self):
         computationalBlocks = []
@@ -84,12 +86,13 @@ class CoCoSimModel:
         return destinationEntries
 
     def __findEntryByDestination(self, _handle, _port, _partialTable):
+
         for entry in _partialTable:
             if cUtils.compareStringsIgnoreCase(entry.get("DstBlockHandle", ""), _handle) and (_port is None or cUtils.compareStringsIgnoreCase(entry.get("DstPort"), _port)):
                 return entry
         return None
 
-    def findOutPortBlockByPortNumner(self, ssBlock, portNumber):
+    def __findOutPortBlockByPortNumner(self, ssBlock, portNumber):
         result = None
         ssBlockContent = ssBlock.get("Content", {})
         for innerBlockId in ssBlockContent:
@@ -111,7 +114,7 @@ class CoCoSimModel:
         result = connection
         portNumber = connection.get("SrcPort", "-1")
         try:
-            outPortBlock = self.findOutPortBlockByPortNumner(ssBlock, portNumber)
+            outPortBlock = self.__findOutPortBlockByPortNumner(ssBlock, portNumber)
             newConnection = self.__findEntryByDestination(
                 outPortBlock.get("Handle"), None, partialTable)
             if not newConnection is None:
@@ -123,6 +126,7 @@ class CoCoSimModel:
         return result
 
     def __traceInPortBlock(self, inPortBlock, connection, partialTable):
+
         portNumber = inPortBlock.get("Port", None)
         try:
             portNumberAsInteger = int(portNumber)
@@ -161,7 +165,8 @@ class CoCoSimModel:
             connection = self.__traceInPortBlock(sourceBlock, connection, partialTable)
         return connection
 
-    def createConnectionTable(self):
+    def __createConnectionTable(self):
+        print("ctable calculation start")
         connectionTable = self.__createAllDestinationEntries()
         finalTable = []
         for connection in connectionTable:
@@ -169,9 +174,28 @@ class CoCoSimModel:
             if not connection is None:
                 finalTable.append(connection)
             pass
+        print("ctable calculation end")
         return finalTable
 
-    def __flattenSubSystem(self, ssBlock):
+    def __calculateSubSystemSampleTime(self, ssBlock):
+        if ssBlock is None:
+            return -1
+        sampleTime = -1.0
+        istriggered = False
+        portConectivity = ssBlock.get("PortConnectivity", {})
+        if not isinstance(portConectivity, list):
+            portConectivity = [portConectivity]
+        for line in portConectivity:
+            if cUtils.compareStringsIgnoreCase(line.get("Type", ""), "Trigger"):
+                triggerBlock = self.getBlockById(line.get("SrcBlock", ""))
+                sampleTime = triggerBlock.get("sample_time", "-1")
+                istriggered = True
+        if not istriggered and not (ssBlock.get("ParentHandle", None) is None):
+            parentSS = self.getBlockById(cUtils.stringify(ssBlock.get("ParentHandle", "")))
+            sampleTime = self.__calculateSubSystemSampleTime(parentSS)
+        return sampleTime
+
+    def __flattenSubSystem(self, ssBlock, sampleTime=None):
         # this is fully implemented
         allBlocks = [ssBlock]
         innerContents = ssBlock.get("Content", {})
@@ -180,12 +204,14 @@ class CoCoSimModel:
             blk = innerContents.get(blkName)
             try:
                 if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", None)) for s in self.compositeBlockTypes):
-                    allBlocks.extend(self.__flattenSubSystem(blk))
+                    blk["ParentHandle"] = repr(ssBlockId)
+                    allBlocks.extend(self.__flattenSubSystem(blk, sampleTime))
                 else:
                     blk["ParentHandle"] = repr(ssBlockId)
+                    blk["calculated_sample_time"] = sampleTime
                     allBlocks.append(blk)
-            except:
-                continue
+            except Exception as e:
+                print(e)
         return allBlocks
 
     def flatenSimulinkModel(self):
@@ -209,6 +235,22 @@ class CoCoSimModel:
         metaData = sModelJson.get("meta")
         return metaData if metaData is not None else {}
 
+    def getBlockPredecessors(self, blockHandle):
+        predecessors = []
+        for entry in self.connectionTable:
+            if cUtils.compareStringsIgnoreCase(entry.get("DstBlockHandle", ""), blockHandle):
+                predecessorBlock = self.getBlockById(entry.get("SrcBlockHandle", ""))
+                predecessors.append(predecessorBlock)
+        return predecessors
+
+    def getDependencyChain(self, blockHandle):
+        allPredecessors = []
+        directPredecessors = self.getBlockPredecessors(blockHandle)
+        for predecessor in directPredecessors:
+            allPredecessors.append(predecessor)
+            allPredecessors.extend(self.getDependencyChain(predecessor.get("Handle", "")))
+        return allPredecessors
+
     def getModelName(self):
         # implemented
         defaultValue = ""
@@ -220,23 +262,38 @@ class CoCoSimModel:
         # getter function
         return self.rawSimulinkModelJson
 
-    # mandatory set of functions start
+    def __calculateSampleTimes(self):
+        for blk in self.allBlocks:
+            if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "")) for s in self.compositeBlockTypes):
+                blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(blk)
+            else:
+                parentSS = self.getBlockById(cUtils.stringify(blk.get("ParentHandle")))
+                blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(parentSS)
+        return
 
     def getAllBlocks(self):
-        # this is fully implemented
+        return self.allBlocks
+
+    def __getAllBlocks(self):
+
+        print("all blocks called")
         allBlocks = []
         firstLevelComposite = 0
         content = self.rawSimulinkModelJson.get(
             self.getModelName()).get("Content", {})
+        blocks = 0
         for blkId in content:
+            blocks = blocks + 1
             try:
                 blk = content.get(blkId)
-                if blk.get("BlockType", "").lower() in self.compositeBlockTypes:
+                if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "")) for s in self.compositeBlockTypes):
                     allBlocks.extend(self.__flattenSubSystem(blk))
+                    pass
                 else:
                     allBlocks.append(blk)
+                    pass
             except:
-                continue
+                pass
         return allBlocks
 
     def getBlockById(self, blockId):
