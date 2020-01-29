@@ -1,4 +1,5 @@
 import modules.utils.utils as cUtils
+import modules.utils.gcd as gcd
 
 
 class CoCoSimModel:
@@ -11,6 +12,7 @@ class CoCoSimModel:
         self.flatSimulinkModelJson = {}
         self.signalvariables = []
         self.internalstatevariables = []
+        self.fundamentalSampleTime = None
         self.allBlocks = self.__getAllBlocks()
         self.__adjustExecutionOrder(_slist)
         self.__calculateSampleTimes()
@@ -243,13 +245,21 @@ class CoCoSimModel:
                 predecessors.append(predecessorBlock)
         return predecessors
 
+    def __buildDependencyChain(self, _handle, visitedblocks=set()):
+        if _handle not in visitedblocks:
+            visitedblocks.add(_handle)
+            predecessors = self.getBlockPredecessors(_handle)
+            for predecessor in predecessors:
+                visitedblocks = self.__buildDependencyChain(
+                    predecessor.get("Handle", ""), visitedblocks)
+        return visitedblocks
+
     def getDependencyChain(self, blockHandle):
-        allPredecessors = []
-        directPredecessors = self.getBlockPredecessors(blockHandle)
-        for predecessor in directPredecessors:
-            allPredecessors.append(predecessor)
-            allPredecessors.extend(self.getDependencyChain(predecessor.get("Handle", "")))
-        return allPredecessors
+        dependencyChain = []
+        dependencyChainHandles = self.__buildDependencyChain(blockHandle)
+        for dependencyChainHandle in dependencyChainHandles:
+            dependencyChain.append(self.getBlockById(dependencyChainHandle))
+        return dependencyChain
 
     def getModelName(self):
         # implemented
@@ -261,6 +271,14 @@ class CoCoSimModel:
     def getModelJSON(self):
         # getter function
         return self.rawSimulinkModelJson
+
+    def __calculateFundamentalSampleTime(self):
+        sampleTimes = set()
+        for blk in self.allBlocks:
+            sTime = float(blk.get("calculated_sample_time", "-1"))
+            if sTime >= 0:
+                sampleTimes.add(sTime)
+        return gcd.gcd(sampleTimes)
 
     def __calculateSampleTimes(self):
         for blk in self.allBlocks:
@@ -316,6 +334,8 @@ class CoCoSimModel:
         raise Exception("To be implemented")
 
     def calculateFundamentalSampleTime(self):
-        raise Exception("To be implemented")
+        if self.fundamentalSampleTime is None:
+            self.fundamentalSampleTime = self.__calculateFundamentalSampleTime()
+        return self.fundamentalSampleTime
 
     # mandatory set of functions end

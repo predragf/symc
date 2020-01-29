@@ -127,11 +127,11 @@ def main():
     # sModel = loadModel(modelname)
 
     cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
-
-    preds = cocoSimMoldel.getDependencyChain("2489.000244140625")
-
-    for pred in preds:
-        print(pred.get("Origin_path"))
+    rt14 = "2489.000244140625"
+    blk = cocoSimMoldel.getBlockById("3737.000122070312")
+    dependencyChain = cocoSimMoldel.getDependencyChain(rt14)
+    for p in dependencyChain:
+        print(p.get("Origin_path"))
 
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))

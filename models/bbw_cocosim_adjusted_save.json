@@ -110,7 +110,7 @@
           35
         ],
         "AttributesFormatString": "",
-        "sample_time": "10",
+        "sample_time": "T_brake_pedal",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -213,7 +213,7 @@
           360
         ],
         "AttributesFormatString": "",
-        "sample_time": "10",
+        "sample_time": "T_abs",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -316,7 +316,7 @@
           505
         ],
         "AttributesFormatString": "",
-        "sample_time": "10",
+        "sample_time": "T_abs",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -419,7 +419,7 @@
           645
         ],
         "AttributesFormatString": "",
-        "sample_time": "10",
+        "sample_time": "T_abs",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -522,7 +522,7 @@
           785
         ],
         "AttributesFormatString": "",
-        "sample_time": "10",
+        "sample_time": "T_abs",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -625,7 +625,7 @@
           45
         ],
         "AttributesFormatString": "",
-        "sample_time": "20",
+        "sample_time": "T_brake_ctrl",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -728,7 +728,7 @@
           445
         ],
         "AttributesFormatString": "",
-        "sample_time": "20",
+        "sample_time": "T_spd_est",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
@@ -831,7 +831,7 @@
           330
         ],
         "AttributesFormatString": "",
-        "sample_time": "5",
+        "sample_time": "T_veh",
         "numberOfIterations": "1",
         "Mask": "on",
         "MaskType": "Function-Call Generator",
