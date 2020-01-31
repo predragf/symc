@@ -1,11 +1,11 @@
 from modules.simulink.simulinkmodel import *
-from modules.simulink.cocosimmodel import *
 from modules.simulink.simulinkmodelmanager import *
-from modules.simulink.cocosimmodelmanager import *
 from modules.modelchecker.symc import *
 import modules.utils.utils as cUtils
 from modules.utils.gcd import *
 from modules.modelchecker.ct import *
+from modules.simulink.cocosim.cocosimmodel import *
+from modules.simulink.cocosim.cocosimmodelmanager import *
 import z3
 import json
 
@@ -115,11 +115,6 @@ def verifyModel(modelname, size):
     r4BBW(modelname, modelChecker)
 
 
-def testFc(obj):
-    obj["name"] = "stole"
-    return obj
-
-
 def main():
     cUtils.clearScreen()
     modelPath = "./models/bbw_cocosim_adjusted.json"
@@ -129,9 +124,6 @@ def main():
     cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
     rt14 = "2489.000244140625"
     blk = cocoSimMoldel.getBlockById("3737.000122070312")
-    dependencyChain = cocoSimMoldel.getDependencyChain(rt14)
-    for p in dependencyChain:
-        print(p.get("Origin_path"))
 
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))

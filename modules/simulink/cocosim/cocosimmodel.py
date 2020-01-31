@@ -1,22 +1,35 @@
 import modules.utils.utils as cUtils
 import modules.utils.gcd as gcd
+import modules.logging.logmanager as LogManager
+import copy
+from modules.modelchecker.simulink import *
 
 
 class CoCoSimModel:
 
     def __init__(self, _simulinkmodeljson, _slist, _configuration={}):
+        print("CoCoSimModel initiation started")
+        self.__createAttributes(_simulinkmodeljson, _slist, _configuration)
+        self.__preProcessModel()
+        print("CoCoSimModel initiation ended")
+
+    def __createAttributes(self, _simulinkmodeljson, _slist, _configuration):
+        self.logger = LogManager.LogManager.getLogger(__name__)
         self.compositeBlockTypes = ["subsystem"]
         self.noncomputationalBlocks = _configuration.get("noncomputationalblocks", [])
         self.portBlockTypes = ["inport", "outport"]
         self.rawSimulinkModelJson = _simulinkmodeljson
+        self.sortedOrderList = _slist
         self.flatSimulinkModelJson = {}
         self.signalvariables = []
-        self.internalstatevariables = []
         self.fundamentalSampleTime = None
         self.allBlocks = self.__getAllBlocks()
-        self.__adjustExecutionOrder(_slist)
-        self.__calculateSampleTimes()
+        self.connectionTable = {}
+
+    def __preProcessModel(self):
         self.connectionTable = self.__createConnectionTable()
+        self.__adjustExecutionOrder(self.sortedOrderList)
+        self.__calculateSampleTimes()
 
     def __getAllComputationalBlocks(self):
         computationalBlocks = []
@@ -47,7 +60,7 @@ class CoCoSimModel:
                 compiledInPortTypes = [compiledInPortTypes]
             signalType = compiledInPortTypes[int(portNumber) - 1]
         except Exception as exc:
-            print("extract signal failed: {0}:{1}:{2}".format(
+            self.logger.exception("extract signal failed: {0}:{1}:{2}".format(
                 block.get("BlockType"), block.get("Origin_path"), exc))
             pass
         return signalType
@@ -109,7 +122,7 @@ class CoCoSimModel:
                         result = ssInnerBlock
                         break
             except Exception as e:
-                print(e)
+                self.logger.exception(e)
         return result
 
     def __traceSubSystemBlock(self, ssBlock, connection, partialTable):
@@ -124,7 +137,7 @@ class CoCoSimModel:
                 result["SrcBlockHandle"] = newConnection.get("SrcBlockHandle", "")
                 result["SrcPort"] = newConnection.get("SrcPort", "")
         except Exception as exc:
-            print("{0}:{1}:{2}".format(ssBlock.get("Origin_path"), exc, portNumber))
+            self.logger.exception("{0}:{1}:{2}".format(ssBlock.get("Origin_path"), exc, portNumber))
         return result
 
     def __traceInPortBlock(self, inPortBlock, connection, partialTable):
@@ -134,13 +147,13 @@ class CoCoSimModel:
             portNumberAsInteger = int(portNumber)
             newConnection = self.__findEntryByDestination(
                 cUtils.stringify(inPortBlock.get("ParentHandle", "")), portNumberAsInteger, partialTable)
-            if newConnection is None:
+            if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
                 return connection
             newConnection = self.__mapConnectionSource(newConnection, partialTable)
             connection["SrcPort"] = newConnection.get("SrcPort", "")
             connection["SrcBlockHandle"] = newConnection.get("SrcBlockHandle")
         except Exception as e:
-            pass
+            self.logger.exception(e)
         return connection
 
     def __traceMuxBlock(self, muxBlock, connection, partialTable):
@@ -168,20 +181,15 @@ class CoCoSimModel:
         return connection
 
     def __createConnectionTable(self):
-        print("ctable calculation start")
         connectionTable = self.__createAllDestinationEntries()
         finalTable = []
         for connection in connectionTable:
             connection = self.__mapConnectionSource(connection, connectionTable)
-            if not connection is None:
+            if connection is not None:
                 finalTable.append(connection)
-            pass
-        print("ctable calculation end")
         return finalTable
 
     def __calculateSubSystemSampleTime(self, ssBlock):
-        if ssBlock is None:
-            return -1
         sampleTime = -1.0
         istriggered = False
         portConectivity = ssBlock.get("PortConnectivity", {})
@@ -193,8 +201,9 @@ class CoCoSimModel:
                 sampleTime = triggerBlock.get("sample_time", "-1")
                 istriggered = True
         if not istriggered and not (ssBlock.get("ParentHandle", None) is None):
-            parentSS = self.getBlockById(cUtils.stringify(ssBlock.get("ParentHandle", "")))
-            sampleTime = self.__calculateSubSystemSampleTime(parentSS)
+            parentSubSystemBlock = self.getBlockById(
+                cUtils.stringify(ssBlock.get("ParentHandle", "")))
+            sampleTime = self.__calculateSubSystemSampleTime(parentSubSystemBlock)
         return sampleTime
 
     def __flattenSubSystem(self, ssBlock, sampleTime=None):
@@ -213,13 +222,8 @@ class CoCoSimModel:
                     blk["calculated_sample_time"] = sampleTime
                     allBlocks.append(blk)
             except Exception as e:
-                print(e)
+                self.logger.exception(e)
         return allBlocks
-
-    def flatenSimulinkModel(self):
-        # this needs to be made private when done
-        result = self.__createAllDestinationEntries()
-        return result
 
     def __adjustExecutionOrder(self, _slist):
         # implemented
@@ -230,6 +234,9 @@ class CoCoSimModel:
              sould not be included in the transformation"""
             _number = int(_slist.get(blockPath, "-1"))
             blk["ExecutionOrder"] = str(_number).zfill(2)
+
+    def __createSignalsAndVariables(self):
+        self.__createConnectionTable()
 
     def __getModelMetaData(self):
         # implemented
@@ -289,12 +296,7 @@ class CoCoSimModel:
                 blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(parentSS)
         return
 
-    def getAllBlocks(self):
-        return self.allBlocks
-
     def __getAllBlocks(self):
-
-        print("all blocks called")
         allBlocks = []
         firstLevelComposite = 0
         content = self.rawSimulinkModelJson.get(
@@ -306,13 +308,14 @@ class CoCoSimModel:
                 blk = content.get(blkId)
                 if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "")) for s in self.compositeBlockTypes):
                     allBlocks.extend(self.__flattenSubSystem(blk))
-                    pass
                 else:
                     allBlocks.append(blk)
-                    pass
-            except:
-                pass
+            except Exception as e:
+                self.logger.exception(e)
         return allBlocks
+
+    def getAllBlocks(self):
+        return self.allBlocks
 
     def getBlockById(self, blockId):
         result = {}
@@ -330,12 +333,47 @@ class CoCoSimModel:
     def getModelVariables(self):
         raise Exception("To be implemented")
 
+    def packBlockForTransformation(self, block):
+        blockCopy = copy.deepcopy(block)
+        blockCopy["predecessorBlocks"] = self.getBlockPredecessors(
+            blockCopy.get("Handle"))
+        return blockCopy
+
     def packAllBlocksForTransformation(self):
-        raise Exception("To be implemented")
+        packedBlocksForTransformation = []
+        for block in self.allBlocks:
+            if not any(cUtils.compareStringsIgnoreCase(nonComputationalBlockType, blockCopy.get("BlockType")) for nonComputationalBlockType in self.noncomputationalBlocks):
+                packedBlocksForTransformation.append(self.packBlockForTransformation(block))
+        return packedBlocksForTransformation
 
     def calculateFundamentalSampleTime(self):
         if self.fundamentalSampleTime is None:
             self.fundamentalSampleTime = self.__calculateFundamentalSampleTime()
         return self.fundamentalSampleTime
 
-    # mandatory set of functions end
+    def __createParsedSimulinkModel(self):
+        parsedSimulinkModel = ParsedSimulinkModel()
+        parsedSimulinkModel.setName(self.getModelName())
+        parsedSimulinkModel.setFundamentalSampleTime(self.getFundamentalSampleTime())
+        return parsedSimulinkModel
+
+    def __createParsedBlockParameters(self, simulinkBlock):
+        parameters = {}
+
+        return parameters
+
+    def __createParsedSimulinkBlock(self, simulinkBlock):
+        parsedSimulinkBlock = ParsedSimulinkBlock()
+        parsedSimulinkBlock.setName(simulinkBlock.get("Name", ""))
+        parsedSimulinkBlock.setBlockId(simulinkBlock.get("Origin_path"))
+        parsedSimulinkBlock.setBlockType(simulinkBlock.get("BlockType"))
+        parsedSimulinkBlock.setParameters(self.__createParsedBlockParameters(simulinkBlock))
+        return parsedSimulinkBlock
+
+    def parseModel(self):
+        parsedSimulinkModel = self.__createParsedSimulinkModel()
+        for sBlock in self.allBlocks:
+            if not cUtils.compareStringsIgnoreCase(sBlock.get("ExecutionOrder", "-1"), "-1"):
+                parsedSimulinkModel.addBlock(self.__createParsedSimulinkBlock(sBlock))
+                # mandatory set of functions end
+        return parsedSimulinkModel

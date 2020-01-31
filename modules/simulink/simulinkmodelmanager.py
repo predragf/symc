@@ -1,4 +1,4 @@
-from modules.simulink.simulinkmodel import *
+from modules.simulink.simulinkmodel import SimulinkModel
 import modules.utils.jsonmanager as jsonManager
 
 

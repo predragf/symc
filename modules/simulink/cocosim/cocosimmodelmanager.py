@@ -1,6 +1,5 @@
-import json
 import modules.utils.jsonmanager as jsonManager
-from modules.simulink.cocosimmodel import CoCoSimModel
+from modules.simulink.cocosim.cocosimmodel import CoCoSimModel
 from modules.simulink.slistmanager import SListManager
 
 
