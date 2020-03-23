@@ -2,7 +2,9 @@ import modules.utils.utils as cUtils
 import modules.utils.gcd as gcd
 import modules.logging.logmanager as LogManager
 import copy
-from modules.modelchecker.simulink import *
+from modules.modelchecker.simulink.parsedsimulinkline import *
+from modules.modelchecker.simulink.parsedsimulinkblock import *
+from modules.modelchecker.simulink.parsedsimulinkmodel import *
 
 
 class CoCoSimModel:
@@ -99,6 +101,13 @@ class CoCoSimModel:
                     destinationEntries.append(
                         self.__createConnectionTableEntry(destinationBlock, outputConnection, identifier))
         return destinationEntries
+
+    def __findAllEntriesByDestination(self, _handle):
+        allEntries = []
+        for entry in self.connectionTable:
+            if cUtils.compareStringsIgnoreCase(entry.get("DstBlockHandle", ""), _handle):
+                allEntries.append(entry)
+        return allEntries
 
     def __findEntryByDestination(self, _handle, _port, _partialTable):
 
@@ -353,8 +362,8 @@ class CoCoSimModel:
 
     def __createParsedSimulinkModel(self):
         parsedSimulinkModel = ParsedSimulinkModel()
-        parsedSimulinkModel.setName(self.getModelName())
-        parsedSimulinkModel.setFundamentalSampleTime(self.getFundamentalSampleTime())
+        parsedSimulinkModel.setModelName(self.getModelName())
+        parsedSimulinkModel.setFundamentalSampleTime(self.calculateFundamentalSampleTime())
         return parsedSimulinkModel
 
     def __createParsedBlockParameters(self, simulinkBlock):
@@ -368,6 +377,8 @@ class CoCoSimModel:
         parsedSimulinkBlock.setBlockId(simulinkBlock.get("Origin_path"))
         parsedSimulinkBlock.setBlockType(simulinkBlock.get("BlockType"))
         parsedSimulinkBlock.setParameters(self.__createParsedBlockParameters(simulinkBlock))
+        blockLines = self.__findAllEntriesByDestination(simulinkBlock.get("Handle"))
+
         return parsedSimulinkBlock
 
     def parseModel(self):
@@ -375,5 +386,6 @@ class CoCoSimModel:
         for sBlock in self.allBlocks:
             if not cUtils.compareStringsIgnoreCase(sBlock.get("ExecutionOrder", "-1"), "-1"):
                 parsedSimulinkModel.addBlock(self.__createParsedSimulinkBlock(sBlock))
-                # mandatory set of functions end
+                pass
+
         return parsedSimulinkModel

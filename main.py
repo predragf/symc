@@ -8,6 +8,9 @@ from modules.simulink.cocosim.cocosimmodel import *
 from modules.simulink.cocosim.cocosimmodelmanager import *
 import z3
 import json
+from modules.modelchecker.simulink.parsedsimulinkline import *
+from modules.modelchecker.simulink.parsedsimulinkblock import *
+from modules.modelchecker.simulink.parsedsimulinkmodel import *
 
 
 simulationSize = 100
@@ -123,8 +126,8 @@ def main():
 
     cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
     rt14 = "2489.000244140625"
-    blk = cocoSimMoldel.getBlockById("3737.000122070312")
-
+    blk = cocoSimMoldel.getBlockById(rt14)
+    print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())

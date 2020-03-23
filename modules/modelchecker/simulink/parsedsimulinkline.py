@@ -4,7 +4,7 @@ class ParsedSimulinkLine:
         self.name = ""  # this is the same as the signal name
         self.signaltype == ""  # value assigned from SimulinkSignalTypeEnum
         self.sourceportnumber = -1  # this is the source port number
-        self.destinationblock = {}  # this is supposed to be a parsed Simulink block
+        self.destinationblockid = ""  # this is supposed to be a parsed Simulink block
         self.destinationportnumber = -1  # this is the destination port number
 
     def getName(self):
@@ -22,17 +22,17 @@ class ParsedSimulinkLine:
     def getSourcePortNumber(self):
         return self.sourceportnumber
 
-    def setSourcePortNumber(self, sourceprortnumber):
-        self.sourceportnumber = sourceprortnumber
+    def setSourcePortNumber(self, sourcePortNumber):
+        self.sourceportnumber = sourcePortNumber
 
-    def setDestinationBlock(self, parsedSimulinkBlock):
-        self.destinationblock = parsedSimulinkBlock
+    def setDestinationBlockId(self, destinationBlockId):
+        self.destinationblockid = destinationBlockId
 
-    def getDestinationBlock(self):
+    def getDestinationBlockId(self):
         return self.destinationblock
 
-    def setDestinationPortNumber(self, destinationportnumber):
-        self.destinationportnumber = destinationportnumber
+    def setDestinationPortNumber(self, destinationPortNumber):
+        self.destinationportnumber = destinationPortNumber
 
     def getDestionationPortNumber(self):
         return self.destinationportnumber

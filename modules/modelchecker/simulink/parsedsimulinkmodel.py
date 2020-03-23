@@ -4,13 +4,19 @@ class ParsedSimulinkModel:
         self.modelname = ""
         self.fundamentalsampletime = ""
         self.blocks = []  # this should be a list of ParsedSimulinkBlock
-        # parameters is an object that holds the set of parameters for the simulink model that we cannot account for at this time (so basically this means that the developer can put any parameter and use it later in the transformation)
         self.parameters = {}
 
     def addBlock(self, parsedSimulinkBlock):
+        parsedSimulinkBlock.setSimulinkModel(self)
         self.blocks.append(parsedSimulinkBlock)
 
-    def addParameter(self, parameterName, parameterValue):
+    def getBlock(self, blockId):
+        return next(block for block in self.blocks if block.getBlockId() == blockId)
+
+    def getAllBlocks(self):
+        return self.blocks
+
+    def setParameter(self, parameterName, parameterValue):
         self.parameters[parameterName] = parameterValue
 
     def getParameter(self, parameterName):
