@@ -175,28 +175,13 @@ class CoCoSimModel:
                 cUtils.stringify(outPortBlock.get("ParentHandle", "")), portNumberAsInteger, partialTable)
         if newConnection is None:  # this should work for outports on model level which shall be translated into blocks, and eventually becoming signals
             return connection
-        print 'connection', connection
-        print 'newConnection', newConnection
-        # Find destination of newConnection destination
-        
-        # Replace source with destination
+        destinationBlock  = self.getBlockById(newConnection.get('DstBlockHandle'))
+        outPortBlock = self.__findOutPortBlockByPortNumner(destinationBlock, connection.get('SrcPort', ''))
+        destinationPortConnectivity = destinationBlock.get('PortConnectivity')
+        for k in range(len(destinationPortConnectivity)):
+            if (destinationPortConnectivity[k].get('Type') == str(portNumber)) and (str(destinationPortConnectivity[k].get('SrcBlock')) == '[]'):
+                connection['DstBlockHandle'] = destinationBlock.get('PortConnectivity')[k].get('DstBlock')
 
-        # Find mapping
-
-        newConnection["SrcPort"]        = newConnection.get("DstPort", "")
-        newConnection["SrcBlockHandle"] = newConnection.get("DstBlockHandle")
-        print 'newConnection, 1', newConnection
-        tmpConnection                   = self.__mapConnectionSource(newConnection, partialTable)
-        print 'tmpConnection 2', tmpConnection
-        #tmpConnection                   = self.__mapConnectionSource(newConnection, partialTable)
-        #print 'tmpConnection 4', tmpConnection
-        #connection["DstPort"]           = newConnection.get("DstPort", "")
-        #connection["DstBlockHandle"]    = newConnection.get("DstBlockHandle")
-        #print 'connection 5', connection
-        #except Exception as e:
-        #    self.logger.exception(e)
-
-        print 'connection leave', connection
         return connection
 
     def __traceMuxBlock(self, muxBlock, connection, partialTable):
@@ -332,7 +317,6 @@ class CoCoSimModel:
         for blkName in innerContents:
             blk = innerContents.get(blkName)
             try:
-                #print(blk.get('BlockType', ''))
                 if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", None)) for s in self.compositeBlockTypes):
                     blk["ParentHandle"] = repr(ssBlockId)
                     allBlocks.extend(self.__flattenSubSystem(blk, sampleTime))
