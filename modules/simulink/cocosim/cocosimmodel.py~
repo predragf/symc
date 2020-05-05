@@ -166,6 +166,39 @@ class CoCoSimModel:
             self.logger.exception(e)
         return connection
 
+    def __traceOutPortBlock(self, outPortBlock, connection, partialTable):
+
+        portNumber = outPortBlock.get("Port", None)
+        #try:
+        portNumberAsInteger = int(portNumber)
+        newConnection       = self.__findEntryByDestination(
+                cUtils.stringify(outPortBlock.get("ParentHandle", "")), portNumberAsInteger, partialTable)
+        if newConnection is None:  # this should work for outports on model level which shall be translated into blocks, and eventually becoming signals
+            return connection
+        print 'connection', connection
+        print 'newConnection', newConnection
+        # Find destination of newConnection destination
+        
+        # Replace source with destination
+
+        # Find mapping
+
+        newConnection["SrcPort"]        = newConnection.get("DstPort", "")
+        newConnection["SrcBlockHandle"] = newConnection.get("DstBlockHandle")
+        print 'newConnection, 1', newConnection
+        tmpConnection                   = self.__mapConnectionSource(newConnection, partialTable)
+        print 'tmpConnection 2', tmpConnection
+        #tmpConnection                   = self.__mapConnectionSource(newConnection, partialTable)
+        #print 'tmpConnection 4', tmpConnection
+        #connection["DstPort"]           = newConnection.get("DstPort", "")
+        #connection["DstBlockHandle"]    = newConnection.get("DstBlockHandle")
+        #print 'connection 5', connection
+        #except Exception as e:
+        #    self.logger.exception(e)
+
+        print 'connection leave', connection
+        return connection
+
     def __traceMuxBlock(self, muxBlock, connection, partialTable):
         try:
             newConnection = self.__findEntryByDestination(
@@ -178,15 +211,15 @@ class CoCoSimModel:
             muxPort = muxBlock.get('PortConnectivity', '')
             returnConnection = []
             for k in range(len(muxPort)-1):
-                tmpConnection = deepcopy(connection)
-                port = muxPort[k]
+                tmpConnection          = deepcopy(connection)
+                port                   = muxPort[k]
                 destinationBlockNumber = tmpConnection.get('DstBlockHandle', '')
-                destinationBlock = self.getBlockById(destinationBlockNumber)
-                sourceBlockNumber = port.get('SrcBlock')
+                destinationBlock       = self.getBlockById(destinationBlockNumber)
+                sourceBlockNumber      = port.get('SrcBlock')
                 if cUtils.compareStringsIgnoreCase(destinationBlock.get('BlockType', ''), "Demux") is False:
                     tmpConnection["SrcBlockHandle"] = sourceBlockNumber
-                    tmpConnection = self.__mapConnectionSource(tmpConnection, partialTable)
-                    tmpConnection["SrcPort"] = k
+                    tmpConnection                   = self.__mapConnectionSource(tmpConnection, partialTable)
+                    tmpConnection["SrcPort"]        = k
                     returnConnection.append(tmpConnection)
         except Exception as e:
             self.logger.exception(e)
@@ -201,24 +234,24 @@ class CoCoSimModel:
             if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
                 return connection
 
-            sourceBlock = self.getBlockById(cUtils.stringify((demuxBlock.get('Handle'))))
-            port = demuxBlock.get('PortConnectivity', '')[0]
+            sourceBlock       = self.getBlockById(cUtils.stringify((demuxBlock.get('Handle'))))
+            port              = demuxBlock.get('PortConnectivity', '')[0]
             sourceBlockNumber = port.get('SrcBlock')
-            sourceBlock = self.getBlockById(sourceBlockNumber)
+            sourceBlock       = self.getBlockById(sourceBlockNumber)
 
             if cUtils.compareStringsIgnoreCase(sourceBlock.get('BlockType', ''), "Mux"):
-                muxSourceBlock = sourceBlock.get('PortConnectivity')
-                destinationBlock = muxSourceBlock[connection.get('SrcPort', '')]
-                connection["SrcPort"] = connection.get("SrcPort", "")
+                muxSourceBlock               = sourceBlock.get('PortConnectivity')
+                destinationBlock             = muxSourceBlock[connection.get('SrcPort', '')]
+                connection["SrcPort"]        = connection.get("SrcPort", "")
                 connection['SrcBlockHandle'] = destinationBlock.get('SrcBlock')
-                connection = self.__mapConnectionSource(connection, partialTable)
+                connection                   = self.__mapConnectionSource(connection, partialTable)
             else:
                 connection["SrcBlockHandle"] = connection.get('DstBlockHandle')
-                newDestinationConnection = self.__mapConnectionSource(connection, partialTable)
-                connection["SrcPort"] = connection.get("SrcPort", "")
+                newDestinationConnection     = self.__mapConnectionSource(connection, partialTable)
+                connection["SrcPort"]        = connection.get("SrcPort", "")
                 connection["SrcBlockHandle"] = sourceBlockNumber
-                newSourceConnection = self.__mapConnectionSource(connection, partialTable)
-                connection["SrcPort"] = newSourceConnection.get("SrcPort", "")
+                newSourceConnection          = self.__mapConnectionSource(connection, partialTable)
+                connection["SrcPort"]        = newSourceConnection.get("SrcPort", "")
                 connection["SrcBlockHandle"] = newSourceConnection.get('SrcBlockHandle', '')
                 connection["DstBlockHandle"] = newDestinationConnection.get('DstBlockHandle', '')
         except Exception as e:
@@ -240,6 +273,8 @@ class CoCoSimModel:
             connection = self.__traceMuxBlock(sourceBlock, connection, partialTable)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "inport"):
             connection = self.__traceInPortBlock(sourceBlock, connection, partialTable)
+        if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "outport"):
+            connection = self.__traceOutPortBlock(sourceBlock, connection, partialTable)
 
         return connection
 
