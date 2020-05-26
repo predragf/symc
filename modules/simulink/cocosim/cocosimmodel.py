@@ -6,6 +6,7 @@ from modules.modelchecker.simulink.parsedsimulinkline import *
 from modules.modelchecker.simulink.parsedsimulinkblock import *
 from modules.modelchecker.simulink.parsedsimulinkmodel import *
 from copy import deepcopy
+import numpy as np
 
 
 class CoCoSimModel:
@@ -14,6 +15,8 @@ class CoCoSimModel:
         print("CoCoSimModel initiation started")
         self.__createAttributes(_simulinkmodeljson, _slist, _configuration)
         self.__preProcessModel()
+        self.symbolicFixedPoint = self.__calculateModelFixedPoint()
+        print 'fixedpoint', self.symbolicFixedPoint
         print("CoCoSimModel initiation ended")
 
     def __createAttributes(self, _simulinkmodeljson, _slist, _configuration):
@@ -28,6 +31,7 @@ class CoCoSimModel:
         self.fundamentalSampleTime = None
         self.allBlocks = self.__getAllBlocks()
         self.connectionTable = {}
+        self.parameterTable = self.__getParameterTable()
 
     def __preProcessModel(self):
         self.connectionTable = self.__createConnectionTable()
@@ -282,14 +286,13 @@ class CoCoSimModel:
                         cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux")):
                         finalTable.append(connection)
 
-        #print finalTable[0]
         f = open('table.txt', 'w')
         for con in finalTable:
             f.write(str(con))
             f.write('\n')
 
         f.close()
-        #print 'finalTable', finalTable
+
         return finalTable
 
     def __calculateSubSystemSampleTime(self, ssBlock):
@@ -397,7 +400,75 @@ class CoCoSimModel:
             else:
                 parentSS = self.getBlockById(cUtils.stringify(blk.get("ParentHandle")))
                 blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(parentSS)
-        return
+            try:
+                blk["calculated_sample_time"] = float(blk["calculated_sample_time"])
+                if blk["calculated_sample_time"] == -1:
+                    blk["calculated_sample_time"] = float(self.__getGlobalSampleTime())                    
+            except Exception as e:
+                blk["calculated_sample_time"] = float(self.parameterTable[blk['calculated_sample_time']])
+        return self
+		
+    def __calculateModelFixedPoint(self):
+        allBlocks = self.getAllBlocks()
+        fixedPoint = -1
+        counter = 0
+        for blk in allBlocks:
+            interFP = self.__calculateBlockSymbolicFixedPoint(blk)
+            fixedPoint = max(fixedPoint, interFP)
+        return fixedPoint
+
+    def __calculateBlockSymbolicFixedPoint(self, sBlock):
+        sfp = cUtils.to_int(sBlock.get("symbolicfixedpoint", "-1"))
+        if sfp > -1:
+            return sfp
+        _blockInputs = self.getBlockPredecessors(sBlock.get("Handle"))
+        blockExecutionOrderId = cUtils.to_int(sBlock.get("ExecutionOrder", ""))
+        blockSymbolicFixedPoint = sBlock['calculated_sample_time']
+        predecessorsForProcessing = []
+        for blk in self.getBlockPredecessors(sBlock.get("Handle")):
+            execId = cUtils.to_int(blk.get("ExecutionOrder", ""))
+            if execId < blockExecutionOrderId:
+                predecessorsForProcessing.append(blk)
+        if (len(predecessorsForProcessing) > 0 and blockSymbolicFixedPoint != 0):
+            blockSymbolicFixedPoint = self.__calculateBlockSymbolicFixedPointRecursively(sBlock,
+                                                                predecessorsForProcessing)
+        sBlock["symbolicfixedpoint"] = blockSymbolicFixedPoint
+        return blockSymbolicFixedPoint
+
+    def __calculateBlockSymbolicFixedPointResursively(self, sBlock, predecessors):
+        predecessorsFixedPoints = []
+        blockSampleTime = sBlock['calculated_sample_time']
+        for prd in predecessors:
+            predecessorsFixedPoints.append(self.__calculateBlockSymbolicFixedPoint(prd))
+        return self.__determineFixedPoint(blockSampleTime, predecessorsFixedPoints)
+
+    def __determineFixedPoint(self, outTs, predecessorsTs):
+        fixedPoint = outTs
+        for predecessorTs in predecessorsTs:
+            if(predecessorTs < outTs):
+                continue
+            if(predecessorTs >= outTs):
+                interFP = (int(predecessorTs / outTs) +
+                    (predecessorTs % outTs > 0)) * outTs
+                fixedPoint = max(fixedPoint, interFP)
+        return fixedPoint
+
+    def __getParameter(self, param):
+        
+        parameter_val = self.parameterTable[param]
+
+        return parameter_val
+
+    def __getParameterTable(self):
+        
+        parameterTable = {'T_brake_pedal': 0.01, 'T_brake_ctrl': 0.02, 'T_spd_est': 0.02, 'T_abs': 0.01, 'T_veh': 0.005, 'T_sim': 0.005}
+
+        return parameterTable
+    def __getGlobalSampleTime(self):
+
+        globalSampleTime = self.parameterTable['T_sim']
+
+        return globalSampleTime
 
     def __getAllBlocks(self):
         allBlocks = []
