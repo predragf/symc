@@ -510,8 +510,13 @@ class CoCoSimModel:
 
     def packBlockForTransformation(self, block):
         blockCopy = copy.deepcopy(block)
+	# getBlockPredecessors should be adjusted such that a row where the current block is destination
+	# shall be included in the list, with the source must be loaded with deepcopy
         blockCopy["predecessorBlocks"] = self.getBlockPredecessors(
             blockCopy.get("Handle"))
+	# additionally, the blockCopy should be extended with sucessorBlocks, the list should be created
+	# only with rows from the connection table (for the transformation we need only the signal name and the type 
+	# so the row should suffice. This should be implemented in a new function self.getBlockSuccessors(blockCopy.get("Handle"))
         return blockCopy
 
     def packAllBlocksForTransformation(self):
