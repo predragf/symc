@@ -15,8 +15,11 @@ class CoCoSimModel:
         print("CoCoSimModel initiation started")
         self.__createAttributes(_simulinkmodeljson, _slist, _configuration)
         self.__preProcessModel()
+        self.packedBlocks = self.packAllBlocksForTransformation()
         self.symbolicFixedPoint = self.__calculateModelFixedPoint()
         print 'fixedpoint', self.symbolicFixedPoint
+        self.writePackedBlocksToFile()
+        self.writeConnectionTableToFile()
         print("CoCoSimModel initiation ended")
 
     def __createAttributes(self, _simulinkmodeljson, _slist, _configuration):
@@ -285,14 +288,6 @@ class CoCoSimModel:
                         cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "mux") or 
                         cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux")):
                         finalTable.append(connection)
-
-        f = open('table.txt', 'w')
-        for con in finalTable:
-            f.write(str(con))
-            f.write('\n')
-
-        f.close()
-
         return finalTable
 
     def __calculateSubSystemSampleTime(self, ssBlock):
@@ -352,16 +347,30 @@ class CoCoSimModel:
 
     def getBlockPredecessors(self, blockHandle):
         predecessors = []
+        predecessorIndices = []
         for entry in self.connectionTable:
             if cUtils.compareStringsIgnoreCase(entry.get("DstBlockHandle", ""), blockHandle):
-                predecessorBlock = self.getBlockById(entry.get("SrcBlockHandle", ""))
+                predecessorIndex = entry.get('SrcBlockHandle', '')
+                predecessorBlock = self.getBlockById(predecessorIndex)
                 predecessors.append(predecessorBlock)
-        return predecessors
+                predecessorIndices.append(predecessorIndex)
+        return predecessors, predecessorIndices
+
+    def getBlockSuccessors(self, blockHandle):
+        successors = []
+        successorIndices = []
+        for entry in self.connectionTable:
+            if cUtils.compareStringsIgnoreCase(entry.get("SrcBlockHandle", ""), blockHandle):
+                successorIndex = entry.get('DstBlockHandle', '')
+                successorBlock = self.getBlockById(successorIndex)
+                successors.append(successorBlock)
+                successorIndices.append(successorIndex)
+        return successors, successorIndices
 
     def __buildDependencyChain(self, _handle, visitedblocks=set()):
         if _handle not in visitedblocks:
             visitedblocks.add(_handle)
-            predecessors = self.getBlockPredecessors(_handle)
+            predecessors, _ = self.getBlockPredecessors(_handle)
             for predecessor in predecessors:
                 visitedblocks = self.__buildDependencyChain(
                     predecessor.get("Handle", ""), visitedblocks)
@@ -425,7 +434,8 @@ class CoCoSimModel:
         blockExecutionOrderId = cUtils.to_int(sBlock.get("ExecutionOrder", ""))
         blockSymbolicFixedPoint = sBlock['calculated_sample_time']
         predecessorsForProcessing = []
-        for blk in self.getBlockPredecessors(sBlock.get("Handle")):
+        predecessors, _ = self.getBlockPredecessors(sBlock.get("Handle"))
+        for blk in predecessors:
             execId = cUtils.to_int(blk.get("ExecutionOrder", ""))
             if execId < blockExecutionOrderId:
                 predecessorsForProcessing.append(blk)
@@ -510,16 +520,33 @@ class CoCoSimModel:
 
     def packBlockForTransformation(self, block):
         blockCopy = copy.deepcopy(block)
-        blockCopy["predecessorBlocks"] = self.getBlockPredecessors(
-            blockCopy.get("Handle"))
+        _, blockCopy["predecessorBlocks"] = self.getBlockPredecessors(blockCopy.get("Handle"))
+        _, blockCopy["successorBlocks"]   = self.getBlockSuccessors(blockCopy.get("Handle"))
         return blockCopy
 
     def packAllBlocksForTransformation(self):
         packedBlocksForTransformation = []
         for block in self.allBlocks:
+            blockCopy = self.packBlockForTransformation(block)
             if not any(cUtils.compareStringsIgnoreCase(nonComputationalBlockType, blockCopy.get("BlockType")) for nonComputationalBlockType in self.noncomputationalBlocks):
-                packedBlocksForTransformation.append(self.packBlockForTransformation(block))
+                packedBlocksForTransformation.append(blockCopy)
         return packedBlocksForTransformation
+
+    def writePackedBlocksToFile(self):
+        f = open('packedTable.txt', 'w')
+        for con in self.packedBlocks:
+            f.write(str(con))
+            f.write('\n')
+
+        f.close()
+
+    def writeConnectionTableToFile(self):
+        f = open('table.txt', 'w')
+        for con in self.connectionTable:
+            f.write(str(con))
+            f.write('\n')
+
+        f.close()
 
     def calculateFundamentalSampleTime(self):
         if self.fundamentalSampleTime is None:
