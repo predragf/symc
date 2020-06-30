@@ -6,6 +6,7 @@ from modules.assertiongenerators.assertioninstantiator import *
 
 class StateSpaceGenerator:
     def __init__(self):
+        print 'inside StateSpace'
         self.__initialSetup()
 
     def __initialSetup(self):

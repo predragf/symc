@@ -1,6 +1,7 @@
 from modules.simulink.simulinkmodel import *
 from modules.simulink.simulinkmodelmanager import *
-from modules.modelchecker.symc import *
+#from modules.modelchecker.symc import *
+from modules.simulink.cocosim.symc import *
 import modules.utils.utils as cUtils
 from modules.utils.gcd import *
 from modules.modelchecker.ct import *
@@ -12,9 +13,7 @@ from modules.modelchecker.simulink.parsedsimulinkline import *
 from modules.modelchecker.simulink.parsedsimulinkblock import *
 from modules.modelchecker.simulink.parsedsimulinkmodel import *
 
-
 simulationSize = 100
-
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -25,7 +24,6 @@ def printlist(_list, keyname=""):
             printlist(itm)
         else:
             print(itm)
-
 
 def generateAssertionsFromProperty(property):
     assertions = []
@@ -38,13 +36,11 @@ def generateAssertionsFromProperty(property):
         assertions.append(assertion)
     return assertions
 
-
 def determineSatisfaction(result):
     verdict = "violated"
     if result["verdict"] == unsat:
         verdict = "verified"
     return verdict
-
 
 def createMCConfig():
     _configuration = dict()
@@ -55,9 +51,8 @@ def createMCConfig():
                                                 "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "none"]
     return _configuration
 
-
-def check(modelname, modelChecker, propertyName="", _property=""):
-    result = modelChecker.checkModel(modelname, 1, _property)
+def check(modelname, slistPath, modelChecker, propertyName="", _property=""):
+    result = modelChecker.checkModel(modelname, slistPath, 1, _property)
     mcResult = determineSatisfaction(result)
     print("Property status: {0}".format(mcResult))
     if mcResult == "violated":
@@ -81,7 +76,6 @@ def check(modelname, modelChecker, propertyName="", _property=""):
                 errorFile.close()
             print(signalsOfInterest)
 
-
 def r3BBW(modelname, modelChecker):
     """
     The value of the brake pedal position shall not exceed its maximal
@@ -95,7 +89,6 @@ def r3BBW(modelname, modelChecker):
     _assumptions = []
     _assumptions.append(final)
     check(modelname, modelChecker, "r4bbw", _assumptions)
-
 
 def r4BBW(modelname, modelChecker):
     """
@@ -111,12 +104,10 @@ def r4BBW(modelname, modelChecker):
     _assumptions = [final]
     check(modelname, modelChecker, "r4bbw", property)
 
-
 def verifyModel(modelname, size):
     modelChecker = SyMC(createMCConfig())
     # r3BBW(modelname, modelChecker)
     r4BBW(modelname, modelChecker)
-
 
 def main():
     cUtils.clearScreen()
@@ -124,9 +115,13 @@ def main():
     slistPath = "./models/slist-bbw.txt"
     # sModel = loadModel(modelname)
 
-    cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
-    rt14 = "2489.000244140625"
-    blk = cocoSimMoldel.getBlockById(rt14)
+    #cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
+    #rt14 = "2489.000244140625"
+    #blk = cocoSimMoldel.getBlockById(rt14)
+	
+    modelChecker = SyMC(createMCConfig())
+    check(modelPath, slistPath, modelChecker)
+	
     # print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
@@ -134,6 +129,5 @@ def main():
     # verifyModel(modelname, 100)
 
     print("done")
-
 
 main()

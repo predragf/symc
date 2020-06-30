@@ -279,7 +279,9 @@ class CoCoSimModel:
                 try:
                     for k in range(len(connection)):
                         tmpConnection = connection[k]
-                        finalTable.append(tmpConnection)
+                        newConnection = self.__modifyFinalTableConnection(tmpConnection, finalTable)
+                        if newConnection != []:
+                            finalTable.append(tmpConnection)
                 except:
                     destinationBlock = self.getBlockById(connection["DstBlockHandle"])
                     sourceBlock = self.getBlockById(connection["SrcBlockHandle"])
@@ -287,8 +289,28 @@ class CoCoSimModel:
                         cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType", ""), "demux") or 
                         cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "mux") or 
                         cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux")):
-                        finalTable.append(connection)
+                        newConnection = self.__modifyFinalTableConnection(connection, finalTable)
+                        if newConnection != []:
+                            finalTable.append(connection)
+
         return finalTable
+
+    def __modifyFinalTableConnection(self, connection, finalTable):   
+        # Check if signal already exists in the connection table
+		# (i.e. same source block handle and source port)
+        newConnection  = []
+        srcBlockHandle = deepcopy(connection['SrcBlockHandle'])
+        srcPort        = deepcopy(connection['SrcPort'])
+        connection_already_exists = False
+        for entry in finalTable:
+            tmpSrcBlockHandle = deepcopy(entry['SrcBlockHandle'])
+            tmpSrcPort        = deepcopy(entry['SrcPort'])
+            if tmpSrcBlockHandle == srcBlockHandle and tmpSrcPort == srcPort:
+                connection_already_exists = True
+                break
+        if connection_already_exists == False:
+            newConnection = deepcopy(connection)
+        return newConnection
 
     def __calculateSubSystemSampleTime(self, ssBlock):
         sampleTime = -1.0
@@ -513,10 +535,15 @@ class CoCoSimModel:
         return result
 
     def getBlocksForTransformation(self):
-        raise Exception("To be implemented")
+        return self.packedBlocks
 
     def getModelVariables(self):
-        raise Exception("To be implemented")
+        connectionTable = self.connectionTable
+        modelVariables = []
+        for con in connectionTable:
+            modelVariables.append(con['SignalName'])
+
+        return modelVariables
 
     def packBlockForTransformation(self, block):
         blockCopy = copy.deepcopy(block)
@@ -537,7 +564,6 @@ class CoCoSimModel:
         for con in self.packedBlocks:
             f.write(str(con))
             f.write('\n')
-
         f.close()
 
     def writeConnectionTableToFile(self):
@@ -545,7 +571,6 @@ class CoCoSimModel:
         for con in self.connectionTable:
             f.write(str(con))
             f.write('\n')
-
         f.close()
 
     def calculateFundamentalSampleTime(self):
@@ -582,3 +607,6 @@ class CoCoSimModel:
                 pass
 
         return parsedSimulinkModel
+
+    def getSymbolicFixedPoint(self):
+        return cUtils.to_int(self.symbolicFixedPoint)
