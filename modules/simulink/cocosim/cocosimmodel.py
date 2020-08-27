@@ -2,11 +2,7 @@ import modules.utils.utils as cUtils
 import modules.utils.gcd as gcd
 import modules.logging.logmanager as LogManager
 import copy
-from modules.modelchecker.simulink.parsedsimulinkline import *
-from modules.modelchecker.simulink.parsedsimulinkblock import *
-from modules.modelchecker.simulink.parsedsimulinkmodel import *
 from copy import deepcopy
-import numpy as np
 
 
 class CoCoSimModel:
@@ -15,11 +11,8 @@ class CoCoSimModel:
         print("CoCoSimModel initiation started")
         self.__createAttributes(_simulinkmodeljson, _slist, _configuration)
         self.__preProcessModel()
-        self.packedBlocks = self.packAllBlocksForTransformation()
-        self.symbolicFixedPoint = self.__calculateModelFixedPoint()
-        print 'fixedpoint', self.symbolicFixedPoint
-        self.writePackedBlocksToFile()
-        self.writeConnectionTableToFile()
+        self.packedBlocksForTransformation = None  # self.__packAllBlocksForTransformation()
+        self.symbolicFixedPoint = self.__calculateModelSymbolicFixedPoint()
         print("CoCoSimModel initiation ended")
 
     def __createAttributes(self, _simulinkmodeljson, _slist, _configuration):
@@ -37,8 +30,9 @@ class CoCoSimModel:
         self.parameterTable = self.__getParameterTable()
 
     def __preProcessModel(self):
-        self.connectionTable = self.__createConnectionTable()
         self.__adjustExecutionOrder(self.sortedOrderList)
+        self.__addPortNumbers()
+        self.connectionTable = self.__createConnectionTable()
         self.__calculateSampleTimes()
 
     def __getAllComputationalBlocks(self):
@@ -47,14 +41,6 @@ class CoCoSimModel:
             if not any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "None")) for s in self.noncomputationalBlocks):
                 computationalBlocks.append(blk)
         return computationalBlocks
-
-    def __getAllPortBlocks(self):
-        # this needs to be optimized later
-        allPortBlocks = []
-        for blk in self.getAllBlocks():
-            if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "None")) for s in self.portBlockTypes):
-                allPortBlocks.append(blk)
-        return allPortBlocks
 
     def __extractSignalType(self, block, portNumber):
         signalType = ""
@@ -68,46 +54,95 @@ class CoCoSimModel:
                 compiledInPortTypes = compiledInPortTypes.get("Inport")
             if type(compiledInPortTypes) is not list:
                 compiledInPortTypes = [compiledInPortTypes]
-            signalType = compiledInPortTypes[int(portNumber) - 1]
+            signalType = compiledInPortTypes[int(portNumber)]
         except Exception as exc:
             self.logger.exception("extract signal failed: {0}:{1}:{2}".format(
                 block.get("BlockType"), block.get("Origin_path"), exc))
             pass
         return signalType
 
-    def __createConnectionTableEntry(self, destinationBlock, outConnectionOfDestinationBlock, signalIdentifier):
+    def __addPortNumbers(self):
+        # this function assigns port numbers to all ports of blocks
+        # because initially the block ports have no numbers (index)
+        allBlocks = self.__getAllBlocks()
+        pConnectivity = {}
+        for blk in allBlocks:
+            outPortNumber = 0
+            inPortNumber = 0
+            try:
+                pConnectivity = blk.get("PortConnectivity", {})
+            except Exception as e:
+                continue
+            for port in pConnectivity:
+                try:
+                    # out port has handle in the DstBlock field
+                    if type(port.get("DstBlock", "")) is float and port.get("Type", "string").isnumeric():
+                        port["PortNumber"] = outPortNumber
+                        port["PortType"] = "out"
+                        outPortNumber = outPortNumber + 1
+                    # in port has handle in the SrcBlock field
+                    elif type(port.get("SrcBlock", "")) is float and port.get("Type", "string").isnumeric():
+                        port["PortNumber"] = inPortNumber
+                        port["PortType"] = "in"
+                        inPortNumber = inPortNumber + 1
+                except Exception as e:
+                    continue
 
-        result = {
+    def __createConnectionTableEntry(self, destinationBlock, outConnectionOfDestinationBlock, signalId):
+        # this function creates connection table entry from a block and a port
+        dstPortNumber = outConnectionOfDestinationBlock.get("PortNumber", "")
+        return {
             "SrcBlockHandle": outConnectionOfDestinationBlock.get("SrcBlock"),
             "SrcPort": outConnectionOfDestinationBlock.get("SrcPort", ""),
             "DstBlockHandle": destinationBlock.get("Handle"),
-            "DstPort": outConnectionOfDestinationBlock.get("Type", ""),
+            "DstPort": dstPortNumber,
             "SignalType": self.__extractSignalType(destinationBlock,
-                                                   outConnectionOfDestinationBlock.get("Type", "")),
-            "SignalName": "signal_{0}".format(signalIdentifier)
+                                                   dstPortNumber),
+            "SignalName": "signal_{0}".format(signalId)
         }
-        return result
+
+    def __createDesitinationEntriesForBlock(self, sBlock):
+        # this function creates all the connections incomming to a given block (sBlock)
+        blockDestinationEntries = []
+        outputBlockPorts = sBlock.get("PortConnectivity", {})
+        # if only one connection then it is a signle object
+        # then we must make it into a list, such that we can iterate
+        if (type(outputBlockPorts)) == dict:
+            outputBlockPorts = [outputBlockPorts]
+        for outputBlockPort in outputBlockPorts:
+            # this is a check for incomming connection
+            if cUtils.compareStringsIgnoreCase(outputBlockPort.get("PortType", ""), "in"):
+                blockDestinationEntries.append(
+                    self.__createConnectionTableEntry(
+                        sBlock, outputBlockPort, cUtils.generateRandomLetterSequence(12)))
+        return blockDestinationEntries
+
+    def __createDesitnationEntriesForPorts(self, subSystemBlock):
+        # this function creates all connections comming to ports of subsystem
+        # we need this function because the port blocks are not part of allBlocks
+        destinationEntries = []
+        content = subSystemBlock.get("Content", {})
+        for key in content.keys():
+            try:
+                child = content[key]
+                if cUtils.compareStringsIgnoreCase(child.get("BlockType", ""), "Outport"):
+                    pc = child.get("PortConnectivity")
+                    if (type(pc)) == dict:
+                        pc = [pc]
+                    for _port in pc:
+                        destinationEntries.append(self.__createConnectionTableEntry(
+                            child, _port, cUtils.generateRandomLetterSequence(12)))
+            except:
+                continue
+        return destinationEntries
 
     def __createAllDestinationEntries(self):
         destinationEntries = []
-        """
-        destinationBlocks = self.__getAllComputationalBlocks()
-        destinationBlocks.extend(self.__getAllPortBlocks())
-        """
         destinationBlocks = self.getAllBlocks()
-        identifier = 0
         for destinationBlock in destinationBlocks:
-            outputBlockConnections = destinationBlock.get("PortConnectivity", {})
-            # if only one connection then it is a signle object
-            # then we must make it into a list, such that we can iterate
-            if (type(outputBlockConnections)) == dict:
-                outputBlockConnections = [outputBlockConnections]
-            for outputConnection in outputBlockConnections:
-                # this is a check for incomming connection
-                if type(outputConnection.get("SrcBlock")) == float:
-                    identifier += 1
-                    destinationEntries.append(
-                        self.__createConnectionTableEntry(destinationBlock, outputConnection, identifier))
+            destinationEntries.extend(self.__createDesitinationEntriesForBlock(destinationBlock))
+            if cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType"), "SubSystem"):
+                destinationEntries.extend(self.__createDesitnationEntriesForPorts(destinationBlock))
         return destinationEntries
 
     def __findAllEntriesByDestination(self, _handle):
@@ -118,13 +153,14 @@ class CoCoSimModel:
         return allEntries
 
     def __findEntryByDestination(self, _handle, _port, _partialTable):
-
         for entry in _partialTable:
             if cUtils.compareStringsIgnoreCase(entry.get("DstBlockHandle", ""), _handle) and (_port is None or cUtils.compareStringsIgnoreCase(entry.get("DstPort"), _port)):
                 return entry
         return None
 
-    def __findOutPortBlockByPortNumner(self, ssBlock, portNumber):
+    def __findOutPortBlockByPortNumber(self, ssBlock, portNumber):
+        # this function maps subsystem block to an output port
+        # inside of the subsystem
         result = None
         ssBlockContent = ssBlock.get("Content", {})
         for innerBlockId in ssBlockContent:
@@ -132,6 +168,8 @@ class CoCoSimModel:
                 ssInnerBlock = ssBlockContent.get(innerBlockId, {})
                 if not isinstance(portNumber, int):
                     portNumber = int(portNumber)
+                # this is because block that corresponds to a port is 1-based,
+                # whereas the numbering of port numbers of composite block is 0-based
                 intPortNumber = portNumber + 1
                 if cUtils.compareStringsIgnoreCase(ssInnerBlock.get("BlockType", ""), "Outport"):
                     outPortBlockNumber = int(ssInnerBlock.get("Port", "-1"))
@@ -142,175 +180,180 @@ class CoCoSimModel:
                 self.logger.exception(e)
         return result
 
-    def __traceSubSystemBlock(self, ssBlock, connection, partialTable):
-        result = connection
+    def __traceSubSystemBlock(self, ssBlock, connection, partialTable, stack):
+        # this function is called when the source of the coonection is a subSystemBlock
+        # because in the final table the source and the destination must be computationalBlocks
+        result = []
         portNumber = connection.get("SrcPort", "-1")
         try:
-            outPortBlock = self.__findOutPortBlockByPortNumner(ssBlock, portNumber)
-            newConnection = self.__findEntryByDestination(
+            outPortBlock = self.__findOutPortBlockByPortNumber(ssBlock, portNumber)
+            existingConnection = self.__findEntryByDestination(
                 outPortBlock.get("Handle"), None, partialTable)
-            if not newConnection is None:
-                newConnection = self.__mapConnectionSource(newConnection, partialTable)
-                result["SrcBlockHandle"] = newConnection.get("SrcBlockHandle", "")
-                result["SrcPort"] = newConnection.get("SrcPort", "")
+            if existingConnection is not None:
+                newConnections = self.__mapConnectionSource(existingConnection, partialTable, stack)
+                if newConnections is not None and type(newConnections) is not list:
+                    newConnections = [newConnections]
+                for nc in newConnections:
+                    result.append(self.__mergeConnections(nc, connection))
+            # this else should in principle never happen
+            else:
+                result = [connection]
         except Exception as exc:
             self.logger.exception("{0}:{1}:{2}".format(ssBlock.get("Origin_path"), exc, portNumber))
+
         return result
 
-    def __traceInPortBlock(self, inPortBlock, connection, partialTable):
-
+    def __traceInPortBlock(self, inPortBlock, connection, partialTable, stack):
+        # this function is called when the source of the coonection is an in port block
+        # because in the final table the source and the destination must be computationalBlocks
         portNumber = inPortBlock.get("Port", None)
+        result = []
         try:
             portNumberAsInteger = int(portNumber)
-            newConnection = self.__findEntryByDestination(
-                cUtils.stringify(inPortBlock.get("ParentHandle", "")), portNumberAsInteger, partialTable)
-            if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
-                return connection
-            newConnection = self.__mapConnectionSource(newConnection, partialTable)
-            connection["SrcPort"] = newConnection.get("SrcPort", "")
-            connection["SrcBlockHandle"] = newConnection.get("SrcBlockHandle")
+            # because ports as blocks are 1-based and ports as part of composite
+            # blocks are 0-based
+            newConnections = self.__findEntryByDestination(
+                cUtils.stringify(inPortBlock.get("ParentHandle", "")), portNumberAsInteger - 1, partialTable)
+            # this should work for inports on model level which shall be translated into variables, and eventually becoming signals
+            if newConnections is None:
+                return [connection]
+            newConnections = self.__mapConnectionSource(newConnections, partialTable, stack)
+            if newConnections is not None and type(newConnections) is not list:
+                newConnections = [newConnections]
+            for nc in newConnections:
+                result.append(self.__mergeConnections(nc, connection))
         except Exception as e:
             self.logger.exception(e)
-        return connection
+        return result
 
-    def __traceOutPortBlock(self, outPortBlock, connection, partialTable):
+    def __traceMuxBlock(self, muxBlock, connection, partialTable, stack):
+        # this function is called when the source of the coonection is a mux block
+        # because in the final table the source and the destination must be computationalBlocks
+        # the main idea is to have a stack where we keep the ports from demux blocks from which
+        # we have reached this mux block, in order to know which port to resume from
+        # if stack is empty, that means that either there is no demux or there
+        # is a computational block between the mux and demux
+        result = []
+        try:
+            existingConnection = self.__findEntryByDestination(
+                cUtils.stringify(muxBlock.get('Handle', '')), None, partialTable)
+            # check if no connection exists. In that case, the input into the mux blocks
+            # is a input of the model. Consequently, return the connection
+            if existingConnection is None:
+                return connection
+            # if there is an existing connection, process it
+            portConectivity = muxBlock.get("PortConnectivity", {})
+            portNumberToTraceback = -1
+            if len(stack) > 0:
+                portNumberToTraceback = stack.pop()
+            if not isinstance(portConectivity, list):
+                portConectivity = [portConectivity]
+            for port in portConectivity:
+                if (not cUtils.compareStringsIgnoreCase(port.get("PortNumber"), str(portNumberToTraceback))) and portNumberToTraceback >= 0:
+                    continue
+                returnConnection = self.__findEntryByDestination(
+                    muxBlock.get("Handle"), port.get("PortNumber", ""), partialTable)
+                result.extend(self.__mapConnectionSource(
+                    returnConnection, partialTable, stack))
+        except Exception as e:
+            self.logger.exception(e)
+        return result
 
-        portNumber = outPortBlock.get("Port", None)
-        #try:
-        portNumberAsInteger = int(portNumber)
-        newConnection       = self.__findEntryByDestination(
-                cUtils.stringify(outPortBlock.get("ParentHandle", "")), portNumberAsInteger, partialTable)
-        if newConnection is None:  # this should work for outports on model level which shall be translated into blocks, and eventually becoming signals
-            return connection
-        destinationBlock  = self.getBlockById(newConnection.get('DstBlockHandle'))
-        outPortBlock = self.__findOutPortBlockByPortNumner(destinationBlock, connection.get('SrcPort', ''))
-        destinationPortConnectivity = destinationBlock.get('PortConnectivity')
-        for k in range(len(destinationPortConnectivity)):
-            if (destinationPortConnectivity[k].get('Type') == str(portNumber)) and (str(destinationPortConnectivity[k].get('SrcBlock')) == '[]'):
-                connection['DstBlockHandle'] = destinationBlock.get('PortConnectivity')[k].get('DstBlock')
-
-        return connection
-
-    def __traceMuxBlock(self, muxBlock, connection, partialTable):
+    def __traceDemuxBlock(self, demuxBlock, connection, partialTable, stack):
+        # this function is called when the source of the coonection is a mux block
+        # because in the final table the source and the destination must be computationalBlocks
+        # the main idea is to have a stack where we keep the ports from demux blocks from which
+        # we have reached this mux block, in order to know which port to resume from
+        # if stack is empty, that means that either there is no demux or there
+        # is a computational block between the mux and demux
+        newConnection = {}
+        # create fresh copy of the stack
+        newStack = stack[:]
         try:
             newConnection = self.__findEntryByDestination(
-                    cUtils.stringify(muxBlock.get('Handle', '')), None, partialTable)
-
+                cUtils.stringify(demuxBlock.get('Handle', '')), None, partialTable)
             if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
                 return connection
-
-            sourceBlock = self.getBlockById(cUtils.stringify((muxBlock.get('Handle'))))
-            muxPort = muxBlock.get('PortConnectivity', '')
-            returnConnection = []
-            for k in range(len(muxPort)-1):
-                tmpConnection          = deepcopy(connection)
-                port                   = muxPort[k]
-                destinationBlockNumber = tmpConnection.get('DstBlockHandle', '')
-                destinationBlock       = self.getBlockById(destinationBlockNumber)
-                sourceBlockNumber      = port.get('SrcBlock')
-                if cUtils.compareStringsIgnoreCase(destinationBlock.get('BlockType', ''), "Demux") is False:
-                    tmpConnection["SrcBlockHandle"] = sourceBlockNumber
-                    tmpConnection                   = self.__mapConnectionSource(tmpConnection, partialTable)
-                    tmpConnection["SrcPort"]        = k
-                    returnConnection.append(tmpConnection)
+            newStack.append(connection.get("SrcPort"))
         except Exception as e:
             self.logger.exception(e)
+            newConnection = {}
 
-        return returnConnection
+        return self.__mapConnectionSource(newConnection, partialTable, newStack)
 
-    def __traceDemuxBlock(self, demuxBlock, connection, partialTable):
-        try:
-            newConnection = self.__findEntryByDestination(
-                    cUtils.stringify(demuxBlock.get('Handle', '')), None, partialTable)
+    def __traceBusSelectorBlock(self, busSelectorBlock, connection, partialTable, stack):
+        return self.__traceDemuxBlock(busSelectorBlock, connection, partialTable, stack)
 
-            if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
-                return connection
+    def __traceBusCreatorBlock(self, busCreatorBlock, connection, partialTable, stack):
+        return self.__traceMuxBlock(busCreatorBlock, connection, partialTable, stack)
 
-            sourceBlock       = self.getBlockById(cUtils.stringify((demuxBlock.get('Handle'))))
-            port              = demuxBlock.get('PortConnectivity', '')[0]
-            sourceBlockNumber = port.get('SrcBlock')
-            sourceBlock       = self.getBlockById(sourceBlockNumber)
-
-            if cUtils.compareStringsIgnoreCase(sourceBlock.get('BlockType', ''), "Mux"):
-                muxSourceBlock               = sourceBlock.get('PortConnectivity')
-                destinationBlock             = muxSourceBlock[connection.get('SrcPort', '')]
-                connection["SrcPort"]        = connection.get("SrcPort", "")
-                connection['SrcBlockHandle'] = destinationBlock.get('SrcBlock')
-                connection                   = self.__mapConnectionSource(connection, partialTable)
-            else:
-                connection["SrcBlockHandle"] = connection.get('DstBlockHandle')
-                newDestinationConnection     = self.__mapConnectionSource(connection, partialTable)
-                connection["SrcPort"]        = connection.get("SrcPort", "")
-                connection["SrcBlockHandle"] = sourceBlockNumber
-                newSourceConnection          = self.__mapConnectionSource(connection, partialTable)
-                connection["SrcPort"]        = newSourceConnection.get("SrcPort", "")
-                connection["SrcBlockHandle"] = newSourceConnection.get('SrcBlockHandle', '')
-                connection["DstBlockHandle"] = newDestinationConnection.get('DstBlockHandle', '')
-        except Exception as e:
-            self.logger.exception(e)
-
-        return connection
-
-    def __mapConnectionSource(self, connection, partialTable):
+    def __mapConnectionSource(self, connection, partialTable, stack):
         """
-        Initially the connections have been created. However, some of the sources might be
+        Initially all the connections have been created. However, some of the sources might not be
         an atomic computational block and in such cases we must find the atomic computational block which writes to that signal
         """
         sourceBlock = self.getBlockById(connection.get("SrcBlockHandle", ""))
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "subsystem"):
-            connection = self.__traceSubSystemBlock(sourceBlock, connection, partialTable)
+            connection = self.__traceSubSystemBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux"):
-            connection = self.__traceDemuxBlock(sourceBlock, connection, partialTable)
+            connection = self.__traceDemuxBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "mux"):
-            connection = self.__traceMuxBlock(sourceBlock, connection, partialTable)
+            connection = self.__traceMuxBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "inport"):
-            connection = self.__traceInPortBlock(sourceBlock, connection, partialTable)
-        if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "outport"):
-            connection = self.__traceOutPortBlock(sourceBlock, connection, partialTable)
+            connection = self.__traceInPortBlock(sourceBlock, connection, partialTable, stack)
+        if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "busselector"):
+            connection = self.__traceBusSelectorBlock(sourceBlock, connection, partialTable, stack)
+        if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "buscreator"):
+            connection = self.__traceBusCreatorBlock(sourceBlock, connection, partialTable, stack)
+        return connection if type(connection) is list else [connection]
 
-        return connection
+    def __modifyFinalTableConnection(self, connection, finalTable):
+        # Check if signal already exists in the connection table
+                # (i.e. same source block handle and source port)
+        if connection == {}:
+            return {}
+        newConnection = deepcopy(connection)
+        srcBlockHandle = newConnection.get('SrcBlockHandle', "")
+        srcPort = newConnection.get('SrcPort', "")
+        for entry in finalTable:
+            if entry == {}:
+                continue
+            tmpSrcBlockHandle = entry.get("SrcBlockHandle", "")
+            tmpSrcPort = entry.get("SrcPort")
+            if cUtils.compareStringsIgnoreCase(tmpSrcBlockHandle, srcBlockHandle) and cUtils.compareStringsIgnoreCase(tmpSrcPort, srcPort):
+                newConnection["SignalName"] = entry.get("SignalName", "")
+                break
+        return newConnection
+
+    def __mergeConnections(self, sourceExtractionConnection, destinationExtractionConnection):
+        return {
+            "SrcBlockHandle": sourceExtractionConnection.get("SrcBlockHandle", ""),
+            "SrcPort": sourceExtractionConnection.get("SrcPort", ""),
+            "DstBlockHandle": destinationExtractionConnection.get("DstBlockHandle", ""),
+            "DstPort": destinationExtractionConnection.get("DstPort", ""),
+            "SignalType": destinationExtractionConnection.get("SignalType", ""),
+            "SignalName": sourceExtractionConnection.get("SignalName", "")
+        }
 
     def __createConnectionTable(self):
+        # after this connection table has all the signals and destinationBlocks
+        # we just need to adjust the sources
         connectionTable = self.__createAllDestinationEntries()
         finalTable = []
+        stack = []
         for connection in connectionTable:
-            connection = self.__mapConnectionSource(connection, connectionTable)
-            if connection is not None:
-                try:
-                    for k in range(len(connection)):
-                        tmpConnection = connection[k]
-                        newConnection = self.__modifyFinalTableConnection(tmpConnection, finalTable)
-                        if newConnection != []:
-                            finalTable.append(tmpConnection)
-                except:
-                    destinationBlock = self.getBlockById(connection["DstBlockHandle"])
-                    sourceBlock = self.getBlockById(connection["SrcBlockHandle"])
-                    if not (cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType", ""), "mux") or 
-                        cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType", ""), "demux") or 
-                        cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "mux") or 
-                        cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux")):
-                        newConnection = self.__modifyFinalTableConnection(connection, finalTable)
-                        if newConnection != []:
-                            finalTable.append(connection)
-
-        return finalTable
-
-    def __modifyFinalTableConnection(self, connection, finalTable):   
-        # Check if signal already exists in the connection table
-		# (i.e. same source block handle and source port)
-        newConnection  = []
-        srcBlockHandle = deepcopy(connection['SrcBlockHandle'])
-        srcPort        = deepcopy(connection['SrcPort'])
-        connection_already_exists = False
-        for entry in finalTable:
-            tmpSrcBlockHandle = deepcopy(entry['SrcBlockHandle'])
-            tmpSrcPort        = deepcopy(entry['SrcPort'])
-            if tmpSrcBlockHandle == srcBlockHandle and tmpSrcPort == srcPort:
-                connection_already_exists = True
-                break
-        if connection_already_exists == False:
-            newConnection = deepcopy(connection)
-        return newConnection
+            dstBlockHandle = connection.get("DstBlockHandle")
+            dstBlock = self.getBlockById(dstBlockHandle)
+            if cUtils.compareStringsIgnoreCase(dstBlock.get("ExecutionOrder", "-1"), "-1") or dstBlock.get("BlockType", "") in self.noncomputationalBlocks:
+                continue
+            mappedConnection = self.__mapConnectionSource(connection, connectionTable, stack)
+            for mc in mappedConnection:
+                combinedConnection = self.__mergeConnections(mc, connection)
+                combinedConnection = self.__modifyFinalTableConnection(
+                    combinedConnection, finalTable)
+                if combinedConnection != {}:
+                    finalTable.append(combinedConnection)
+        return [dict(t) for t in {tuple(d.items()) for d in finalTable}]
 
     def __calculateSubSystemSampleTime(self, ssBlock):
         sampleTime = -1.0
@@ -330,7 +373,10 @@ class CoCoSimModel:
         return sampleTime
 
     def __flattenSubSystem(self, ssBlock, sampleTime=None):
-        # this is fully implemented
+        # this function replaces subsystem block with by a set of its constituent blocks
+        # the main role is to basically assign a sample time of the inner blocks,
+        # which when assigned and combined with the execution order number allows them
+        # to be treated as an independent units outside of the subsystem
         allBlocks = [ssBlock]
         innerContents = ssBlock.get("Content", {})
         ssBlockId = ssBlock.get("Handle", "")
@@ -349,25 +395,27 @@ class CoCoSimModel:
         return allBlocks
 
     def __adjustExecutionOrder(self, _slist):
-        # implemented
+        # assigns execution order for each block that is in the slist
+        # slist is obtained from matlab and passed as a parameter into the
+        # CoCoSimModel class
+        # if the block is not in the slist, it gets -1 for execution order
+        # the main rationale is that if the block is not in the slist, it will
+        # not be included in the analysis model
         for blk in self.getAllBlocks():
-            blockPath = blk.get("Origin_path", "").lower()
-            """ execution order - 1 denotes that it has no execution order
-             that is, it is not included in the slist and as such
-             sould not be included in the transformation"""
+            blockPath = blk.get("Origin_path", "").lower().strip()
             _number = int(_slist.get(blockPath, "-1"))
             blk["ExecutionOrder"] = str(_number).zfill(2)
 
-    def __createSignalsAndVariables(self):
-        self.__createConnectionTable()
-
     def __getModelMetaData(self):
-        # implemented
+        # returns meta-data of the CoCoSim-exported JSON
         sModelJson = self.getModelJSON()
         metaData = sModelJson.get("meta")
         return metaData if metaData is not None else {}
 
     def getBlockPredecessors(self, blockHandle):
+        # function that returns a list of blocks which signals are
+        # input into the block given by the handle
+        # based on the connection table
         predecessors = []
         predecessorIndices = []
         for entry in self.connectionTable:
@@ -379,6 +427,9 @@ class CoCoSimModel:
         return predecessors, predecessorIndices
 
     def getBlockSuccessors(self, blockHandle):
+        # list of all blocks to whom the output signals from the block given
+        # by the block handle are direct inputs
+        # based on the connection table
         successors = []
         successorIndices = []
         for entry in self.connectionTable:
@@ -390,6 +441,7 @@ class CoCoSimModel:
         return successors, successorIndices
 
     def __buildDependencyChain(self, _handle, visitedblocks=set()):
+        # function for recursive call of the public one (see blow)
         if _handle not in visitedblocks:
             visitedblocks.add(_handle)
             predecessors, _ = self.getBlockPredecessors(_handle)
@@ -399,24 +451,39 @@ class CoCoSimModel:
         return visitedblocks
 
     def getDependencyChain(self, blockHandle):
+        # this function build a data and control dependency between the blocks in the model.
+        # we just give a block, and the function will return a list of blocks
+        # which directly contribute to the output that this block produces. This is
+        # very useful for isolating parts of the system for certain properties
         dependencyChain = []
         dependencyChainHandles = self.__buildDependencyChain(blockHandle)
         for dependencyChainHandle in dependencyChainHandles:
             dependencyChain.append(self.getBlockById(dependencyChainHandle))
         return dependencyChain
 
+    def __extractModelNameFromMetaData(self, metaData={}):
+        # self descriptive what the function does
+        modelName = metaData.get("file_path", "")
+        begining = 0
+        end = len(modelName)
+        if "/" in modelName:
+            begining = modelName.rindex("/")+1
+        if ".mdl" in modelName:
+            end = modelName.rindex(".mdl")
+        return modelName[begining:end]
+
     def getModelName(self):
-        # implemented
-        defaultValue = ""
+        # self descriptive function
         metaData = self.__getModelMetaData()
-        modelName = metaData.get("file_path")
-        return modelName if modelName is not None else defaultValue
+        return self.__extractModelNameFromMetaData(metaData)
 
     def getModelJSON(self):
-        # getter function
+        # raw JSON getter
         return self.rawSimulinkModelJson
 
     def __calculateFundamentalSampleTime(self):
+        # function that calculates the fundamental sample time of the model
+        # fundamental sample time is the Greates Common Divisor of all sample times in the model
         sampleTimes = set()
         for blk in self.allBlocks:
             sTime = float(blk.get("calculated_sample_time", "-1"))
@@ -425,6 +492,14 @@ class CoCoSimModel:
         return gcd.gcd(sampleTimes)
 
     def __calculateSampleTimes(self):
+        # if the sample times are given as variables, then the mapping
+        # between the variables and the values should be provided in the
+        # configuration object
+        #
+        # I need to check if this function also works if sample times are given
+        # as numbers
+        sampleTimes = self._configuration.get("sample_times", [])
+        # this function calculates and assigns sample times for all blocks in the model
         for blk in self.allBlocks:
             if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "")) for s in self.compositeBlockTypes):
                 blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(blk)
@@ -432,29 +507,32 @@ class CoCoSimModel:
                 parentSS = self.getBlockById(cUtils.stringify(blk.get("ParentHandle")))
                 blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(parentSS)
             try:
-                blk["calculated_sample_time"] = float(blk["calculated_sample_time"])
-                if blk["calculated_sample_time"] == -1:
-                    blk["calculated_sample_time"] = float(self.__getGlobalSampleTime())                    
+                blk["calculated_sample_time"] = float(blk.get("calculated_sample_time", ""))
             except Exception as e:
-                blk["calculated_sample_time"] = float(self.parameterTable[blk['calculated_sample_time']])
+                blk["calculated_sample_time"] = float(
+                    sampleTimes[blk.get("calculated_sample_time", "")])
         return self
-		
-    def __calculateModelFixedPoint(self):
+
+    def __calculateModelSymbolicFixedPoint(self):
+        # model fixed point is basically the completeness treshold for bounded model checking
+        # the fixed point procedure represents an implementation of the algorithm proposed
+        # by Filipovikj et al. in Bounded invariance checking of simulink models
         allBlocks = self.getAllBlocks()
         fixedPoint = -1
-        counter = 0
         for blk in allBlocks:
             interFP = self.__calculateBlockSymbolicFixedPoint(blk)
             fixedPoint = max(fixedPoint, interFP)
         return fixedPoint
 
     def __calculateBlockSymbolicFixedPoint(self, sBlock):
+        # calcucalting the fixed point for a block
+        # the fixed point procedure represents an implementation of the algorithm proposed
+        # by Filipovikj et al. in Bounded invariance checking of simulink models
         sfp = cUtils.to_int(sBlock.get("symbolicfixedpoint", "-1"))
         if sfp > -1:
             return sfp
-        _blockInputs = self.getBlockPredecessors(sBlock.get("Handle"))
         blockExecutionOrderId = cUtils.to_int(sBlock.get("ExecutionOrder", ""))
-        blockSymbolicFixedPoint = sBlock['calculated_sample_time']
+        blockSymbolicFixedPoint = sBlock.get('calculated_sample_time', "")
         predecessorsForProcessing = []
         predecessors, _ = self.getBlockPredecessors(sBlock.get("Handle"))
         for blk in predecessors:
@@ -462,12 +540,15 @@ class CoCoSimModel:
             if execId < blockExecutionOrderId:
                 predecessorsForProcessing.append(blk)
         if (len(predecessorsForProcessing) > 0 and blockSymbolicFixedPoint != 0):
-            blockSymbolicFixedPoint = self.__calculateBlockSymbolicFixedPointRecursively(sBlock,
-                                                                predecessorsForProcessing)
+            blockSymbolicFixedPoint = self.__calculateBlockSymbolicFixedPointResursively(sBlock,
+                                                                                         predecessorsForProcessing)
         sBlock["symbolicfixedpoint"] = blockSymbolicFixedPoint
         return blockSymbolicFixedPoint
 
     def __calculateBlockSymbolicFixedPointResursively(self, sBlock, predecessors):
+        # calcucalting the fixed point for a block
+        # the fixed point procedure represents an implementation of the algorithm proposed
+        # by Filipovikj et al. in Bounded invariance checking of simulink models
         predecessorsFixedPoints = []
         blockSampleTime = sBlock['calculated_sample_time']
         for prd in predecessors:
@@ -477,30 +558,15 @@ class CoCoSimModel:
     def __determineFixedPoint(self, outTs, predecessorsTs):
         fixedPoint = outTs
         for predecessorTs in predecessorsTs:
+            if(cUtils.compareStringsIgnoreCase(predecessorTs, "")):
+                predecessorTs = -1
             if(predecessorTs < outTs):
                 continue
             if(predecessorTs >= outTs):
                 interFP = (int(predecessorTs / outTs) +
-                    (predecessorTs % outTs > 0)) * outTs
+                           (predecessorTs % outTs > 0)) * outTs
                 fixedPoint = max(fixedPoint, interFP)
         return fixedPoint
-
-    def __getParameter(self, param):
-        
-        parameter_val = self.parameterTable[param]
-
-        return parameter_val
-
-    def __getParameterTable(self):
-        
-        parameterTable = {'T_brake_pedal': 0.01, 'T_brake_ctrl': 0.02, 'T_spd_est': 0.02, 'T_abs': 0.01, 'T_veh': 0.005, 'T_sim': 0.005}
-
-        return parameterTable
-    def __getGlobalSampleTime(self):
-
-        globalSampleTime = self.parameterTable['T_sim']
-
-        return globalSampleTime
 
     def __getAllBlocks(self):
         allBlocks = []
@@ -518,7 +584,6 @@ class CoCoSimModel:
                     allBlocks.append(blk)
             except Exception as e:
                 self.logger.exception(e)
-		
         return allBlocks
 
     def getAllBlocks(self):
@@ -535,43 +600,32 @@ class CoCoSimModel:
         return result
 
     def getBlocksForTransformation(self):
-        return self.packedBlocks
+        # initialize block for transformation the first time the
+        #function is called
+        if self.packBlockForTransformation is None:
+            self.packBlockForTransformation = self.__packAllBlocksForTransformation()
+        return self.packedBlocksForTransformation
 
     def getModelVariables(self):
         connectionTable = self.connectionTable
-        modelVariables = []
+        modelVariables = set()
         for con in connectionTable:
-            modelVariables.append(con['SignalName'])
+            modelVariables.add(con['SignalName'])
+        return list(modelVariables)
 
-        return modelVariables
-
-    def packBlockForTransformation(self, block):
+    def __packBlockForTransformation(self, block):
         blockCopy = copy.deepcopy(block)
         _, blockCopy["predecessorBlocks"] = self.getBlockPredecessors(blockCopy.get("Handle"))
-        _, blockCopy["successorBlocks"]   = self.getBlockSuccessors(blockCopy.get("Handle"))
+        _, blockCopy["successorBlocks"] = self.getBlockSuccessors(blockCopy.get("Handle"))
         return blockCopy
 
-    def packAllBlocksForTransformation(self):
+    def __packAllBlocksForTransformation(self):
         packedBlocksForTransformation = []
         for block in self.allBlocks:
-            blockCopy = self.packBlockForTransformation(block)
+            blockCopy = self.__packBlockForTransformation(block)
             if not any(cUtils.compareStringsIgnoreCase(nonComputationalBlockType, blockCopy.get("BlockType")) for nonComputationalBlockType in self.noncomputationalBlocks):
                 packedBlocksForTransformation.append(blockCopy)
         return packedBlocksForTransformation
-
-    def writePackedBlocksToFile(self):
-        f = open('packedTable.txt', 'w')
-        for con in self.packedBlocks:
-            f.write(str(con))
-            f.write('\n')
-        f.close()
-
-    def writeConnectionTableToFile(self):
-        f = open('table.txt', 'w')
-        for con in self.connectionTable:
-            f.write(str(con))
-            f.write('\n')
-        f.close()
 
     def calculateFundamentalSampleTime(self):
         if self.fundamentalSampleTime is None:

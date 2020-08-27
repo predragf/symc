@@ -1,0 +1,1279 @@
+{
+  "meta": {
+    "file_path": "untitled_PP",
+    "sampleTime": 0.5,
+    "date": "16-Jun-2020",
+    "Declarations": {
+      "Enumerations": []
+    }
+  },
+  "untitled_PP": {
+    "Content": {
+      "Chart3": {
+        "Path": "untitled_PP/Chart3",
+        "BlockType": "SubSystem",
+        "Name": "Chart3",
+        "Origin_path": "untitled_PP/Chart3",
+        "Handle": 84.00390625,
+        "LineHandles": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledSampleTime": [
+          0.5,
+          0
+        ],
+        "CompiledPortDataTypes": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortDimensions": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortWidths": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortComplexSignals": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "PortConnectivity": [],
+        "Ports": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "Position": [
+          295,
+          89,
+          355,
+          141
+        ],
+        "AttributesFormatString": "",
+        "ShowPortLabels": "FromPortIcon",
+        "TemplateBlock": "",
+        "Permissions": "ReadWrite",
+        "PermitHierarchicalResolution": "ExplicitOnly",
+        "TreatAsAtomicUnit": "on",
+        "MinAlgLoopOccurrences": "off",
+        "PropExecContextOutsideSubsystem": "off",
+        "IsSubsystemVirtual": "off",
+        "DataTypeOverride": "UseLocalSettings",
+        "MinMaxOverflowLogging": "UseLocalSettings",
+        "Virtual": "off",
+        "SFBlockType": "Chart",
+        "Mask": "off",
+        "MaskType": "",
+        "StateflowContent": {
+          "Name": "Chart3",
+          "ActionLanguage": "MATLAB",
+          "StateMachineType": "Classic",
+          "ChartUpdate": "INHERITED",
+          "ExecuteAtInitialization": false,
+          "InitializeOutput": false,
+          "EnableNonTerminalStates": false,
+          "Path": "untitled_PP/Chart3",
+          "Data": [],
+          "Events": [],
+          "States": [
+            {
+              "Path": "untitled_PP/Chart3",
+              "Name": "Chart3",
+              "Id": 1849,
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Actions": {
+                "Entry": "",
+                "During": "",
+                "Exit": "",
+                "Bind": "",
+                "On": "",
+                "OnAfter": "",
+                "OnBefore": "",
+                "OnAt": "",
+                "OnEvery": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1869,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1850,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart3/S"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": "S",
+                "States": 1850,
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S",
+              "Id": 1850,
+              "ExecutionOrder": 0,
+              "Name": "S",
+              "LabelString": "S\ndu: disp(\"s.du\")\nen: disp(\"s.en\")\nex: disp(\"s.ex\")",
+              "Actions": {
+                "Entry": "disp(\"s.en\")\n",
+                "During": "disp(\"s.du\")\n",
+                "Exit": "disp(\"s.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "PARALLEL_AND",
+                "DefaultTransitions": [],
+                "Substates": [
+                  "B",
+                  "A"
+                ],
+                "States": [
+                  1851,
+                  1856
+                ],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/B",
+              "Id": 1851,
+              "ExecutionOrder": 2,
+              "Name": "B",
+              "LabelString": "B\ndu: disp(\"b.du\")\nen: disp(\"b.en\")\nex: disp(\"b.ex\")",
+              "Actions": {
+                "Entry": "disp(\"b.en\")\n",
+                "During": "disp(\"b.du\")\n",
+                "Exit": "disp(\"b.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1854,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1852,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart3/S/B/B1"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": [
+                  "B1",
+                  "B2"
+                ],
+                "States": [
+                  1852,
+                  1853
+                ],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/A",
+              "Id": 1856,
+              "ExecutionOrder": 1,
+              "Name": "A",
+              "LabelString": "A\ndu: disp(\"a.du\")\nen: disp(\"a.en\")\nex: disp(\"a.ex\")",
+              "Actions": {
+                "Entry": "disp(\"a.en\")\n",
+                "During": "disp(\"a.du\")\n",
+                "Exit": "disp(\"a.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1866,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1857,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart3/S/A/A1"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": [
+                  "A1",
+                  "A2"
+                ],
+                "States": [
+                  1857,
+                  1858
+                ],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/B/B1",
+              "Id": 1852,
+              "ExecutionOrder": 0,
+              "Name": "B1",
+              "LabelString": "B1\ndu: disp(\"b1.du\")\nen: disp(\"b1.en\")\nex: disp(\"b1.ex\")",
+              "Actions": {
+                "Entry": "disp(\"b1.en\")\n",
+                "During": "disp(\"b1.du\")\n",
+                "Exit": "disp(\"b1.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": {
+                "Id": 1855,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1853,
+                  "Type": "State",
+                  "Name": "untitled_PP/Chart3/S/B/B2"
+                },
+                "Event": "",
+                "Condition": "",
+                "ConditionAction": "",
+                "TransitionAction": "",
+                "LabelString": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/B/B2",
+              "Id": 1853,
+              "ExecutionOrder": 0,
+              "Name": "B2",
+              "LabelString": "B2\ndu: disp(\"b2.du\")\nen: disp(\"b2.en\")\nex: disp(\"b2.ex\")",
+              "Actions": {
+                "Entry": "disp(\"b2.en\")\n",
+                "During": "disp(\"b2.du\")\n",
+                "Exit": "disp(\"b2.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/A/A1",
+              "Id": 1857,
+              "ExecutionOrder": 0,
+              "Name": "A1",
+              "LabelString": "A1\ndu: disp(\"a1.du\")\nen: disp(\"a1.en\")\nex: disp(\"a1.ex\")",
+              "Actions": {
+                "Entry": "disp(\"a1.en\")\n",
+                "During": "disp(\"a1.du\")\n",
+                "Exit": "disp(\"a1.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": {
+                "Id": 1867,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1858,
+                  "Type": "State",
+                  "Name": "untitled_PP/Chart3/S/A/A2"
+                },
+                "Event": "",
+                "Condition": "",
+                "ConditionAction": "",
+                "TransitionAction": "",
+                "LabelString": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/A/A2",
+              "Id": 1858,
+              "ExecutionOrder": 0,
+              "Name": "A2",
+              "LabelString": "A2\ndu: disp(\"a2.du\")\nen: disp(\"a2.en\")\nex: disp(\"a2.ex\")",
+              "Actions": {
+                "Entry": "disp(\"a2.en\")\n",
+                "During": "disp(\"a2.du\")\n",
+                "Exit": "disp(\"a2.ex\")",
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1865,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1859,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart3/S/A/A2/A21"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": "A21",
+                "States": 1859,
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/A/A2/A21",
+              "Id": 1859,
+              "ExecutionOrder": 0,
+              "Name": "A21",
+              "LabelString": "A21",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1862,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1860,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart3/S/A/A2/A21/A211"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": [
+                  "A211",
+                  "A212"
+                ],
+                "States": [
+                  1860,
+                  1861
+                ],
+                "SubJunctions": {
+                  "Name": "Junction1864",
+                  "Type": "HISTORY"
+                }
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/A/A2/A21/A211",
+              "Id": 1860,
+              "ExecutionOrder": 0,
+              "Name": "A211",
+              "LabelString": "A211",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": {
+                "Id": 1863,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1861,
+                  "Type": "State",
+                  "Name": "untitled_PP/Chart3/S/A/A2/A21/A212"
+                },
+                "Event": "",
+                "Condition": "",
+                "ConditionAction": "",
+                "TransitionAction": "",
+                "LabelString": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart3/S/A/A2/A21/A212",
+              "Id": 1861,
+              "ExecutionOrder": 0,
+              "Name": "A212",
+              "LabelString": "A212",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": {
+                "Id": 1868,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1857,
+                  "Type": "State",
+                  "Name": "untitled_PP/Chart3/S/A/A1"
+                },
+                "Event": "",
+                "Condition": "",
+                "ConditionAction": "",
+                "TransitionAction": "",
+                "LabelString": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            }
+          ],
+          "Junctions": {
+            "Path": "untitled_PP/Chart3/S/A/A2/A21/Junction1864",
+            "Name": "Junction1864",
+            "Id": 1864,
+            "Type": "HISTORY",
+            "OuterTransitions": []
+          },
+          "GraphicalFunctions": [],
+          "SimulinkFunctions": [],
+          "TruthTables": []
+        },
+        "Content": {}
+      },
+      "Chart5": {
+        "Path": "untitled_PP/Chart5",
+        "BlockType": "SubSystem",
+        "Name": "Chart5",
+        "Origin_path": "untitled_PP/Chart5",
+        "Handle": 100.00390625,
+        "LineHandles": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": -1,
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledSampleTime": [
+          "Inf",
+          "Inf"
+        ],
+        "CompiledPortDataTypes": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": "double",
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortDimensions": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [
+            1,
+            3
+          ],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortWidths": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": 3,
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortComplexSignals": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": 0,
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "PortConnectivity": {
+          "Type": "trigger",
+          "Position": [
+            215,
+            -6
+          ],
+          "SrcBlock": -1,
+          "SrcPort": [],
+          "DstBlock": [],
+          "DstPort": []
+        },
+        "Ports": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "Position": [
+          185,
+          -1,
+          245,
+          51
+        ],
+        "AttributesFormatString": "",
+        "ShowPortLabels": "FromPortIcon",
+        "TemplateBlock": "",
+        "Permissions": "ReadWrite",
+        "PermitHierarchicalResolution": "ExplicitOnly",
+        "TreatAsAtomicUnit": "on",
+        "MinAlgLoopOccurrences": "off",
+        "PropExecContextOutsideSubsystem": "off",
+        "IsSubsystemVirtual": "off",
+        "DataTypeOverride": "UseLocalSettings",
+        "MinMaxOverflowLogging": "UseLocalSettings",
+        "Virtual": "off",
+        "SFBlockType": "Chart",
+        "Mask": "off",
+        "MaskType": "",
+        "StateflowContent": {
+          "Name": "Chart5",
+          "ActionLanguage": "MATLAB",
+          "StateMachineType": "Classic",
+          "ChartUpdate": "INHERITED",
+          "ExecuteAtInitialization": false,
+          "InitializeOutput": false,
+          "EnableNonTerminalStates": false,
+          "Path": "untitled_PP/Chart5",
+          "Data": [
+            {
+              "Id": 1937,
+              "Name": "dis_cent",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1938,
+              "Name": "disp_min",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1939,
+              "Name": "disp_cent",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1940,
+              "Name": "disp_sec",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1941,
+              "Name": "cent",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1942,
+              "Name": "min",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1943,
+              "Name": "sec",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            },
+            {
+              "Id": 1944,
+              "Name": "noop",
+              "Datatype": "Inherit: From definition in chart",
+              "CompiledType": "double",
+              "Port": null,
+              "InitialValue": "",
+              "Scope": "Local",
+              "ArraySize": "-1",
+              "CompiledSize": "1"
+            }
+          ],
+          "Events": [
+            {
+              "Id": 1945,
+              "Name": "LAP",
+              "Port": 1,
+              "Scope": "Input",
+              "Trigger": "Rising"
+            },
+            {
+              "Id": 1946,
+              "Name": "START",
+              "Port": 2,
+              "Scope": "Input",
+              "Trigger": "Rising"
+            },
+            {
+              "Id": 1947,
+              "Name": "TIC",
+              "Port": 3,
+              "Scope": "Input",
+              "Trigger": "Rising"
+            }
+          ],
+          "States": [
+            {
+              "Path": "untitled_PP/Chart5",
+              "Name": "Chart5",
+              "Id": 1916,
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Actions": {
+                "Entry": "",
+                "During": "",
+                "Exit": "",
+                "Bind": "",
+                "On": "",
+                "OnAfter": "",
+                "OnBefore": "",
+                "OnAt": "",
+                "OnEvery": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1948,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1917,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Stop"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": [
+                  "Stop",
+                  "Run"
+                ],
+                "States": [
+                  1917,
+                  1924
+                ],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart5/Stop",
+              "Id": 1917,
+              "ExecutionOrder": 0,
+              "Name": "Stop",
+              "LabelString": "Stop",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": {
+                  "Id": 1922,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1918,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Stop/Reset"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                },
+                "Substates": [
+                  "Reset",
+                  "Lap_stop"
+                ],
+                "States": [
+                  1918,
+                  1921
+                ],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart5/Run",
+              "Id": 1924,
+              "ExecutionOrder": 0,
+              "Name": "Run",
+              "LabelString": "Run",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": {
+                "Id": 1927,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1934,
+                  "Type": "Junction",
+                  "Name": "untitled_PP/Chart5/Run/Junction1934"
+                },
+                "Event": "TIC",
+                "Condition": "",
+                "ConditionAction": "\ncent=cent+1",
+                "TransitionAction": "",
+                "LabelString": "TIC{\ncent=cent+1}"
+              },
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [
+                  "Running",
+                  "Lap"
+                ],
+                "States": [
+                  1925,
+                  1926
+                ],
+                "SubJunctions": [
+                  {
+                    "Name": "Junction1934",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction1935",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction1936",
+                    "Type": "CONNECTIVE"
+                  }
+                ]
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart5/Stop/Reset",
+              "Id": 1918,
+              "ExecutionOrder": 0,
+              "Name": "Reset",
+              "LabelString": "Reset",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": {
+                "Id": 1919,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1920,
+                  "Type": "Junction",
+                  "Name": "untitled_PP/Chart5/Stop/Reset/Junction1920"
+                },
+                "Event": "LAP",
+                "Condition": "",
+                "ConditionAction": "cent=0;\nsec=0;min=0;\ncent=0;dis_cent=0;\ndisp_min=0;",
+                "TransitionAction": "",
+                "LabelString": "LAP{cent=0;\nsec=0;min=0;\ncent=0; dis_cent=0;\ndisp_min=0;}"
+              },
+              "OuterTransitions": {
+                "Id": 1949,
+                "ExecutionOrder": 1,
+                "Destination": {
+                  "Id": 1925,
+                  "Type": "State",
+                  "Name": "untitled_PP/Chart5/Run/Running"
+                },
+                "Event": "START",
+                "Condition": "",
+                "ConditionAction": "",
+                "TransitionAction": "",
+                "LabelString": "START"
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": {
+                  "Name": "Junction1920",
+                  "Type": "CONNECTIVE"
+                }
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart5/Stop/Lap_stop",
+              "Id": 1921,
+              "ExecutionOrder": 0,
+              "Name": "Lap_stop",
+              "LabelString": "Lap_stop",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [
+                {
+                  "Id": 1951,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 1926,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Run/Lap"
+                  },
+                  "Event": "START",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "START"
+                },
+                {
+                  "Id": 1923,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1918,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Stop/Reset"
+                  },
+                  "Event": "LAP",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "LAP"
+                }
+              ],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart5/Run/Running",
+              "Id": 1925,
+              "ExecutionOrder": 0,
+              "Name": "Running",
+              "LabelString": "Running\n\ndu: disp_cent = cent;\n disp_sec = sec;\n disp_min = min;\n",
+              "Actions": {
+                "Entry": [],
+                "During": "disp_cent=cent;\ndisp_sec=sec;\ndisp_min=min;\n",
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [
+                {
+                  "Id": 1950,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1918,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Stop/Reset"
+                  },
+                  "Event": "START",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "START"
+                },
+                {
+                  "Id": 1930,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 1926,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Run/Lap"
+                  },
+                  "Event": "LAP",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "LAP"
+                }
+              ],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "untitled_PP/Chart5/Run/Lap",
+              "Id": 1926,
+              "ExecutionOrder": 0,
+              "Name": "Lap",
+              "LabelString": "Lap",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [
+                {
+                  "Id": 1952,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1921,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Stop/Lap_stop"
+                  },
+                  "Event": "START",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "START"
+                },
+                {
+                  "Id": 1931,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 1925,
+                    "Type": "State",
+                    "Name": "untitled_PP/Chart5/Run/Running"
+                  },
+                  "Event": "LAP",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "LAP"
+                }
+              ],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            }
+          ],
+          "Junctions": [
+            {
+              "Path": "untitled_PP/Chart5/Run/Junction1934",
+              "Name": "Junction1934",
+              "Id": 1934,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 1929,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1935,
+                    "Type": "Junction",
+                    "Name": "untitled_PP/Chart5/Run/Junction1935"
+                  },
+                  "Event": "",
+                  "Condition": "cent==100]\n{cent=0;\nsec=sec+1;}",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "[cent==100]\n{cent = 0;\nsec = sec+1;}"
+                },
+                {
+                  "Id": 1928,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 1936,
+                    "Type": "Junction",
+                    "Name": "untitled_PP/Chart5/Run/Junction1936"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "untitled_PP/Chart5/Run/Junction1935",
+              "Name": "Junction1935",
+              "Id": 1935,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 1933,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 1936,
+                    "Type": "Junction",
+                    "Name": "untitled_PP/Chart5/Run/Junction1936"
+                  },
+                  "Event": "",
+                  "Condition": "sec==60]\n{sec=0;\nmin=min+1;}",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": "[sec==60]\n{sec=0;\nmin=min+1;}"
+                },
+                {
+                  "Id": 1932,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 1936,
+                    "Type": "Junction",
+                    "Name": "untitled_PP/Chart5/Run/Junction1936"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": "",
+                  "TransitionAction": "",
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "untitled_PP/Chart5/Run/Junction1936",
+              "Name": "Junction1936",
+              "Id": 1936,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": []
+            },
+            {
+              "Path": "untitled_PP/Chart5/Stop/Reset/Junction1920",
+              "Name": "Junction1920",
+              "Id": 1920,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": []
+            }
+          ],
+          "GraphicalFunctions": [],
+          "SimulinkFunctions": [],
+          "TruthTables": []
+        },
+        "Content": {}
+      }
+    }
+  }
+}

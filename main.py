@@ -1,19 +1,20 @@
 from modules.simulink.simulinkmodel import *
 from modules.simulink.simulinkmodelmanager import *
-#from modules.modelchecker.symc import *
 from modules.simulink.cocosim.symc import *
 import modules.utils.utils as cUtils
 from modules.utils.gcd import *
 from modules.modelchecker.ct import *
 from modules.simulink.cocosim.cocosimmodel import *
-from modules.simulink.cocosim.cocosimmodelmanager import *
+import modules.simulink.cocosim.cocosimmodelmanager as CoCoSimModelManager
+import modules.simulink.cocosim.slistparser as SLP
+from modules.simulink.cocosim.stateflow.stateflowmodel import *
 import z3
 import json
-from modules.modelchecker.simulink.parsedsimulinkline import *
-from modules.modelchecker.simulink.parsedsimulinkblock import *
-from modules.modelchecker.simulink.parsedsimulinkmodel import *
+import datetime
+
 
 simulationSize = 100
+
 
 def printlist(_list, keyname=""):
     if keyname != "":
@@ -24,6 +25,7 @@ def printlist(_list, keyname=""):
             printlist(itm)
         else:
             print(itm)
+
 
 def generateAssertionsFromProperty(property):
     assertions = []
@@ -36,11 +38,13 @@ def generateAssertionsFromProperty(property):
         assertions.append(assertion)
     return assertions
 
+
 def determineSatisfaction(result):
     verdict = "violated"
     if result["verdict"] == unsat:
         verdict = "verified"
     return verdict
+
 
 def createMCConfig():
     _configuration = dict()
@@ -48,8 +52,9 @@ def createMCConfig():
     _configuration["reuseExistingModel"] = False
     _configuration["saveStateSpace"] = True
     _configuration["noncomputationalblocks"] = ["SubSystem",
-                                                "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "none"]
+                                                "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "BusSelector", "BusCreator", "none"]
     return _configuration
+
 
 def check(modelname, slistPath, modelChecker, propertyName="", _property=""):
     result = modelChecker.checkModel(modelname, slistPath, 1, _property)
@@ -76,6 +81,7 @@ def check(modelname, slistPath, modelChecker, propertyName="", _property=""):
                 errorFile.close()
             print(signalsOfInterest)
 
+
 def r3BBW(modelname, modelChecker):
     """
     The value of the brake pedal position shall not exceed its maximal
@@ -89,6 +95,7 @@ def r3BBW(modelname, modelChecker):
     _assumptions = []
     _assumptions.append(final)
     check(modelname, modelChecker, "r4bbw", _assumptions)
+
 
 def r4BBW(modelname, modelChecker):
     """
@@ -104,30 +111,36 @@ def r4BBW(modelname, modelChecker):
     _assumptions = [final]
     check(modelname, modelChecker, "r4bbw", property)
 
+
 def verifyModel(modelname, size):
     modelChecker = SyMC(createMCConfig())
     # r3BBW(modelname, modelChecker)
     r4BBW(modelname, modelChecker)
 
+
 def main():
     cUtils.clearScreen()
-    modelPath = './models/bbw/bbw.json' #"./models/bbw_cocosim_adjusted.json"
+    modelPath = "./models/bbw_cocosim_adjusted.json"  # './models/bbw/bbw.json' #
+    SFmodelPath = "./models/bbw/stateflow.json"
+    BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
     slistPath = "./models/slist-bbw.txt"
-    # sModel = loadModel(modelname)
+    slistPath = "./models/slist-bbw.txt"
+    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
 
-    #cocoSimMoldel = CoCoSimModelManager.loadModel(modelPath, slistPath, createMCConfig())
-    #rt14 = "2489.000244140625"
-    #blk = cocoSimMoldel.getBlockById(rt14)
-	
-    modelChecker = SyMC(createMCConfig())
-    check(modelPath, slistPath, modelChecker)
-	
+    cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
+    print len(cocoSimModel.connectionTable)
+    for itm in cocoSimModel.connectionTable:
+        print itm
+        if cUtils.compareStringsIgnoreCase("1931.000244140625", itm.get("DstBlockHandle", "")):
+            print itm
+    print "done"
     # print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())
     # verifyModel(modelname, 100)
 
-    print("done")
 
 main()

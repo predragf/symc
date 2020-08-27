@@ -4,12 +4,13 @@ from modules.simulink.slistmanager import SListManager
 
 
 def loadModel(pathToModel, pathToSlist, _configuration={}):
-	jsonData = jsonManager.openAndLoadJson(pathToModel)
-	slist = SListManager.loadSList(pathToSlist)
-	return CoCoSimModel(jsonData, slist, _configuration)
+    jsonData = jsonManager.openAndLoadJson(pathToModel)
+    slist = SListManager.loadSList(pathToSlist)
+    return CoCoSimModel(jsonData, slist, _configuration)
+
 
 def saveModel(cocoSimModel, pathToFile):
-	sModelTemp = cocoSimModel.getModelJSON().copy()
-	modelObject = {}
-	modelObject["simulinkmodel"] = sModelTemp
-	jsonManager.saveJsonToFile(modelObject, pathToFile)
+    sModelTemp = cocoSimModel.getModelJSON().copy()
+    modelObject = {}
+    modelObject["simulinkmodel"] = sModelTemp
+    jsonManager.saveJsonToFile(modelObject, pathToFile)

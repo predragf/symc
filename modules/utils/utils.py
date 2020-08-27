@@ -56,3 +56,10 @@ def stringify(_input):
 
 def compareStringsIgnoreCase(_first, _second):
     return _first is not None and _second is not None and stringify(_first).lower().strip() == stringify(_second).lower().strip()
+
+
+def toList(element):
+    result = element if not element is None else {}
+    if not type(element) is list:
+        result = [element]
+    return result

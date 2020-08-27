@@ -6,13 +6,16 @@ class SListManager:
 
     @staticmethod
     def loadSList(pathToSList):
-        slistFile = cUtils.openFile(pathToSList)
         slist = {}
-        for line in slistFile:
-            lineContents = re.split('\s\(|\s"', line)
-            blockId = lineContents[2].replace('"', "").strip()
-            execOrder = lineContents[0]
-            slist[blockId] = execOrder
+        try:
+            slistFile = cUtils.openFile(pathToSList)
+            for line in slistFile:
+                lineContents = re.split('\s', line)
+                blockId = lineContents[2].replace('"', "").strip()
+                slist[blockId] = lineContents[0]
+        except Exception as e:
+            print(e)
+            slist = {}
         return slist
 
     @staticmethod
