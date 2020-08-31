@@ -16,6 +16,7 @@ class CoCoSimModel:
         print("CoCoSimModel initiation ended")
 
     def __createAttributes(self, _simulinkmodeljson, _slist, _configuration):
+        self.configuration = _configuration
         self.logger = LogManager.LogManager.getLogger(__name__)
         self.compositeBlockTypes = ["subsystem"]
         self.noncomputationalBlocks = _configuration.get("noncomputationalblocks", [])
@@ -27,7 +28,6 @@ class CoCoSimModel:
         self.fundamentalSampleTime = None
         self.allBlocks = self.__getAllBlocks()
         self.connectionTable = {}
-        self.parameterTable = self.__getParameterTable()
 
     def __preProcessModel(self):
         self.__adjustExecutionOrder(self.sortedOrderList)
@@ -498,7 +498,7 @@ class CoCoSimModel:
         #
         # I need to check if this function also works if sample times are given
         # as numbers
-        sampleTimes = self._configuration.get("sample_times", [])
+        sampleTimes = self.configuration.get("sample_times", {})
         # this function calculates and assigns sample times for all blocks in the model
         for blk in self.allBlocks:
             if any(cUtils.compareStringsIgnoreCase(s, blk.get("BlockType", "")) for s in self.compositeBlockTypes):
@@ -507,10 +507,13 @@ class CoCoSimModel:
                 parentSS = self.getBlockById(cUtils.stringify(blk.get("ParentHandle")))
                 blk["calculated_sample_time"] = self.__calculateSubSystemSampleTime(parentSS)
             try:
-                blk["calculated_sample_time"] = float(blk.get("calculated_sample_time", ""))
+                calculatedSampleTime = blk.get("calculated_sample_time", "")
+                # try to convert what you got into a number (float)
+                blk["calculated_sample_time"] = float(calculatedSampleTime)
             except Exception as e:
-                blk["calculated_sample_time"] = float(
-                    sampleTimes[blk.get("calculated_sample_time", "")])
+                # this exception is hit only if the float conversion above fails
+                # in that case, the sample time is in the dictionary of sample times
+                blk["calculated_sample_time"] = sampleTimes.get(calculatedSampleTime, float("-1"))
         return self
 
     def __calculateModelSymbolicFixedPoint(self):
@@ -601,7 +604,7 @@ class CoCoSimModel:
 
     def getBlocksForTransformation(self):
         # initialize block for transformation the first time the
-        #function is called
+        # function is called
         if self.packBlockForTransformation is None:
             self.packBlockForTransformation = self.__packAllBlocksForTransformation()
         return self.packedBlocksForTransformation

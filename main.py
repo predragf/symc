@@ -53,6 +53,7 @@ def createMCConfig():
     _configuration["saveStateSpace"] = True
     _configuration["noncomputationalblocks"] = ["SubSystem",
                                                 "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "BusSelector", "BusCreator", "none"]
+    _configuration["sample_times"] = {}
     return _configuration
 
 
@@ -130,12 +131,12 @@ def main():
     fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
 
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
-    print len(cocoSimModel.connectionTable)
-    for itm in cocoSimModel.connectionTable:
-        print itm
-        if cUtils.compareStringsIgnoreCase("1931.000244140625", itm.get("DstBlockHandle", "")):
-            print itm
-    print "done"
+
+    for itm in cocoSimModel.getAllBlocks():
+        if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
+
+            sf = StateflowModel(itm)
+            print sf.generateTransitionRelation()
     # print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
