@@ -7,7 +7,6 @@ class StateflowModel:
     def __init__(self, jsonChart):
         self.jsonChart = jsonChart
         self.allTransitions = None
-        self.transitionHashTable = self.__hasAllTransitions()
 
     def __getContent(self):
         return self.jsonChart.get("StateflowContent", {})
@@ -65,91 +64,160 @@ class StateflowModel:
             hashTable[transition.get("Id", "")] = transitionData
         return hashTable
 
-    def __hasAllTransitions(self):
-        hashTable = {}
-        allStates = self.__getAllSFStates()
-        allJunctions = self.__getAllSFJunctions()
-        for state in allStates:
-            stateTransitions = self.__getNodeInternalTransitions(state)
-            stateTransitions.extend(self.__getNodeOuterTransitions(state))
-            hashTable.update(self.__hasListOfTransitions(state, stateTransitions))
-        for junction in allJunctions:
-            hashTable.update(self.__hasListOfTransitions(
-                junction, self.__getNodeOuterTransitions(junction)))
-        return hashTable
+    def __exploreJunctionTransitionsDFS(self, junction):
+        result = []
+        outerTrnsitions = sorted(junction.get("OuterTransitions", []),
+                                 key=lambda k: k['ExecutionOrder'])
+        # in case of a terminal junction (junction with no outer transitions)
+        if len(outerTrnsitions) < 1:
+            return result
+        processed = []
+        # reaching this point means that junction has outer transitions, meaning
+        # that it is not a terminal junction
+        for ot in outerTrnsitions:
+            destination = ot.get("Destination", {})
+            destinationType = destination.get("Type")
+            processedString = '{0};'.format(
+                "".join("!{0}".format(str(itm)) for itm in processed)) if len(processed) > 0 else ""
+            if cUtils.compareStringsIgnoreCase(destinationType, "junction"):
+                resultConnections = self.__exploreJunctionTransitionsDFS(self.__getNodeById(
+                    destination.get("Id")))
+                # if the successor node is terminal junction, we must put the current
+                # outgoing transition in the list of results for the backtracing algotithm
+                if len(resultConnections) < 1:
+                    result.append("{0}{1}".format(processedString, ot.get("Id")))
+                else:
+                    for rc in resultConnections:
+                        result.append("{0}{1};{2}".format(processedString, ot.get("Id"), rc))
+            elif cUtils.compareStringsIgnoreCase(destinationType, "state"):
+                result.append("{0}{1}".format(processedString, ot.get("Id")))
+            # put the current transition in the list of processed transitions
+            processed.append(ot.get("Id"))
+            # the final finalProcessedString represents a non-firing of all the
+            # junction transitions captuting the case when no full transition can be
+            # completed
+            finalProcessedString = '{0};'.format(
+                "".join("!{0}".format(str(itm)) for itm in processed)) if len(processed) > 0 else ""
+            if not cUtils.compareStringsIgnoreCase("", finalProcessedString):
+                result.append(finalProcessedString)
+        return result
 
     def __processTransition(self, _transitionForProcessing, _processedTransitions):
         allTransitions = []
         _processedTransitionsString = ""
         if len(_processedTransitions) > 0:
-            _processedTransitionsString = '{1}{0}'.format(
-                ";!".join(str(itm) for itm in _processedTransitions), "!")
+            _processedTransitionsString = '{0};'.format(
+                "".join("!{0}".format(str(itm)) for itm in _processedTransitions))
         destination = _transitionForProcessing.get("Destination", {})
-        newNodeForProcessingId = destination.get("Id", "")
-        if cUtils.compareStringsIgnoreCase(destination.get("Type", ""), "Junction"):
-            newNodeForProcessing = self.__getNodeById(newNodeForProcessingId)
-            returnedTransitions = self.__generateNodeTransitions(newNodeForProcessing)
-            for returnedTransition in returnedTransitions:
-                merged = "{0};{1}".format(
-                    _transitionForProcessing.get("Id", ""), returnedTransition)
-                allTransitions.append("{0};{1}".format(_processedTransitionsString, merged)) if len(
-                    _processedTransitionsString) > 0 else allTransitions.append(merged)
-        allTransitions.append(
-            "{0};{1}".format(_processedTransitionsString, _transitionForProcessing.get("Id", ""))) if len(_processedTransitions) > 0 else allTransitions.append(_transitionForProcessing.get("Id", ""))
+        newNodeForProcessingId = "{0}".format(destination.get("Id", ""))
+        if cUtils.compareStringsIgnoreCase(destination.get("Type", ""), "junction"):
+            junctionTransitions = self.__exploreJunctionTransitionsDFS(
+                self.__getNodeById(newNodeForProcessingId))
+            for jt in junctionTransitions:
+                allTransitions.append("{0}{1};{2}".format(
+                    _processedTransitionsString, _transitionForProcessing.get("Id", ""), jt))
+        elif cUtils.compareStringsIgnoreCase(destination.get("Type", ""), "state"):
+            allTransitions.append("{0}{1}".format(_processedTransitionsString, _transitionForProcessing.get("Id", ""))) if len(
+                _processedTransitions) > 0 else allTransitions.append("{0}".format(_transitionForProcessing.get("Id", "")))
         return allTransitions
 
-    def __processTransitions(self, _transitionsForProcessing, _processedTransitions=[]):
+    def __processTransitions(self, _transitionsForProcessing, _processedTransitions):
         allTransitions = []
+        _newPT = _processedTransitions[:]
         for transition in _transitionsForProcessing:
-            allTransitions.extend(self.__processTransition(transition, _processedTransitions))
-            _processedTransitions.append(transition.get("Id", ""))
-        return allTransitions, _processedTransitions
+            allTransitions.extend(self.__processTransition(transition, _newPT))
+            _newPT.append(transition.get("Id", ""))
+        return allTransitions, _newPT
 
-    def __generateNodeTransitions(self, node={}):
+    def __generateNodeTransitions(self, node):
         allPossibleStateTransitions = []
         traversedTransitions = []
-        outerTrnsitions = sorted(self.__getNodeOuterTransitions(node),
+        allOuterTransitions = []
+        allInnerTransitions = []
+        allDefaultTransitions = []
+
+        outerTrnsitions = sorted(node.get("OuterTransitions", []),
                                  key=lambda k: k['ExecutionOrder'])
         allTransitions, traversedTransitions = self.__processTransitions(
             outerTrnsitions, traversedTransitions)
         allPossibleStateTransitions.extend(allTransitions)
-        innerTransitions = sorted(self.__getNodeInternalTransitions(node),
+        allOuterTransitions = allTransitions[:]
+
+        # add negation of all outgoing transitions as a duration action condition
+        durationActionCondition = '{0}'.format(
+            "".join("!{0}".format(str(itm)) for itm in traversedTransitions)) if len(traversedTransitions) > 0 else ""
+        if not cUtils.compareStringsIgnoreCase("", durationActionCondition):
+            allPossibleStateTransitions.append(durationActionCondition)
+            allOuterTransitions.append(durationActionCondition)
+
+        innerTransitions = sorted(node.get("InnerTransitions", []),
                                   key=lambda k: k['ExecutionOrder'])
         allTransitions, traversedTransitions = self.__processTransitions(
             innerTransitions, traversedTransitions)
         allPossibleStateTransitions.extend(allTransitions)
-        return allPossibleStateTransitions
+        allInnerTransitions = allTransitions[:]
+
+        composition = node.get("Composition", {})
+        defaultTransitions = composition.get("DefaultTransitions", [])
+        allDefaultTransitions, traversedTransitions = self.__processTransitions(
+            defaultTransitions, [])
+        allPossibleStateTransitions.extend(allDefaultTransitions)
+
+        return allOuterTransitions, allInnerTransitions, allDefaultTransitions
 
     def getJSON(self):
         return self.jsonChart
 
-    def __generateAllTransitions(self):
-        allstates = self.__getAllSFStates()
-        alltransitions = []
-        for state in allstates:
-            alltransitions.extend(self.__generateNodeTransitions(state))
-        return alltransitions
+    def __generateAllNodeTransitions(self, state):
+        outer, inner, default = self.__generateNodeTransitions(state)
+        return {
+            "stateId": state.get("Id", ""),
+            "OuterTransitions":  outer,
+            "InnerTransitions": inner,
+            "DefaultTransitions": default
+        }
 
-    def getAllTransitions(self):
+    def generateAllTransitions(self):
+        # this function generates all the possible stateflow transitions for a
+        # stateflow diagram
         if self.allTransitions is None:
-            self.allTransitions = self.__generateAllTransitions()
+            transitionRelation = []
+            allStates = self.__getAllSFStates()
+            for state in allStates:
+                transitionRelation.append(self.__generateAllNodeTransitions(state))
+            self.allTransitions = transitionRelation
+
         return self.allTransitions
 
     def __generateTransitionRelationForState(self, state):
-        return {
-            "stateId": state.get("Id", ""),
-            "transitions": self.__generateNodeTransitions(state)
-        }
-
-    def generateTransitionRelation(self):
+        # it is still not clear to me whether the transition relation shall be
+        # a list or dictionary
         transitionRelation = []
-        allStates = self.__getAllSFStates()
-        for state in allStates:
-            transitionRelation.append(self.__generateTransitionRelationForState(state))
+        # basically here one needs to create the set of constraints that characterize the
+        # transition relation of the
+
         return transitionRelation
 
-    def getTransitionHashTable(self):
-        return self.transitionHashTable
+    def generateTransitionRelation(self):
+        # it is still not clear to me whether the transition relation shall be
+        # a list or dictionary
+        transitionRelation = []
+        for stateTransitions in self.generateAllTransitions():
+            transitionRelation.extend(self.__generateTransitionRelationForState(stateTransitions))
+
+    def __isSubStateOf(self, childStateId, parentStateId):
+        isSubstateOf = False
+        parentState = self.__getSFStateById(parentStateId)
+        parentComposition = parentState.get("Composition", None)
+        if parentComposition is not None:
+            if childStateId in parentComposition.get("States", []):
+                isSubstateOf = True
+            else:
+                for substate in parentState.get("States", []):
+                    isSubstateOf = self.__isSubStateOf(childStateId, substate)
+                    if isSubstateOf:
+                        break
+        return isSubstateOf
 
     def __packStateForTransformation(self, state):
         pass
@@ -162,4 +230,4 @@ class StateflowModel:
         pass
 
     def test(self):
-        print(json.dumps(self.getTransitionHashTable(), indent=4))
+        print self.__getAllSFStates()

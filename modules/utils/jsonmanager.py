@@ -7,7 +7,8 @@ def openAndLoadJson(pathToJsonFile):
         _file = open(pathToJsonFile, "r")
         jsonObjectString = _file.read()
         jsonObject = json.loads(jsonObjectString)
-    except:
+    except Exception as exc:
+        print str(exc)
         print("{0} could not be loaded.".format(pathToJsonFile))
     return jsonObject
 

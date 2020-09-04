@@ -1,0 +1,508 @@
+{
+        "Path": "stateflowtesting/Chart",
+        "BlockType": "SubSystem",
+        "Name": "Chart",
+        "Origin_path": "stateflowtesting/Chart",
+        "Handle": 203.000244140625,
+        "LineHandles": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledSampleTime": [
+          0,
+          1
+        ],
+        "CompiledPortDataTypes": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortDimensions": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortWidths": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "CompiledPortComplexSignals": {
+          "Inport": [],
+          "Outport": [],
+          "Enable": [],
+          "Trigger": [],
+          "State": [],
+          "LConn": [],
+          "RConn": [],
+          "Ifaction": [],
+          "Reset": []
+        },
+        "PortConnectivity": [],
+        "Ports": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "Position": [
+          435,
+          199,
+          495,
+          251
+        ],
+        "AttributesFormatString": "",
+        "ShowPortLabels": "FromPortIcon",
+        "TemplateBlock": "",
+        "Permissions": "ReadWrite",
+        "PermitHierarchicalResolution": "ExplicitOnly",
+        "TreatAsAtomicUnit": "on",
+        "MinAlgLoopOccurrences": "off",
+        "PropExecContextOutsideSubsystem": "off",
+        "IsSubsystemVirtual": "off",
+        "DataTypeOverride": "UseLocalSettings",
+        "MinMaxOverflowLogging": "UseLocalSettings",
+        "Virtual": "off",
+        "SFBlockType": "Chart",
+        "Mask": "off",
+        "MaskType": "",
+        "StateflowContent": {
+          "Name": [
+            "Chart"
+          ],
+          "ActionLanguage": "MATLAB",
+          "StateMachineType": "Classic",
+          "ChartUpdate": "INHERITED",
+          "ExecuteAtInitialization": false,
+          "InitializeOutput": false,
+          "EnableNonTerminalStates": false,
+          "Path": "stateflowtesting/Chart",
+          "Data": [],
+          "Events": [],
+          "States": [
+            {
+              "Path": "stateflowtesting/Chart",
+              "Name": "Chart",
+              "Id": 240,
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Actions": {
+                "Entry": "",
+                "During": "",
+                "Exit": "",
+                "Bind": "",
+                "On": "",
+                "OnAfter": "",
+                "OnBefore": "",
+                "OnAt": "",
+                "OnEvery": ""
+              },
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [
+                  {
+                    "Id": 243,
+                    "ExecutionOrder": 1,
+                    "Destination": {
+                      "Id": 241,
+                      "Type": "State",
+                      "Name": "stateflowtesting/Chart/s1"
+                    },
+                    "Event": "",
+                    "Condition": "",
+                    "ConditionAction": [
+                      ""
+                    ],
+                    "TransitionAction": [
+                      ""
+                    ],
+                    "LabelString": ""
+                  }
+                ],
+                "Substates": [
+                  "s1",
+                  "S2"
+                ],
+                "States": [
+                  241,
+                  242
+                ],
+                "SubJunctions": [
+                  {
+                    "Name": "Junction255",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction256",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction257",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction258",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction259",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction260",
+                    "Type": "CONNECTIVE"
+                  },
+                  {
+                    "Name": "Junction261",
+                    "Type": "CONNECTIVE"
+                  }
+                ]
+              }
+            },
+            {
+              "Path": "stateflowtesting/Chart/s1",
+              "Id": 241,
+              "ExecutionOrder": 0,
+              "Name": "s1",
+              "LabelString": "s1",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [
+                {
+                  "Id": 245,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 255,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction255"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            },
+            {
+              "Path": "stateflowtesting/Chart/S2",
+              "Id": 242,
+              "ExecutionOrder": 0,
+              "Name": "S2",
+              "LabelString": "S2",
+              "Actions": {
+                "Entry": [],
+                "During": [],
+                "Exit": [],
+                "Bind": [],
+                "On": [],
+                "OnAfter": [],
+                "OnBefore": [],
+                "OnAt": [],
+                "OnEvery": []
+              },
+              "InnerTransitions": [],
+              "OuterTransitions": [],
+              "Composition": {
+                "Type": "EXCLUSIVE_OR",
+                "DefaultTransitions": [],
+                "Substates": [],
+                "States": [],
+                "SubJunctions": []
+              }
+            }
+          ],
+          "Junctions": [
+            {
+              "Path": "stateflowtesting/Chart/Junction255",
+              "Name": "Junction255",
+              "Id": 255,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 246,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 257,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction257"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                },
+                {
+                  "Id": 247,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 256,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction256"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "stateflowtesting/Chart/Junction256",
+              "Name": "Junction256",
+              "Id": 256,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 249,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 258,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction258"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                },
+                {
+                  "Id": 250,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 259,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction259"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                },
+                {
+                  "Id": 248,
+                  "ExecutionOrder": 3,
+                  "Destination": {
+                    "Id": 260,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction260"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "stateflowtesting/Chart/Junction257",
+              "Name": "Junction257",
+              "Id": 257,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 251,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 261,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction261"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                },
+                {
+                  "Id": 252,
+                  "ExecutionOrder": 2,
+                  "Destination": {
+                    "Id": 260,
+                    "Type": "Junction",
+                    "Name": "stateflowtesting/Chart/Junction260"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "stateflowtesting/Chart/Junction258",
+              "Name": "Junction258",
+              "Id": 258,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 244,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 241,
+                    "Type": "State",
+                    "Name": "stateflowtesting/Chart/s1"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "stateflowtesting/Chart/Junction259",
+              "Name": "Junction259",
+              "Id": 259,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 253,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 242,
+                    "Type": "State",
+                    "Name": "stateflowtesting/Chart/S2"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "stateflowtesting/Chart/Junction260",
+              "Name": "Junction260",
+              "Id": 260,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": [
+                {
+                  "Id": 254,
+                  "ExecutionOrder": 1,
+                  "Destination": {
+                    "Id": 242,
+                    "Type": "State",
+                    "Name": "stateflowtesting/Chart/S2"
+                  },
+                  "Event": "",
+                  "Condition": "",
+                  "ConditionAction": [
+                    ""
+                  ],
+                  "TransitionAction": [
+                    ""
+                  ],
+                  "LabelString": ""
+                }
+              ]
+            },
+            {
+              "Path": "stateflowtesting/Chart/Junction261",
+              "Name": "Junction261",
+              "Id": 261,
+              "Type": "CONNECTIVE",
+              "OuterTransitions": []
+            }
+          ],
+          "GraphicalFunctions": [],
+          "SimulinkFunctions": [],
+          "TruthTables": []
+        },
+        "Content": {}
+      }

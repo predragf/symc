@@ -11,6 +11,7 @@ from modules.simulink.cocosim.stateflow.stateflowmodel import *
 import z3
 import json
 import datetime
+import time
 
 
 simulationSize = 100
@@ -132,11 +133,15 @@ def main():
 
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
 
+    sfjson = jsonManager.openAndLoadJson("./models/stateflowtesting_IR.json")
+    sf = StateflowModel(sfjson)
+
     for itm in cocoSimModel.getAllBlocks():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
+            sfd = StateflowModel(itm)
+            print sfd.generateAllTransitions()
+            print "-----------"
 
-            sf = StateflowModel(itm)
-            print sf.generateTransitionRelation()
     # print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
