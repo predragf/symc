@@ -12,6 +12,7 @@ import z3
 import json
 import datetime
 import time
+import re
 
 
 simulationSize = 100
@@ -135,12 +136,13 @@ def main():
 
     sfjson = jsonManager.openAndLoadJson("./models/stateflowtesting_IR.json")
     sf = StateflowModel(sfjson)
+    print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
 
     for itm in cocoSimModel.getAllBlocks():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
             sfd = StateflowModel(itm)
-            print sfd.generateAllTransitions()
-            print "-----------"
+            #print sfd.generateAllTransitions()
+            #print "-----------"
 
     # print(blk)
     # print(gcdList([5,3,2]))

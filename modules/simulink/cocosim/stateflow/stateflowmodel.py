@@ -77,29 +77,32 @@ class StateflowModel:
         for ot in outerTrnsitions:
             destination = ot.get("Destination", {})
             destinationType = destination.get("Type")
-            processedString = '{0};'.format(
-                "".join("!{0}".format(str(itm)) for itm in processed)) if len(processed) > 0 else ""
+            processedString = ""
+            if len(processed) > 0:
+                processedString = '{0}'.format(
+                    "".join("!{0};".format(str(itm)) for itm in processed))
             if cUtils.compareStringsIgnoreCase(destinationType, "junction"):
                 resultConnections = self.__exploreJunctionTransitionsDFS(self.__getNodeById(
                     destination.get("Id")))
                 # if the successor node is terminal junction, we must put the current
                 # outgoing transition in the list of results for the backtracing algotithm
                 if len(resultConnections) < 1:
-                    result.append("{0}{1}".format(processedString, ot.get("Id")))
+                    result.append("{0}{1};".format(processedString, ot.get("Id")))
                 else:
                     for rc in resultConnections:
                         result.append("{0}{1};{2}".format(processedString, ot.get("Id"), rc))
             elif cUtils.compareStringsIgnoreCase(destinationType, "state"):
-                result.append("{0}{1}".format(processedString, ot.get("Id")))
+                result.append("{0}{1};".format(processedString, ot.get("Id")))
             # put the current transition in the list of processed transitions
-            processed.append(ot.get("Id"))
+            processed.append(ot.get("Id", ""))
             # the final finalProcessedString represents a non-firing of all the
             # junction transitions captuting the case when no full transition can be
             # completed
-            finalProcessedString = '{0};'.format(
-                "".join("!{0}".format(str(itm)) for itm in processed)) if len(processed) > 0 else ""
-            if not cUtils.compareStringsIgnoreCase("", finalProcessedString):
-                result.append(finalProcessedString)
+        if len(processed) > 0:
+            finalProcessedString = '{0}'.format(
+                "".join("!{0};".format(str(itm)) for itm in processed))
+            result.append(finalProcessedString)
+
         return result
 
     def __processTransition(self, _transitionForProcessing, _processedTransitions):
