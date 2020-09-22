@@ -128,9 +128,12 @@ def main():
     BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
-    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    fuelPath     = "C:/Scania/EPXS/Fuel/fuel_IR.json"
+    fuelSList    = "C:/Scania/EPXS/Fuel/slist_flat.txt"
+    fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
 
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
 
@@ -142,6 +145,7 @@ def main():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
             sfd = StateflowModel(itm)
             #print sfd.generateAllTransitions()
+            print sfd.generateTransitionRelation()
             #print "-----------"
 
     # print(blk)
