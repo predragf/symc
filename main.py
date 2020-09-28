@@ -130,17 +130,17 @@ def main():
     BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
-    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    fuelPath     = "C:/Scania/EPXS/Fuel/fuel_IR.json"
+    fuelSList    = "C:/Scania/EPXS/Fuel/slist_flat.txt"
+    fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
 
     slist = SLM.SListManager.loadSList(fuelSList)
     for line in slist:
         print line
 
-    #fuelPath     = "C:/Scania/EPXS/Fuel/fuel_IR.json"
-    #fuelSList    = "C:/Scania/EPXS/Fuel/slist_flat.txt"
-    #fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
 
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
 
@@ -149,7 +149,7 @@ def main():
     #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
     #
     for ent in cocoSimModel.connectionTable:
-        pass
+        print ent
         #print ent
 
     for itm in cocoSimModel.getAllBlocks():

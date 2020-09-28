@@ -10,8 +10,9 @@ class SListManager:
         try:
             slistFile = cUtils.openFile(pathToSList)
             for line in slistFile:
-                lineContents = re.split('\s', line)
-                blockId = lineContents[2].replace('"', "").strip()
+                lineContents = re.split("\s", line)
+                lineContents_concat = " ".join(lineContents[2:])
+                blockId = lineContents_concat.replace('"', "").strip()
                 slist[blockId] = lineContents[0]
         except Exception as e:
             print(e)
