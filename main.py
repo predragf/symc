@@ -14,6 +14,8 @@ import datetime
 import time
 import re
 
+import modules.simulink.slistmanager as SLM
+
 
 simulationSize = 100
 
@@ -128,24 +130,33 @@ def main():
     BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
-    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
-    fuelPath     = "C:/Scania/EPXS/Fuel/fuel_IR.json"
-    fuelSList    = "C:/Scania/EPXS/Fuel/slist_flat.txt"
-    fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
+    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+
+    slist = SLM.SListManager.loadSList(fuelSList)
+    for line in slist:
+        print line
+
+    #fuelPath     = "C:/Scania/EPXS/Fuel/fuel_IR.json"
+    #fuelSList    = "C:/Scania/EPXS/Fuel/slist_flat.txt"
+    #fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
 
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
 
     sfjson = jsonManager.openAndLoadJson("./models/stateflowtesting_IR.json")
     sf = StateflowModel(sfjson)
-    print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
+    #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
+    #
+    for ent in cocoSimModel.connectionTable:
+        pass
+        #print ent
 
     for itm in cocoSimModel.getAllBlocks():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
             sfd = StateflowModel(itm)
             #print sfd.generateAllTransitions()
-            print sfd.generateTransitionRelation()
+            #print sfd.generateTransitionRelation()
             #print "-----------"
 
     # print(blk)

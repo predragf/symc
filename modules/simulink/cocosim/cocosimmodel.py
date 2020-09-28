@@ -141,7 +141,7 @@ class CoCoSimModel:
         destinationBlocks = self.getAllBlocks()
         for destinationBlock in destinationBlocks:
             destinationEntries.extend(self.__createDesitinationEntriesForBlock(destinationBlock))
-            if cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType"), "SubSystem"):
+            if cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType"), "SubSystem") and destinationBlock.get("StateflowContent", None) is None:
                 destinationEntries.extend(self.__createDesitnationEntriesForPorts(destinationBlock))
         return destinationEntries
 
@@ -293,7 +293,8 @@ class CoCoSimModel:
         an atomic computational block and in such cases we must find the atomic computational block which writes to that signal
         """
         sourceBlock = self.getBlockById(connection.get("SrcBlockHandle", ""))
-        if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "subsystem"):
+        # subsystem is not a stateflow
+        if (cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "subsystem") and (sourceBlock.get("StateflowContent", None) is None)):
             connection = self.__traceSubSystemBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux"):
             connection = self.__traceDemuxBlock(sourceBlock, connection, partialTable, stack)
@@ -305,11 +306,12 @@ class CoCoSimModel:
             connection = self.__traceBusSelectorBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "buscreator"):
             connection = self.__traceBusCreatorBlock(sourceBlock, connection, partialTable, stack)
+
         return connection if type(connection) is list else [connection]
 
     def __modifyFinalTableConnection(self, connection, finalTable):
         # Check if signal already exists in the connection table
-                # (i.e. same source block handle and source port)
+            # (i.e. same source block handle and source port)
         if connection == {}:
             return {}
         newConnection = deepcopy(connection)
@@ -339,12 +341,15 @@ class CoCoSimModel:
         # after this connection table has all the signals and destinationBlocks
         # we just need to adjust the sources
         connectionTable = self.__createAllDestinationEntries()
+        for ent in connectionTable:
+            print ent
         finalTable = []
         stack = []
         for connection in connectionTable:
             dstBlockHandle = connection.get("DstBlockHandle")
             dstBlock = self.getBlockById(dstBlockHandle)
-            if cUtils.compareStringsIgnoreCase(dstBlock.get("ExecutionOrder", "-1"), "-1") or dstBlock.get("BlockType", "") in self.noncomputationalBlocks:
+            if (cUtils.compareStringsIgnoreCase(dstBlock.get("ExecutionOrder", "-1"), "-1") or dstBlock.get("BlockType", "") in self.noncomputationalBlocks) and dstBlock.get("StateflowContent", None) is None:
+                print dstBlock.get("Name")
                 continue
             mappedConnection = self.__mapConnectionSource(connection, connectionTable, stack)
             for mc in mappedConnection:
