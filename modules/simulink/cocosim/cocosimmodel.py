@@ -341,15 +341,12 @@ class CoCoSimModel:
         # after this connection table has all the signals and destinationBlocks
         # we just need to adjust the sources
         connectionTable = self.__createAllDestinationEntries()
-        for ent in connectionTable:
-            print ent
         finalTable = []
         stack = []
         for connection in connectionTable:
             dstBlockHandle = connection.get("DstBlockHandle")
             dstBlock = self.getBlockById(dstBlockHandle)
             if (cUtils.compareStringsIgnoreCase(dstBlock.get("ExecutionOrder", "-1"), "-1") or dstBlock.get("BlockType", "") in self.noncomputationalBlocks) and dstBlock.get("StateflowContent", None) is None:
-                print dstBlock.get("Name")
                 continue
             mappedConnection = self.__mapConnectionSource(connection, connectionTable, stack)
             for mc in mappedConnection:
