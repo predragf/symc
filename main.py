@@ -138,8 +138,8 @@ def main():
     fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
 
     slist = SLM.SListManager.loadSList(fuelSList)
-    for line in slist:
-        print line
+    #for line in slist:
+    #    print line
 
 
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
@@ -150,13 +150,16 @@ def main():
     #
     for ent in cocoSimModel.connectionTable:
         print ent
+        pass
         #print ent
+        #print ent
+    
 
     for itm in cocoSimModel.getAllBlocks():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
             sfd = StateflowModel(itm)
             #print sfd.generateAllTransitions()
-            #print sfd.generateTransitionRelation()
+            print sfd.generateTransitionRelation(itm, cocoSimModel.connectionTable)
             #print "-----------"
 
     # print(blk)

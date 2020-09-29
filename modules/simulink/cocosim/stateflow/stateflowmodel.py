@@ -283,7 +283,7 @@ class StateflowModel:
         other_state_string = self.__StateInfixString(all_states_list, dest_state_name)
 
         transition_string = assert_text + ' (and ' + dest_state_append + ' ' + state_string + ' ' + other_state_string[:-1] + ')))'
-        print(transition_string) 
+
         return transition_string
 
     def __AppendCurrentOrNext(self, string, appending_string):
@@ -431,16 +431,71 @@ class StateflowModel:
 
         return prefix_string
 
-    def generateTransitionRelation(self):
+    def generateTransitionRelation(self, block, connection_table):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
         transitionRelation = []
+
+        block_handle   = block.get("Handle")
+        input_sources  = []
+        output_sources = []
+
+        for entry in connection_table:
+            if block_handle == entry.get("SrcBlockHandle"):
+                output_sources.append(entry)
+            elif block_handle == entry.get('DstBlockHandle'):
+                input_sources.append(entry)
+        
+        transitionRelation.append(self.__generateTransitionRelationIOs(block, input_sources, output_sources))
+
         for stateTransitions in self.generateAllTransitions():
             transitionRelation.extend(self.__generateTransitionRelationForState(stateTransitions))
 
+        return transitionRelation
+
+    def __generateTransitionRelationIOs(self, block, input_sources, output_sources):
+        ''' Generate transition relations for inputs and outputs '''
+        
+        transition_string = '(assert'
+        sf_inputs, sf_outputs = self.__StateFlowIOs(block)
+        
+        for state_flow_in in sf_inputs:
+            port_number = state_flow_in["Port"]
+            for input_source_tmp in input_sources:
+                port_number_source_tmp = input_source_tmp['DstPort']
+                if port_number == port_number_source_tmp + 1:
+                    transition_string = transition_string + ' (= ' + state_flow_in['Name'] + ' ' + input_source_tmp['SignalName'] + ')'
+
+        for state_flow_out in sf_outputs:
+            port_number = state_flow_out["Port"]
+            for output_source_tmp in output_sources:
+                port_number_source_tmp = output_source_tmp['SrcPort']
+                if port_number == port_number_source_tmp + 1:
+                    transition_string = transition_string + ' (= ' + state_flow_out['Name'] + ' ' + output_source_tmp['SignalName'] + ')'
+
+        transition_string = transition_string + ')'
+
+        return transition_string
+
+    def __StateFlowIOs(self, block):
+        ''' Generate inputs and outputs from a stateflow block '''
+        
+        sf_content = block.get('StateflowContent', None)
+        sf_data    = sf_content.get('Data', None)
+        sf_input   = []
+        sf_output  = []
+
+        for io in sf_data:
+            if cUtils.compareStringsIgnoreCase(io.get('Scope'), 'Input'):
+                sf_input.append(io)
+            elif cUtils.compareStringsIgnoreCase(io.get('Scope'), 'Output'):
+                sf_output.append(io)
+
+        return sf_input, sf_output
+
     def __isSubStateOf(self, childStateId, parentStateId):
-        isSubstateOf = False
-        parentState = self.__getSFStateById(parentStateId)
+        isSubstateOf      = False
+        parentState       = self.__getSFStateById(parentStateId)
         parentComposition = parentState.get("Composition", None)
         if parentComposition is not None:
             if childStateId in parentComposition.get("States", []):
@@ -450,6 +505,7 @@ class StateflowModel:
                     isSubstateOf = self.__isSubStateOf(childStateId, substate)
                     if isSubstateOf:
                         break
+
         return isSubstateOf
 
     def __packStateForTransformation(self, state):
