@@ -6,7 +6,6 @@ from modules.assertiongenerators.assertioninstantiator import *
 
 class StateSpaceGenerator:
     def __init__(self):
-        print 'inside StateSpace'
         self.__initialSetup()
 
     def __initialSetup(self):
@@ -48,13 +47,16 @@ class StateSpaceGenerator:
 
     def __preprocessModel(self, sModel, simulationStepSize, simulationDuration):
         self.fundamentalSampleTime = sModel.calculateFundamentalSampleTime()
+
         self.simulationTimeHorizon = self.__calculateSimulationHorizon(simulationStepSize,
                                                                        self.fundamentalSampleTime, simulationDuration)
         self.blocksStepSize = self.__calculateStepSizeForAllBlocks(sModel.getAllBlocks(),
                                                                    simulationStepSize)
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
+
         for block in self.blocksForTransformation:
             blockid = block.get("blockid")
+            #blockid = block.get("Handle")
             self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(
                 block)
 

@@ -13,7 +13,9 @@ import json
 import datetime
 import time
 import re
-
+##
+from modules.modelchecker.statespacegenerator import *
+##
 import modules.simulink.slistmanager as SLM
 
 
@@ -137,36 +139,38 @@ def main():
     fuelSList    = "C:/Scania/EPXS/Fuel/slist_flat.txt"
     fuelSListOrg = "C:/Scania/EPXS/Fuel/slist.txt"
 
-    slist = SLM.SListManager.loadSList(fuelSList)
+    #slist = SLM.SListManager.loadSList(fuelSList)
     #for line in slist:
     #    print line
-
-
+    
+    
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
-
+    
     sfjson = jsonManager.openAndLoadJson("./models/stateflowtesting_IR.json")
     sf = StateflowModel(sfjson)
     #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
-    #
+        
     for ent in cocoSimModel.connectionTable:
         print ent
         pass
         #print ent
         #print ent
-    
 
     for itm in cocoSimModel.getAllBlocks():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
             sfd = StateflowModel(itm)
             #print sfd.generateAllTransitions()
+            print sfd.generateDeclarationString(itm)
             print sfd.generateTransitionRelation(itm, cocoSimModel.connectionTable)
             #print "-----------"
 
+    sp = StateSpaceGenerator()
+    	
+    sp.generateStateSpace(cocoSimModel, 1, 1)
     # print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
     # print(sModel.getSignalVariables())
     # verifyModel(modelname, 100)
-
-
+    
 main()

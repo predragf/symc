@@ -193,6 +193,43 @@ class StateflowModel:
 
         return self.allTransitions
 
+    def generateDeclarationString(self, block):
+        
+        types_dict          = dict({'double': 'Real', 'single': 'Real', 'half': 'Real',
+                                    'int8': 'Int', 'uint8': 'Int', 'int16':'Int', 'int32':'Int',
+                                    'uint32':'Int', 'int64': 'Int', 'uint64': 'Int', 'boolean': 'Bool'})
+        
+        variable_list, types_list = self.__generateListOfVariables(block)
+        declare_string_list = []
+
+        for var, typ in zip(variable_list, types_list):
+            declare_string_list.append('declare-const ' + var + '_current ' + types_dict[typ])
+            declare_string_list.append('declare-const ' + var + '_next '    + types_dict[typ])
+
+        return declare_string_list
+
+    def __generateListOfVariables(self, block):
+
+        sf_content = block.get('StateflowContent', None)
+        sf_data    = sf_content.get('Data', None)
+        sf_states  = sf_content.get('States', None)
+        
+        sf_var     = []
+        sf_types   = []
+
+        for variable in sf_data:
+            sf_var.append(variable['Name'])
+            sf_types.append(variable['Datatype'])
+
+        for state in sf_states:
+            sf_var.append(state['Name'])
+            sf_types.append('boolean')
+
+        return sf_var, sf_types
+        
+
+        return variable_list
+
     def __generateTransitionRelationForState(self, state):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
@@ -434,12 +471,13 @@ class StateflowModel:
     def generateTransitionRelation(self, block, connection_table):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
+        print('generate Transition')
         transitionRelation = []
 
         block_handle   = block.get("Handle")
         input_sources  = []
         output_sources = []
-
+    
         for entry in connection_table:
             if block_handle == entry.get("SrcBlockHandle"):
                 output_sources.append(entry)
@@ -456,7 +494,8 @@ class StateflowModel:
     def __generateTransitionRelationIOs(self, block, input_sources, output_sources):
         ''' Generate transition relations for inputs and outputs '''
         
-        transition_string = '(assert'
+        transition_string = ''
+        num_ios = 0
         sf_inputs, sf_outputs = self.__StateFlowIOs(block)
         
         for state_flow_in in sf_inputs:
@@ -464,16 +503,22 @@ class StateflowModel:
             for input_source_tmp in input_sources:
                 port_number_source_tmp = input_source_tmp['DstPort']
                 if port_number == port_number_source_tmp + 1:
-                    transition_string = transition_string + ' (= ' + state_flow_in['Name'] + ' ' + input_source_tmp['SignalName'] + ')'
+                    num_ios = num_ios + 1
+                    transition_string = transition_string + ' (= ' + state_flow_in['Name'] + '_current ' + input_source_tmp['SignalName'] + '_current)'
+                    transition_string = transition_string + ' (= ' + state_flow_in['Name'] + '_next '    + input_source_tmp['SignalName'] + '_next)'
 
         for state_flow_out in sf_outputs:
             port_number = state_flow_out["Port"]
             for output_source_tmp in output_sources:
                 port_number_source_tmp = output_source_tmp['SrcPort']
                 if port_number == port_number_source_tmp + 1:
-                    transition_string = transition_string + ' (= ' + state_flow_out['Name'] + ' ' + output_source_tmp['SignalName'] + ')'
-
-        transition_string = transition_string + ')'
+                    num_ios = num_ios + 1
+                    transition_string = transition_string + ' (= ' + state_flow_out['Name'] + '_current ' + output_source_tmp['SignalName'] + '_current)'
+                    transition_string = transition_string + ' (= ' + state_flow_out['Name'] + '_next '    + output_source_tmp['SignalName'] + '_next)'
+        
+        if num_ios > 0:
+            transition_assert_string = '(assert (and'
+            transition_string = transition_assert_string + transition_string + '))'
 
         return transition_string
 

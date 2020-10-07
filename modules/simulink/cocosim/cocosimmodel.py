@@ -491,6 +491,11 @@ class CoCoSimModel:
             sTime = float(blk.get("calculated_sample_time", "-1"))
             if sTime >= 0:
                 sampleTimes.add(sTime)
+		
+        # Added if all sample times are -1
+        if sampleTimes == set():
+            sampleTimes.add(-1)
+			
         return gcd.gcd(sampleTimes)
 
     def __calculateSampleTimes(self):
@@ -608,7 +613,7 @@ class CoCoSimModel:
         # initialize block for transformation the first time the
         # function is called
         if self.packBlockForTransformation is None:
-            self.packBlockForTransformation = self.__packAllBlocksForTransformation()
+            self.packBlockForTransformation = self.packAllBlocksForTransformation()
         return self.packedBlocksForTransformation
 
     def getModelVariables(self):
@@ -624,7 +629,7 @@ class CoCoSimModel:
         _, blockCopy["successorBlocks"] = self.getBlockSuccessors(blockCopy.get("Handle"))
         return blockCopy
 
-    def __packAllBlocksForTransformation(self):
+    def packAllBlocksForTransformation(self):
         packedBlocksForTransformation = []
         for block in self.allBlocks:
             blockCopy = self.__packBlockForTransformation(block)
