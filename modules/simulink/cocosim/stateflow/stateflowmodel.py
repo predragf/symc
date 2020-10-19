@@ -12,6 +12,9 @@ class StateflowModel:
     def __getContent(self):
         return self.jsonChart.get("StateflowContent", {})
 
+    def __getBlockHandle(self):
+        return self.jsonChart.get("Handle", {})
+
     def __getSFStateById(self, stateId):
         result = {}
         for state in self.__getAllSFStates():
@@ -106,6 +109,37 @@ class StateflowModel:
 
         return result
 
+
+    def generateDeclarationStringStep(self, k):
+
+        declaration_string = '\n'.join(self.generateDeclarationString())
+
+        declaration_string = declaration_string.replace('_current', '_' + str(k))
+
+        return declaration_string
+
+    def generateAssertionStringStep(self, k, m, connectionTable):
+
+        assertion_string = '\n'.join(self.generateAssertionString(connectionTable))
+
+        assertion_string = assertion_string.replace('_current', '_' + str(k)).replace('_next', '_' + str(m))
+
+    
+        return assertion_string
+
+    def generateTransitionRelationSteps(self, steps, connectionTable):
+        
+        declaration_string = ''
+        assertion_string   = ''
+
+        for k in range(steps):
+            declaration_string = declaration_string + '\n' + self.generateDeclarationStringStep(k)
+            assertion_string   = assertion_string + '\n' + self.generateAssertionStringStep(k, k+1, connectionTable)
+
+        declaration_string = declaration_string + '\n' + self.generateDeclarationStringStep(steps)
+
+        return (declaration_string, assertion_string)
+
     def __processTransition(self, _transitionForProcessing, _processedTransitions):
         allTransitions = []
         _processedTransitionsString = ""
@@ -193,24 +227,24 @@ class StateflowModel:
 
         return self.allTransitions
 
-    def generateDeclarationString(self, block):
+    def generateDeclarationString(self):
         
-        types_dict          = dict({'double': 'Real', 'single': 'Real', 'half': 'Real',
-                                    'int8': 'Int', 'uint8': 'Int', 'int16':'Int', 'int32':'Int',
-                                    'uint32':'Int', 'int64': 'Int', 'uint64': 'Int', 'boolean': 'Bool'})
+        types_dict = dict({'double': 'Real', 'single': 'Real', 'half': 'Real',
+                           'int8': 'Int', 'uint8': 'Int', 'int16':'Int', 'int32':'Int',
+                           'uint32':'Int', 'int64': 'Int', 'uint64': 'Int', 'boolean': 'Bool'})
         
-        variable_list, types_list = self.__generateListOfVariables(block)
+        variable_list, types_list = self.__generateListOfVariables()
         declare_string_list = []
 
         for var, typ in zip(variable_list, types_list):
-            declare_string_list.append('declare-const ' + var + '_current ' + types_dict[typ])
-            declare_string_list.append('declare-const ' + var + '_next '    + types_dict[typ])
+            declare_string_list.append('(declare-const ' + var + '_current ' + types_dict[typ] + ')')
+            #declare_string_list.append('declare-const ' + var + '_next '    + types_dict[typ])
 
         return declare_string_list
 
-    def __generateListOfVariables(self, block):
+    def __generateListOfVariables(self):
 
-        sf_content = block.get('StateflowContent', None)
+        sf_content = self.__getContent()
         sf_data    = sf_content.get('Data', None)
         sf_states  = sf_content.get('States', None)
         
@@ -227,15 +261,10 @@ class StateflowModel:
 
         return sf_var, sf_types
         
-
-        return variable_list
-
     def __generateTransitionRelationForState(self, state):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
         # basically here one needs to create the set of constraints that characterize the
-        # transition relation of the
-        # print('State:', state)
         transitionRelation = []
         transitions  = state.get('OuterTransitions')
         state_id     = state.get('stateId')
@@ -468,13 +497,12 @@ class StateflowModel:
 
         return prefix_string
 
-    def generateTransitionRelation(self, block, connection_table):
+    def generateAssertionString(self, connection_table):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
-        print('generate Transition')
+        #print('generate Transition')
         transitionRelation = []
-
-        block_handle   = block.get("Handle")
+        block_handle   = self.__getBlockHandle()
         input_sources  = []
         output_sources = []
     
@@ -484,19 +512,19 @@ class StateflowModel:
             elif block_handle == entry.get('DstBlockHandle'):
                 input_sources.append(entry)
         
-        transitionRelation.append(self.__generateTransitionRelationIOs(block, input_sources, output_sources))
+        transitionRelation.append(self.__generateTransitionRelationIOs(input_sources, output_sources))
 
         for stateTransitions in self.generateAllTransitions():
             transitionRelation.extend(self.__generateTransitionRelationForState(stateTransitions))
 
         return transitionRelation
 
-    def __generateTransitionRelationIOs(self, block, input_sources, output_sources):
+    def __generateTransitionRelationIOs(self, input_sources, output_sources):
         ''' Generate transition relations for inputs and outputs '''
         
         transition_string = ''
         num_ios = 0
-        sf_inputs, sf_outputs = self.__StateFlowIOs(block)
+        sf_inputs, sf_outputs = self.__StateFlowIOs()
         
         for state_flow_in in sf_inputs:
             port_number = state_flow_in["Port"]
@@ -522,10 +550,10 @@ class StateflowModel:
 
         return transition_string
 
-    def __StateFlowIOs(self, block):
+    def __StateFlowIOs(self):
         ''' Generate inputs and outputs from a stateflow block '''
         
-        sf_content = block.get('StateflowContent', None)
+        sf_content = self.__getContent()
         sf_data    = sf_content.get('Data', None)
         sf_input   = []
         sf_output  = []

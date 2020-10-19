@@ -151,22 +151,26 @@ def main():
     #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
         
     for ent in cocoSimModel.connectionTable:
-        print ent
+        #print ent
         pass
-        #print ent
-        #print ent
 
+    steps = 2
     for itm in cocoSimModel.getAllBlocks():
         if cUtils.compareStringsIgnoreCase(itm.get("BlockType"), "SubSystem") and len(itm.get("StateflowContent", {})) > 0:
             sfd = StateflowModel(itm)
             #print sfd.generateAllTransitions()
-            print sfd.generateDeclarationString(itm)
-            print sfd.generateTransitionRelation(itm, cocoSimModel.connectionTable)
-            #print "-----------"
+            #print '\n'.join(sfd.generateDeclarationString(itm))
+            #print '\n'.join(sfd.generateTransitionRelation(itm, cocoSimModel.connectionTable))
+            (declareString, assertString) = sfd.generateTransitionRelationSteps(steps, cocoSimModel.connectionTable)
+            print 'Declare string:'
+            print declareString
+            print 'Assert string:'
+            print assertString
+            print "------------------------------"
 
-    sp = StateSpaceGenerator()
+    #sp = StateSpaceGenerator()
     	
-    sp.generateStateSpace(cocoSimModel, 1, 1)
+    #sp.generateStateSpace(cocoSimModel, 1, 1)
     # print(blk)
     # print(gcdList([5,3,2]))
     # print(len(sModel.getAllConnections()))
