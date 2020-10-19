@@ -612,8 +612,8 @@ class CoCoSimModel:
     def getBlocksForTransformation(self):
         # initialize block for transformation the first time the
         # function is called
-        if self.packBlockForTransformation is None:
-            self.packBlockForTransformation = self.packAllBlocksForTransformation()
+        if self.packedBlocksForTransformation is None:
+            self.packedBlocksForTransformation = self.packAllBlocksForTransformation()
         return self.packedBlocksForTransformation
 
     def getModelVariables(self):
