@@ -414,7 +414,7 @@ class CoCoSimModel:
         metaData = sModelJson.get("meta")
         return metaData if metaData is not None else {}
 
-    def getBlockPredecessors(self, blockHandle):
+    def __getBlockPredecessors(self, blockHandle):
         # function that returns a list of blocks which signals are
         # input into the block given by the handle
         # based on the connection table
@@ -426,9 +426,10 @@ class CoCoSimModel:
                 predecessorBlock = self.getBlockById(predecessorIndex)
                 predecessors.append(predecessorBlock)
                 predecessorIndices.append(predecessorIndex)
+        # why do we need the indicies???
         return predecessors, predecessorIndices
 
-    def getBlockSuccessors(self, blockHandle):
+    def __getBlockSuccessors(self, blockHandle):
         # list of all blocks to whom the output signals from the block given
         # by the block handle are direct inputs
         # based on the connection table
@@ -442,11 +443,25 @@ class CoCoSimModel:
                 successorIndices.append(successorIndex)
         return successors, successorIndices
 
+    def __getBlockInputSignals(self, blockHandle):
+        inputSignals = []
+        for entry in self.connectionTable:
+            if cUtils.compareStringsIgnoreCase(blockHandle, entry.get("DstBlockHandle")):
+                inputSignals.append(entry)
+        return inputSignals
+
+    def __getBlockOutputSignals(self, blockHandle):
+        outputSignals = []
+        for entry in self.connectionTable:
+            if cUtils.compareStringsIgnoreCase(blockHandle, entry.get("SrcBlockHandle")):
+                outputSignals.append(entry)
+        return outputSignals
+
     def __buildDependencyChain(self, _handle, visitedblocks=set()):
         # function for recursive call of the public one (see blow)
         if _handle not in visitedblocks:
             visitedblocks.add(_handle)
-            predecessors, _ = self.getBlockPredecessors(_handle)
+            predecessors, _ = self.__getBlockPredecessors(_handle)
             for predecessor in predecessors:
                 visitedblocks = self.__buildDependencyChain(
                     predecessor.get("Handle", ""), visitedblocks)
@@ -491,11 +506,11 @@ class CoCoSimModel:
             sTime = float(blk.get("calculated_sample_time", "-1"))
             if sTime >= 0:
                 sampleTimes.add(sTime)
-		
+
         # Added if all sample times are -1
         if sampleTimes == set():
             sampleTimes.add(-1)
-			
+
         return gcd.gcd(sampleTimes)
 
     def __calculateSampleTimes(self):
@@ -544,7 +559,7 @@ class CoCoSimModel:
         blockExecutionOrderId = cUtils.to_int(sBlock.get("ExecutionOrder", ""))
         blockSymbolicFixedPoint = sBlock.get('calculated_sample_time', "")
         predecessorsForProcessing = []
-        predecessors, _ = self.getBlockPredecessors(sBlock.get("Handle"))
+        predecessors, _ = self.__getBlockPredecessors(sBlock.get("Handle"))
         for blk in predecessors:
             execId = cUtils.to_int(blk.get("ExecutionOrder", ""))
             if execId < blockExecutionOrderId:
@@ -624,9 +639,14 @@ class CoCoSimModel:
         return list(modelVariables)
 
     def __packBlockForTransformation(self, block):
+        # we create deep-copy becase we modify the block (add the extra parameters)
+        # but we do not want the original block object to be modified
         blockCopy = copy.deepcopy(block)
-        _, blockCopy["predecessorBlocks"] = self.getBlockPredecessors(blockCopy.get("Handle"))
-        _, blockCopy["successorBlocks"] = self.getBlockSuccessors(blockCopy.get("Handle"))
+        _handle = blockCopy.get("Handle")
+        blockCopy["predecessorBlocks"] = self.__getBlockPredecessors(_handle)[0]
+        blockCopy["successorBlocks"] = self.__getBlockSuccessors(_handle)[0]
+        blockCopy["inputSignals"] = self.__getBlockInputSignals(_handle)
+        blockCopy["outputSignals"] = self.__getBlockOutputSignals(_handle)
         return blockCopy
 
     def packAllBlocksForTransformation(self):
@@ -669,8 +689,10 @@ class CoCoSimModel:
             if not cUtils.compareStringsIgnoreCase(sBlock.get("ExecutionOrder", "-1"), "-1"):
                 parsedSimulinkModel.addBlock(self.__createParsedSimulinkBlock(sBlock))
                 pass
-
         return parsedSimulinkModel
 
     def getSymbolicFixedPoint(self):
         return cUtils.to_int(self.symbolicFixedPoint)
+
+    def getConnectionTable(self):
+        return self.connectionTable

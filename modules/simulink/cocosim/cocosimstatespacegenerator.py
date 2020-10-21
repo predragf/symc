@@ -1,4 +1,6 @@
 from modules.modelchecker.statespace import *
+from modules.assertiongenerators.cocosim.declarationgenerator import *
+
 
 class StateSpaceGenerator:
     def __init__(self):
@@ -34,12 +36,11 @@ class StateSpaceGenerator:
             simulationHorizon = (simulationDuration / fundamentalSampleTime)
         return int(simulationHorizon)
 
-    def __prepareDeclarationsForVariables(self, modelVariables):
+    def __prepareDeclarationsForVariables(self, cTable):
         declarationString = ""
-        for modelVariable in modelVariables:
-	    pass
-            #declarationString += "{0}\n".format(
-            #    AssertionTemplateGenerator.generateConstantDeclarationAssertion(modelVariable))
+        for cTableEntry in cTable:
+            declarationString = "{0} \n {1}".format(
+                declarationString, DeclarationsGenerator.generateDeclaration(cTableEntry))
         return declarationString
 
     def __preprocessModel(self, sModel, simulationStepSize, simulationDuration):
@@ -51,7 +52,7 @@ class StateSpaceGenerator:
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
         for block in self.blocksForTransformation:
             blockid = block.get("blockid")
-            #self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(
+            # self.assertionTemplates[blockid] = AssertionTemplateGenerator.generateBlockAssertion(
             #    block)
 
     def __generateBlockSymbolicState(self, block, step):

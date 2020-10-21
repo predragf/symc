@@ -146,7 +146,9 @@ class SyMC:
         solver = self.__createAndInitializeSolver(goal)
         return solver
 
-    def configure(self, _configuration=dict()):
+    def configure(self, _configuration):
+        if _configuration is None:
+            _configuration = dict()
         self.__configure(_configuration)
 
     def checkModel(self, pathToModel, stepsize, property=""):
