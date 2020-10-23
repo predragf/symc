@@ -8,5 +8,7 @@ class DeclarationsGenerator(object):
 
     @staticmethod
     def generateDeclaration(self, cTableEntry):
-        declarationString = "(declare-const {0}_{{0}} {1}})"
-        return declarationString.format(cTableEntry.get("SignalName"), mapSignalTypeToSMTSort(cTableEntry.get("SignalType")))
+        print cTableEntry
+        declarationString = "(declare-const {0}_{{0}} {1})"
+        #return declarationString.format(cTableEntry.get("SignalName"), mapSignalTypeToSMTSort(cTableEntry.get("SignalType")))
+        return declarationString.format(cTableEntry, self.mapSignalTypeToSMTSort(self, cTableEntry))

@@ -18,6 +18,8 @@ from modules.modelchecker.statespacegenerator import *
 ##
 import modules.simulink.slistmanager as SLM
 
+from modules.simulink.cocosim.cocosimstatespacegenerator import StateSpaceGenerator
+
 
 simulationSize = 100
 
@@ -64,7 +66,9 @@ def createMCConfig():
 
 
 def check(modelname, slistPath, modelChecker, propertyName="", _property=""):
-    result = modelChecker.checkModel(modelname, slistPath, 1, _property)
+    print 'check'
+    totalSteps = 10
+    result = modelChecker.checkModel(modelname, slistPath, 1, totalSteps, _property)
     mcResult = determineSatisfaction(result)
     print("Property status: {0}".format(mcResult))
     if mcResult == "violated":
@@ -104,7 +108,7 @@ def r3BBW(modelname, modelChecker):
     check(modelname, modelChecker, "r4bbw", _assumptions)
 
 
-def r4BBW(modelname, modelChecker):
+def r4BBW(modelname, slistPath, modelChecker):
     """
     If the slip rate exceeds 0.2, then the applied brake torque shall be set
     to 0.
@@ -116,13 +120,13 @@ def r4BBW(modelname, modelChecker):
         constraint += template.format(i)
     final = "(assert (! (or {0}) :named {1}))".format(constraint, "r4")
     _assumptions = [final]
-    check(modelname, modelChecker, "r4bbw", property)
+    check(modelname, slistPath, modelChecker, "r4bbw", property)
 
 
-def verifyModel(modelname, size):
+def verifyModel(modelname, slistPath, size):
     modelChecker = SyMC(createMCConfig())
     # r3BBW(modelname, modelChecker)
-    r4BBW(modelname, modelChecker)
+    r4BBW(modelname, slistPath, modelChecker)
 
 
 def main():
@@ -137,15 +141,23 @@ def main():
     #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
     #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
 
+    fuelPath = "C:/Models/Fuel/fuel_IR.json"
+    fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    fuelSListOrg = "C:/Models/Fuel/slist.txt"
+
     #slist = SLM.SListManager.loadSList(fuelSList)
     # for line in slist:
     #    print line
-
+    #verifyModel(fuelPath, fuelSList, 1)
     cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
 
+    ssg = StateSpaceGenerator()
+    ssg.generateStateSpace(cocoSimModel, 1, 10)
+	
     sfjson = jsonManager.openAndLoadJson("./models/stateflowtesting_IR.json")
     sf = StateflowModel(sfjson)
     #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
-    for b in cocoSimModel.connectionTable:
+    #for b in cocoSimModel.connectionTable:
 
     print "done"
+main()

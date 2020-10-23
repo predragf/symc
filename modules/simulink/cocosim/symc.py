@@ -145,7 +145,8 @@ class SyMC:
     def configure(self, _configuration=dict()):
         self.__configure(_configuration)
 
-    def checkModel(self, pathToModel, slistPath, stepsize, property=""):
+    def checkModel(self, pathToModel, slistPath, stepsize, totalSteps, property=""):
+        print 'inside'
         start = time.time()
         print("Model verification started at {0}".format(
             time.strftime("%H:%M:%S")))

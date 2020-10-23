@@ -1,6 +1,5 @@
 import re
 
-
 class AssertionGenerator:
     @staticmethod
     def constant(self, blockPackage):
@@ -12,7 +11,7 @@ class AssertionGenerator:
     def sum(self, blockPackage):
         _inputs = blockForTransformation.get("inputs")
         _outSignalName = blockForTransformation.get("signalvariable")
-        _inputsString = AssertionGeneratorUtils.parseSumInputs(blockForTransformation)
+        _inputsString = AssertionGeneratorUtils.parseSumInputs(_inputs, blockForTransformation)
         return "(= {0}_{{0}} {1})".format(_outSignalName, _inputsString)
 
     @staticmethod
@@ -21,11 +20,17 @@ class AssertionGenerator:
 
     @staticmethod
     def switch(self, blockPackage):
-        pass
+        _inputs = blockForTransformation.get("inputs")
+        _outSignalName = blockForTransformation.get("signalvariable")
+        _inputsString = AssertionGeneratorUtils.parseSwitch(_inputs, blockForTransformation)
+        return "(= {0}_{{0}} {1})".format(_outSignalName, _inputsString)
 
     @staticmethod
     def logic(self, blockPackage):
-        pass
+        _inputs = blockForTransformation.get("inputs")
+        _outSignalName = blockForTransformation.get("signalvariable")
+        _inputsString = AssertionGeneratorUtils.parseLogic(_inputs, blockForTransformation)
+        return "(= {0}_{{0}} {1})".format(_outSignalName, _inputsString)
 
     @staticmethod
     def dataTypeConversion(self, blockPackage):
