@@ -109,34 +109,32 @@ class StateflowModel:
 
         return result
 
+    def __generateDeclarationStringStep(self, k):
 
-    def generateDeclarationStringStep(self, k):
-
-        declaration_string = '\n'.join(self.generateDeclarationString())
+        declaration_string = '\n'.join(self.__generateDeclarationString())
 
         declaration_string = declaration_string.replace('_current', '_' + str(k))
 
         return declaration_string
 
-    def generateAssertionStringStep(self, k, m, connectionTable):
+    def __generateAssertionStringStep(self, k, m, connectionTable):
+        assertion_string = '\n'.join(self.__generateTransitionRelationAssertions(connectionTable))
 
-        assertion_string = '\n'.join(self.generateAssertionString(connectionTable))
+        assertion_string = assertion_string.replace(
+            '_current', '_' + str(k)).replace('_next', '_' + str(m))
 
-        assertion_string = assertion_string.replace('_current', '_' + str(k)).replace('_next', '_' + str(m))
-
-    
         return assertion_string
 
-    def generateTransitionRelationSteps(self, steps, connectionTable):
-        
+    def generateTransitionRelation(self, steps, connectionTable):
+
         declaration_string = ''
-        assertion_string   = ''
-
+        assertion_string = ''
         for k in range(steps):
-            declaration_string = declaration_string + '\n' + self.generateDeclarationStringStep(k)
-            assertion_string   = assertion_string + '\n' + self.generateAssertionStringStep(k, k+1, connectionTable)
+            declaration_string = declaration_string + '\n' + self.__generateDeclarationStringStep(k)
+            assertion_string = assertion_string + '\n' + \
+                self.__generateAssertionStringStep(k, k+1, connectionTable)
 
-        declaration_string = declaration_string + '\n' + self.generateDeclarationStringStep(steps)
+        declaration_string = declaration_string + '\n' + self.__generateDeclarationStringStep(steps)
 
         return (declaration_string, assertion_string)
 
@@ -215,7 +213,7 @@ class StateflowModel:
             "DefaultTransitions": default
         }
 
-    def generateAllTransitions(self):
+    def __generateAllTransitions(self):
         # this function generates all the possible stateflow transitions for a
         # stateflow diagram
         if self.allTransitions is None:
@@ -227,17 +225,18 @@ class StateflowModel:
 
         return self.allTransitions
 
-    def generateDeclarationString(self):
-        
+    def __generateDeclarationString(self):
+
         types_dict = dict({'double': 'Real', 'single': 'Real', 'half': 'Real',
-                           'int8': 'Int', 'uint8': 'Int', 'int16':'Int', 'int32':'Int',
-                           'uint32':'Int', 'int64': 'Int', 'uint64': 'Int', 'boolean': 'Bool'})
-        
+                           'int8': 'Int', 'uint8': 'Int', 'int16': 'Int', 'int32': 'Int',
+                           'uint32': 'Int', 'int64': 'Int', 'uint64': 'Int', 'boolean': 'Bool'})
+
         variable_list, types_list = self.__generateListOfVariables()
         declare_string_list = []
 
         for var, typ in zip(variable_list, types_list):
-            declare_string_list.append('(declare-const ' + var + '_current ' + types_dict[typ] + ')')
+            declare_string_list.append(
+                '(declare-const ' + var + '_current ' + types_dict[typ] + ')')
             #declare_string_list.append('declare-const ' + var + '_next '    + types_dict[typ])
 
         return declare_string_list
@@ -245,11 +244,11 @@ class StateflowModel:
     def __generateListOfVariables(self):
 
         sf_content = self.__getContent()
-        sf_data    = sf_content.get('Data', None)
-        sf_states  = sf_content.get('States', None)
-        
-        sf_var     = []
-        sf_types   = []
+        sf_data = sf_content.get('Data', None)
+        sf_states = sf_content.get('States', None)
+
+        sf_var = []
+        sf_types = []
 
         for variable in sf_data:
             sf_var.append(variable['Name'])
@@ -260,39 +259,39 @@ class StateflowModel:
             sf_types.append('boolean')
 
         return sf_var, sf_types
-        
+
     def __generateTransitionRelationForState(self, state):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
         # basically here one needs to create the set of constraints that characterize the
         transitionRelation = []
-        transitions  = state.get('OuterTransitions')
-        state_id     = state.get('stateId')
-        stateSFS     = self.__getSFStateById(state_id)
-        state_name   = stateSFS.get('Name')
+        transitions = state.get('OuterTransitions')
+        state_id = state.get('stateId')
+        stateSFS = self.__getSFStateById(state_id)
+        state_name = stateSFS.get('Name')
         state_action = stateSFS.get('Actions')
-        state_exit   = state_action.get('Exit')
-        outer_trans  = stateSFS.get('OuterTransitions')
-        all_states   = self.__getAllSFStates()
-        
+        state_exit = state_action.get('Exit')
+        outer_trans = stateSFS.get('OuterTransitions')
+        all_states = self.__getAllSFStates()
+
         all_states_list = []
         for state in all_states:
             all_states_list.append(state.get('Name'))
-        
+
         trans_ids = []
 
         if len(outer_trans) < 1:
             return ''
-        
+
         outer_trans = outer_trans
         for trans in transitions:
-            trans = trans.replace("!",";!")
+            trans = trans.replace("!", ";!")
             trans_ids = trans.split(';')
-            
+
             transition_action = []
             transition_enable = []
             for trans_tmp in trans_ids:
-                if trans_tmp == '': 
+                if trans_tmp == '':
                     continue
 
                 for outer in outer_trans:
@@ -304,27 +303,28 @@ class StateflowModel:
                     if int(outer['Id']) == int(trans_compare_id):
                         outer_tmp = copy.deepcopy(outer)
                         break
-                
+
                 if trans_tmp[0] == '!':
                     transition_enable.append('disable')
                 else:
                     transition_enable.append('enable')
                 transition_action.append(outer['TransitionAction'][0])
 
-            dest_state        = outer_tmp['Destination']
-            dest_state_id     = dest_state['Id']
-            dest_state_SFS    = self.__getSFStateById(dest_state_id)
-            dest_state_name   = dest_state_SFS.get('Name')
+            dest_state = outer_tmp['Destination']
+            dest_state_id = dest_state['Id']
+            dest_state_SFS = self.__getSFStateById(dest_state_id)
+            dest_state_name = dest_state_SFS.get('Name')
             dest_state_action = dest_state_SFS.get('Actions')
-            dest_state_entry  = dest_state_action.get('Entry')
+            dest_state_entry = dest_state_action.get('Entry')
 
-            transitionRelation.append(self.__generateTransitionRelationForTransition(transition_action, state_name, dest_state_name, dest_state_entry, all_states_list, transition_enable))
+            transitionRelation.append(self.__generateTransitionAssertion(
+                transition_action, state_name, dest_state_name, dest_state_entry, all_states_list, transition_enable))
 
         return transitionRelation
 
-    def __generateTransitionRelationForTransition(self, transition_string, state_name, dest_state_name, dest_state_entry, all_states_list, transition_enable):
+    def __generateTransitionAssertion(self, transition_string, state_name, dest_state_name, dest_state_entry, all_states_list, transition_enable):
         # Generate a transition relation from state
-        
+
         if len(transition_string) > 1:
             transition_action_append = ' (and'
         else:
@@ -335,26 +335,30 @@ class StateflowModel:
             if transition_enable[k] == 'disable':
                 transition_action_string = '~(' + transition_action_string + ')'
             transition_action_prefix = self.__InfixToPrefix(transition_action_string)
-            transition_action_append = transition_action_append + ' ' + self.__AppendCurrentOrNext(transition_action_prefix, '_current') 
-        
-        if len(transition_string) > 1:            
-            transition_action_append = transition_action_append + ')'
-            
+            transition_action_append = transition_action_append + ' ' + \
+                self.__AppendCurrentOrNext(transition_action_prefix, '_current')
 
-        assert_text = '(assert (implies ((and ' + state_name + '_current' + transition_action_append + ')'
-        dest_state_entry   = self.__PrepareActionString(dest_state_entry[0])
-        dest_state_string  = self.__InfixToPrefix('(' + dest_state_entry + ')')
-        dest_state_append  = self.__AppendCurrentOrNext(dest_state_string, '_next')
-        state_string       = '(= true ' + dest_state_name + '_next)'
+        if len(transition_string) > 1:
+            transition_action_append = transition_action_append + ')'
+
+        assert_text = '(assert (implies ((and ' + state_name + \
+            '_current' + transition_action_append + ')'
+        dest_state_entry = self.__PrepareActionString(dest_state_entry[0])
+        dest_state_string = self.__InfixToPrefix('(' + dest_state_entry + ')')
+        dest_state_append = self.__AppendCurrentOrNext(dest_state_string, '_next')
+        state_string = '(= true ' + dest_state_name + '_next)'
         other_state_string = self.__StateInfixString(all_states_list, dest_state_name)
 
-        transition_string = assert_text + ' (and ' + dest_state_append + ' ' + state_string + ' ' + other_state_string[:-1] + ')))'
+        transition_string = assert_text + \
+            ' (and ' + dest_state_append + ' ' + state_string + \
+            ' ' + other_state_string[:-1] + ')))'
 
         return transition_string
 
     def __AppendCurrentOrNext(self, string, appending_string):
-        non_variables = ['+', '-', '/', '*', '!=', '=', '>=', '<=', 'and', 'or', '(', ')', 'false', 'true', 'not']
-        
+        non_variables = ['+', '-', '/', '*', '!=', '=', '>=',
+                         '<=', 'and', 'or', '(', ')', 'false', 'true', 'not']
+
         split_string = string.split(' ')
 
         appended_string = ''
@@ -375,7 +379,8 @@ class StateflowModel:
 
                     elif string_tmp[-1] == ')':
                         if not (string_tmp[:-numRightParanthesis] in non_variables):
-                            string_tmp = string_tmp[:-numRightParanthesis] + appending_string + ')' * numRightParanthesis
+                            string_tmp = string_tmp[:-numRightParanthesis] + \
+                                appending_string + ')' * numRightParanthesis
                     else:
                         string_tmp = string_tmp + appending_string
             if appended_string == '':
@@ -386,60 +391,63 @@ class StateflowModel:
         return appended_string
 
     def __StateInfixString(self, all_states_list, dest_state_name):
-        
+
         state_string = ''
         for k in all_states_list:
             if k != dest_state_name:
                 state_string = state_string + self.__InfixToPrefix('(' + k + '_next=false)') + ' '
-        
+
         return state_string
 
     def __PrepareActionString(self, action_string):
-        
+
         action_string = action_string.replace("\n", '')
         action_string = action_string.replace(';',  '')
 
-        #Remove comments
+        # Remove comments
         while action_string.find('/*') != -1 and action_string.find('*/') != -1:
             left = action_string.find('/*')
             right = action_string.find('*/')
             action_string = action_string[:left] + action_string[right:]
 
-        left_bracket  = action_string.find('[')
+        left_bracket = action_string.find('[')
         right_bracket = action_string.find(']')
 
         if left_bracket == -1 or right_bracket == -1:
             left_bracket = 0
         else:
             action_string = action_string[left_bracket + 1:right_bracket]
-        
+
         return action_string
 
     def __InfixToPrefix(self, transitionAction):
         # Convert infix notation to prefix notation
 
         trans_act_no_space = transitionAction.replace(' ', '')
-        
+
         left_paranthesis, right_paranthesis = self.__CheckParanthesis(trans_act_no_space)
 
-        num_paranthesis      = len(left_paranthesis)
-        current_string       = copy.deepcopy(trans_act_no_space)
-        string_concatenated  = copy.deepcopy(trans_act_no_space)
-        paranthesis_objects  = [None] * num_paranthesis
-        
+        num_paranthesis = len(left_paranthesis)
+        current_string = copy.deepcopy(trans_act_no_space)
+        string_concatenated = copy.deepcopy(trans_act_no_space)
+        paranthesis_objects = [None] * num_paranthesis
+
         for m in range(num_paranthesis):
-            string_paranthesis     = string_concatenated[left_paranthesis[-1] + 1: right_paranthesis[-1]]
+            string_paranthesis = string_concatenated[left_paranthesis[-1] +
+                                                     1: right_paranthesis[-1]]
             paranthesis_objects[m] = self.__ParseInfixToPrefix(string_paranthesis, 0)
-            string_concatenated = current_string[0:left_paranthesis[-1]] + 'id:' + str(m) + current_string[right_paranthesis[-1] + 1:]
-            current_string      = copy.deepcopy(string_concatenated)
+            string_concatenated = current_string[0:left_paranthesis[-1]] + \
+                'id:' + str(m) + current_string[right_paranthesis[-1] + 1:]
+            current_string = copy.deepcopy(string_concatenated)
             left_paranthesis, right_paranthesis = self.__CheckParanthesis(string_concatenated)
 
         current_string_complete = self.__ParseInfixToPrefix(current_string, 1)
 
         for k in range(num_paranthesis, 0, -1):
-            tmp_id_str = 'id:' + str(k-1) 
-            current_string_complete = current_string_complete.replace(tmp_id_str, paranthesis_objects[k-1])
-        
+            tmp_id_str = 'id:' + str(k-1)
+            current_string_complete = current_string_complete.replace(
+                tmp_id_str, paranthesis_objects[k-1])
+
         current_string_complete = self.__ParseInfixToPrefixUnary(current_string_complete)
 
         return current_string_complete
@@ -448,31 +456,31 @@ class StateflowModel:
         # Computes the left and right paranthesis positions
         # from an input string
 
-        left_paranthesis  = []
+        left_paranthesis = []
         right_paranthesis = []
 
         for k in range(len(string)):
 
-             if string[k] == '(':
-                 left_paranthesis.append(k)
-                 right_paranthesis.append(-1)
-             elif string[k] == ')':
-                 for m in range(len(left_paranthesis), 0, -1):
-                     if right_paranthesis[m-1] == -1:
-                         right_paranthesis[m-1] = k
-                         break
+            if string[k] == '(':
+                left_paranthesis.append(k)
+                right_paranthesis.append(-1)
+            elif string[k] == ')':
+                for m in range(len(left_paranthesis), 0, -1):
+                    if right_paranthesis[m-1] == -1:
+                        right_paranthesis[m-1] = k
+                        break
 
         return left_paranthesis, right_paranthesis
 
     def __ParseInfixToPrefixUnary(self, string):
-        
+
         new_string = string.replace('~', 'not ')
 
         return new_string
 
     def __ParseInfixToPrefix(self, string, priority):
 
-        operators   = ["==", "~=", ">=", "<=", "&&",  "||", '=', '+', '-', '*', '/']
+        operators = ["==", "~=", ">=", "<=", "&&",  "||", '=', '+', '-', '*', '/']
         c_operators = ['=',  "!=", ">=", "<=", "and", "or", '=', '+', '-', '*', '/']
 
         if priority >= len(operators):
@@ -487,53 +495,59 @@ class StateflowModel:
 
         if len(current_string) == 1:
             return self.__ParseInfixToPrefix(current_string[0], priority + 1)
-            
+
         else:
             for k in range(len(current_string), 1, -1):
                 if k == len(current_string) - 1:
-                    prefix_string = '(' + c_operators[priority] + ' ' + self.__ParseInfixToPrefix(current_string[k - 2], priority + 1) + ' ' + self.__ParseInfixToPrefix(prefix_string, priority + 1) + ')'
+                    prefix_string = '(' + c_operators[priority] + ' ' + self.__ParseInfixToPrefix(
+                        current_string[k - 2], priority + 1) + ' ' + self.__ParseInfixToPrefix(prefix_string, priority + 1) + ')'
                 else:
-                    prefix_string = '(' + c_operators[priority] + ' ' + self.__ParseInfixToPrefix(current_string[k - 2], priority + 1) + ' ' + prefix_string + ')'
+                    prefix_string = '(' + c_operators[priority] + ' ' + self.__ParseInfixToPrefix(
+                        current_string[k - 2], priority + 1) + ' ' + prefix_string + ')'
 
         return prefix_string
 
-    def generateAssertionString(self, connection_table):
+    def __generateTransitionRelationAssertions(self, connection_table):
         # it is still not clear to me whether the transition relation shall be
         # a list or dictionary
-        #print('generate Transition')
         transitionRelation = []
-        block_handle   = self.__getBlockHandle()
-        input_sources  = []
+        block_handle = self.__getBlockHandle()
+        input_sources = []
         output_sources = []
-    
+
         for entry in connection_table:
             if block_handle == entry.get("SrcBlockHandle"):
                 output_sources.append(entry)
             elif block_handle == entry.get('DstBlockHandle'):
                 input_sources.append(entry)
-        
-        transitionRelation.append(self.__generateTransitionRelationIOs(input_sources, output_sources))
 
-        for stateTransitions in self.generateAllTransitions():
+        transitionRelation.append(
+            self.__generateTransitionRelationIOs(input_sources, output_sources))
+
+        for stateTransitions in self.__generateAllTransitions():
             transitionRelation.extend(self.__generateTransitionRelationForState(stateTransitions))
 
         return transitionRelation
 
     def __generateTransitionRelationIOs(self, input_sources, output_sources):
         ''' Generate transition relations for inputs and outputs '''
-        
+
         transition_string = ''
         num_ios = 0
         sf_inputs, sf_outputs = self.__StateFlowIOs()
-        
+
         for state_flow_in in sf_inputs:
             port_number = state_flow_in["Port"]
             for input_source_tmp in input_sources:
                 port_number_source_tmp = input_source_tmp['DstPort']
                 if port_number == port_number_source_tmp + 1:
                     num_ios = num_ios + 1
-                    transition_string = transition_string + ' (= ' + state_flow_in['Name'] + '_current ' + input_source_tmp['SignalName'] + '_current)'
-                    transition_string = transition_string + ' (= ' + state_flow_in['Name'] + '_next '    + input_source_tmp['SignalName'] + '_next)'
+                    transition_string = transition_string + \
+                        ' (= ' + state_flow_in['Name'] + '_current ' + \
+                        input_source_tmp['SignalName'] + '_current)'
+                    transition_string = transition_string + \
+                        ' (= ' + state_flow_in['Name'] + '_next ' + \
+                        input_source_tmp['SignalName'] + '_next)'
 
         for state_flow_out in sf_outputs:
             port_number = state_flow_out["Port"]
@@ -541,9 +555,13 @@ class StateflowModel:
                 port_number_source_tmp = output_source_tmp['SrcPort']
                 if port_number == port_number_source_tmp + 1:
                     num_ios = num_ios + 1
-                    transition_string = transition_string + ' (= ' + state_flow_out['Name'] + '_current ' + output_source_tmp['SignalName'] + '_current)'
-                    transition_string = transition_string + ' (= ' + state_flow_out['Name'] + '_next '    + output_source_tmp['SignalName'] + '_next)'
-        
+                    transition_string = transition_string + \
+                        ' (= ' + state_flow_out['Name'] + '_current ' + \
+                        output_source_tmp['SignalName'] + '_current)'
+                    transition_string = transition_string + \
+                        ' (= ' + state_flow_out['Name'] + '_next ' + \
+                        output_source_tmp['SignalName'] + '_next)'
+
         if num_ios > 0:
             transition_assert_string = '(assert (and'
             transition_string = transition_assert_string + transition_string + '))'
@@ -552,11 +570,11 @@ class StateflowModel:
 
     def __StateFlowIOs(self):
         ''' Generate inputs and outputs from a stateflow block '''
-        
+
         sf_content = self.__getContent()
-        sf_data    = sf_content.get('Data', None)
-        sf_input   = []
-        sf_output  = []
+        sf_data = sf_content.get('Data', None)
+        sf_input = []
+        sf_output = []
 
         for io in sf_data:
             if cUtils.compareStringsIgnoreCase(io.get('Scope'), 'Input'):
@@ -567,8 +585,8 @@ class StateflowModel:
         return sf_input, sf_output
 
     def __isSubStateOf(self, childStateId, parentStateId):
-        isSubstateOf      = False
-        parentState       = self.__getSFStateById(parentStateId)
+        isSubstateOf = False
+        parentState = self.__getSFStateById(parentStateId)
         parentComposition = parentState.get("Composition", None)
         if parentComposition is not None:
             if childStateId in parentComposition.get("States", []):
@@ -580,16 +598,6 @@ class StateflowModel:
                         break
 
         return isSubstateOf
-
-    def __packStateForTransformation(self, state):
-        pass
-
-    def packForTransformation(self):
-        # what information do I need for transforming each block?
-        # if my source state is active, I will perform a set of actions and make a new (or the same) state active
-        # the main problem is how to encode one simulation step
-        # [s1, s1.1, s1.1.1, s1.1.2, s1.2, s1.2.1, s1.2.2]
-        pass
 
     def test(self):
         print self.__getAllSFStates()

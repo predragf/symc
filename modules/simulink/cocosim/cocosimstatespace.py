@@ -1,5 +1,6 @@
 import re
 
+
 class StateSpace:
 
     def __init__(self, _stateSpace=dict(), _declarations=""):
@@ -30,9 +31,6 @@ class StateSpace:
     def setDeclarations(self, _declarations=""):
         self.declarations = _declarations
 
-    def getDeclarations(self):
-        return self.declarations
-
     def __getStatesForParsing(self, start=0, howmany=0):
         statesForParsing = []
         if howmany > 0:
@@ -49,30 +47,25 @@ class StateSpace:
         matches = generalPattern.findall(assertion)
         for m in matches:
             if (numberPattern.match(m) == None and
-                m.lower() not in smtKeywords):
+                    m.lower() not in smtKeywords):
                 _vars.add(m)
         return _vars
-
-    def __generateDeclarations(self, variables):
-        declarations = []
-        for _var in variables:
-            declarations.append("(declare-const {0} Real)".format(_var))
-        return declarations
 
     def __loadCustomFunctions(self, customFunctionsFileLocation):
         cFunctions = ""
         try:
-            _file = open(customFunctionsFileLocation, "r");
+            _file = open(customFunctionsFileLocation, "r")
             cFunctions = _file.read()
         except:
             print("{0} could not be loaded.".format(pathToJsonFile))
         return cFunctions
 
-    def genenrateSMT2Script(self, start=0, howmany=0):
+    def getDeclarations(self):
+        return self.declarations
+
+    def getAssertions(self, start=0, howmany=0):
         statesForParsing = self.__getStatesForParsing(start, howmany)
-        customFunctions = self.__loadCustomFunctions("./models/custom-functions.smt2")
-        script = "{0} \n {1} \n".format(self.declarations, customFunctions)
+        stateAssertions = ""
         for state in statesForParsing:
-            pass
-            script += "\n".join(state)
-        return script
+            stateAssertions += "\n".join(state)
+        return stateAssertions

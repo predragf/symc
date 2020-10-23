@@ -1,6 +1,6 @@
 from z3 import *
 from modules.simulink.cocosim.cocosimmodel import *
-from modules.simulink.cocosim.cocosimmodelmanager import *
+import modules.simulink.cocosim.cocosimmodelmanager as CoCoSimModelManager
 from modules.simulink.cocosim.cocosimstatespace import *
 from modules.simulink.cocosim.cocosimstatespacegenerator import *
 from modules.simulink.cocosim.cocosimstatespacemanager import *
@@ -8,6 +8,7 @@ from modules.routinegenerators.routinegenerator import *
 from modules.assertiongenerators.assertiongenerator import *
 from modules.utils.gcd import *
 from modules.utils.utils import *
+from modules.simulink.cocosim.stateflow.stateflowmodel import *
 import time
 
 
@@ -57,18 +58,17 @@ class SyMC:
             solver.add(_goal)
         return solver
 
-    def __obtainModelStateSpace(self, sModel, stepsize, totalSteps):
+    def __obtainModelStateSpace(self, sModel, totalSteps):
         ssg = StateSpaceGenerator()
-        # the size of the simulation, that is the exexution traces is
+        # the size of the execution, that is the exexution traces is
         # calculated as the symbolic fixed point of the model multiplied by
         # the WCE coefficient.
-        stateSpace = StateSpace()
-        stateSpace = ssg.generateStateSpace(sModel, stepsize, totalSteps)
+        stateSpace = ssg.generateStateSpace(sModel, totalSteps)
         if self.saveStateSpace:
             StateSpaceManager.saveStateSpaceToFile(stateSpace,
                                                    "./models/exec/{0}{1}{2}.ss"
                                                    .format(sModel.getModelName(),
-                                                           stepsize,
+                                                           sModel.getFundamentalSampleTime(),
                                                            totalSteps))
         return stateSpace
 
@@ -110,6 +110,8 @@ class SyMC:
         return existingSmtModel
 
     def __generateAssertionsFromProperty(self, propertyAssertion, totalSteps):
+        if cUtils.compareStringsIgnoreCase("", propertyAssertion):
+            return ""
         propertyAssertions = []
         signalPattern = r'signal_\w{12}'
         usedSignals = re.findall(signalPattern, property)
@@ -118,24 +120,43 @@ class SyMC:
             for usedSignal in usedSignals:
                 assertion = assertion.replace(usedSignal, "{0}_{1}".format(usedSignal, i))
             propertyAssertions.append(assertion)
-        return propertyAssertions
+        return "\n".join(propertyAssertions)
 
-    def __getSMTScript(self, sModel, stepsize, totalSteps, propertyAssertion):
+    def __combineSimulinkAndStateflow(self, sModel, totalSteps):
+        baseModel = ""
+        simulinkStateSpaceForChecking = self.__obtainModelStateSpace(sModel, totalSteps)
+        declarations = simulinkStateSpaceForChecking.getDeclarations()
+        assertions = simulinkStateSpaceForChecking.getAssertions()
+        print "++++++++++++++"
+        print assertions
+        print "++++++++++++++"
+        for block in sModel.getBlocksForTransformation():
+            if cUtils.compareStringsIgnoreCase(block.get("BlockType"), "SubSystem") and len(block.get("StateflowContent", {})) > 0:
+                stateFLowChart = StateflowModel(block)
+                sfDeclarations, sfAssertions = stateFLowChart.generateTransitionRelation(
+                    totalSteps, sModel.getConnectionTable())
+                declarations = "{0}\n{1}".format(declarations, sfDeclarations)
+                assertions = "{0}\n{1}".format(assertions, sfAssertions)
+        baseModel = "{0}\n{1}".format(declarations, assertions)
+        return baseModel
+
+    def __getSMTScript(self, sModel, totalSteps, propertyAssertion):
+            # this function is the holy grail for us
         baseModel = ""
         if self.reuseExistingModel:
-            baseModel = self.__loadExistingSMTModel(sModel.getModelName(), stepsize)
+            baseModel = self.__loadExistingSMTModel(
+                sModel.getModelName(), sModel.getFundamentalSampleTime(), totalSteps)
         if baseModel == "":
-            stateSpaceForChecking = self.__obtainModelStateSpace(sModel,
-                                                                 stepsize, totalSteps)
-            baseModel = stateSpaceForChecking.genenrateSMT2Script()
-            self.__saveExistingSMTModel(sModel.getModelName(), stepsize, baseModel)
-            assertions = self.__generateAssertionsFromProperty(propertyAssertion, totalSteps)
-        return "{0} \n {1}".format(baseModel, "\n".join(assertions))
+            baseModel = self.__combineSimulinkAndStateflow(sModel, totalSteps)
+        self.__saveExistingSMTModel(sModel.getModelName(
+        ), sModel.getFundamentalSampleTime(), totalSteps, baseModel)
+        propertyAssertions = self.__generateAssertionsFromProperty(propertyAssertion, totalSteps)
+        return "{0}\n;the propeties start here\n{1}".format(baseModel, propertyAssertions)
 
-    def __createAndPopulateSolver(self, pathToModel, slistPath, stepsize, totalSteps, propertyAssertion):
+    def __createAndPopulateSolver(self, pathToModel, slistPath, totalSteps, propertyAssertion):
         sModel = CoCoSimModelManager.loadModel(pathToModel, slistPath)
-        self.executionLenght = totalSteps
-        smtModel = self.__getSMTScript(sModel, stepsize, totalSteps, propertyAssertion)
+        smtModel = self.__getSMTScript(
+            sModel, totalSteps, propertyAssertion)
         goal = self.__createGoal()
         smtScript = self.__generateScriptForChecking(smtModel)
         goal.add(smtScript)
@@ -145,14 +166,14 @@ class SyMC:
     def configure(self, _configuration=dict()):
         self.__configure(_configuration)
 
-    def checkModel(self, pathToModel, slistPath, stepsize, totalSteps, property=""):
-        print 'inside'
+    def checkModel(self, pathToModel, slistPath, totalSteps, propertyAssertion=""):
+        # stepSize is the fundamental step time
         start = time.time()
         print("Model verification started at {0}".format(
             time.strftime("%H:%M:%S")))
         print("Creating model ...")
-        solver = self.__createAndPopulateSolver(pathToModel, slistPath, stepsize, totalSteps,
-                                                propertyAssertion)
+        solver = self.__createAndPopulateSolver(
+            pathToModel, slistPath, totalSteps, propertyAssertion)
         print("Creating model finished in {0:.3f} seconds.".format(time.time()
                                                                    - start))
         print("Model checking ...")

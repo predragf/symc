@@ -1,10 +1,12 @@
 import re
 
+
 class AssertionGenerator:
     @staticmethod
     def constant(self, blockPackage):
         # signalname is the output signal name, constant value is the
         # value that needs to be written on the signal
+        # (= signal_djshadkjhas_{0} 5)
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod
@@ -37,16 +39,20 @@ class AssertionGenerator:
         pass
 
     @staticmethod
-    def if(self, blockPackage):
+    def If(self, blockPackage):
         pass
 
     @staticmethod
     def generateBlockAssertion(blockPackage):
-        blocktype = blockForTransformation.get("blocktype")
+        # you need to implement this function
+        #set([u'SubSystem', u'Outport', u'Constant', u'InportShadow', u'Sum', u'BusSelector', u'Inport', u'Merge', u'Switch', u'Terminator', u'Logic', None, u'BusCreator', u'DataTypeConversion', u'ActionPort', u'If'])
+        # you need to check this
+        blocktype = blockForTransformation.get("BlockType")
+        # Sum
         assertion = ""
         try:
-            assertiongenerationfunction = getattr(CocoSimAssertionGenerator, blocktype)
-            assertion = assertiongenerationfunction(blockForTransformation)
+            assertiongenerationfunction = getattr(AssertionGenerator, blocktype)
+            assertion = assertiongenerationfunction(blockPackage)
         except Exception as e:
             """for now we handle the exception. bad coding practice, but will be
             rewritten in future"""

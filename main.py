@@ -24,6 +24,12 @@ from modules.simulink.cocosim.cocosimstatespacegenerator import StateSpaceGenera
 simulationSize = 100
 
 
+class Testing:
+    @staticmethod
+    def If():
+        print "I am the if"
+
+
 def printlist(_list, keyname=""):
     if keyname != "":
         _list = sorted(_list, key=lambda k: k[keyname])
@@ -98,7 +104,7 @@ def r3BBW(modelname, modelChecker):
     The value of the brake pedal position shall not exceed its maximal
     value of 100
     """
-    template = "(> signal_1_{0} 100)"
+    template = "(> signal_1 100)"
     constraint = ""
     for i in range(0, simulationSize):
         constraint += template.format(i)
@@ -137,27 +143,33 @@ def main():
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
 
-    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
 
-    fuelPath = "C:/Models/Fuel/fuel_IR.json"
-    fuelSList = "C:/Models/Fuel/slist_flat.txt"
-    fuelSListOrg = "C:/Models/Fuel/slist.txt"
+    #fuelPath = "C:/Models/Fuel/fuel_IR.json"
+    #fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    #fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
     #slist = SLM.SListManager.loadSList(fuelSList)
     # for line in slist:
     #    print line
     #verifyModel(fuelPath, fuelSList, 1)
-    cocoSimModel = CoCoSimModelManager.loadModel(fuelPath, fuelSList, createMCConfig())
 
-    ssg = StateSpaceGenerator()
-    ssg.generateStateSpace(cocoSimModel, 1, 10)
-	
-    sfjson = jsonManager.openAndLoadJson("./models/stateflowtesting_IR.json")
-    sf = StateflowModel(sfjson)
+    modelChecker = SyMC(createMCConfig())
+    #modelChecker.checkModel(fuelPath, fuelSList, 10, "")
+    CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList)
+    for b in CSM.getBlocksForTransformation():
+        try:
+            iffunction = getattr(Testing, b.get("BlockType", ""))
+            iffunction()
+        except Exception as e:
+            pass
+
     #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
-    #for b in cocoSimModel.connectionTable:
+    # for b in cocoSimModel.connectionTable:
 
     print "done"
+
+
 main()

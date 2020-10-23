@@ -657,39 +657,10 @@ class CoCoSimModel:
                 packedBlocksForTransformation.append(blockCopy)
         return packedBlocksForTransformation
 
-    def calculateFundamentalSampleTime(self):
+    def getFundamentalSampleTime(self):
         if self.fundamentalSampleTime is None:
             self.fundamentalSampleTime = self.__calculateFundamentalSampleTime()
         return self.fundamentalSampleTime
-
-    def __createParsedSimulinkModel(self):
-        parsedSimulinkModel = ParsedSimulinkModel()
-        parsedSimulinkModel.setModelName(self.getModelName())
-        parsedSimulinkModel.setFundamentalSampleTime(self.calculateFundamentalSampleTime())
-        return parsedSimulinkModel
-
-    def __createParsedBlockParameters(self, simulinkBlock):
-        parameters = {}
-
-        return parameters
-
-    def __createParsedSimulinkBlock(self, simulinkBlock):
-        parsedSimulinkBlock = ParsedSimulinkBlock()
-        parsedSimulinkBlock.setName(simulinkBlock.get("Name", ""))
-        parsedSimulinkBlock.setBlockId(simulinkBlock.get("Origin_path"))
-        parsedSimulinkBlock.setBlockType(simulinkBlock.get("BlockType"))
-        parsedSimulinkBlock.setParameters(self.__createParsedBlockParameters(simulinkBlock))
-        blockLines = self.__findAllEntriesByDestination(simulinkBlock.get("Handle"))
-
-        return parsedSimulinkBlock
-
-    def parseModel(self):
-        parsedSimulinkModel = self.__createParsedSimulinkModel()
-        for sBlock in self.allBlocks:
-            if not cUtils.compareStringsIgnoreCase(sBlock.get("ExecutionOrder", "-1"), "-1"):
-                parsedSimulinkModel.addBlock(self.__createParsedSimulinkBlock(sBlock))
-                pass
-        return parsedSimulinkModel
 
     def getSymbolicFixedPoint(self):
         return cUtils.to_int(self.symbolicFixedPoint)
