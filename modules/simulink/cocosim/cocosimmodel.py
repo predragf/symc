@@ -3,7 +3,7 @@ import modules.utils.gcd as gcd
 import modules.logging.logmanager as LogManager
 import copy
 from copy import deepcopy
-
+import time
 
 class CoCoSimModel:
 
@@ -509,7 +509,9 @@ class CoCoSimModel:
 
         # Added if all sample times are -1
         if sampleTimes == set():
-            sampleTimes.add(-1)
+            sTimeSpecified = self.rawSimulinkModelJson.get(
+            'meta').get('sampleTime')
+            sampleTimes.add(float(sTimeSpecified))
 
         return gcd.gcd(sampleTimes)
 

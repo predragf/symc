@@ -143,13 +143,13 @@ def main():
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
 
-    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
 
-    #fuelPath = "C:/Models/Fuel/fuel_IR.json"
-    #fuelSList = "C:/Models/Fuel/slist_flat.txt"
-    #fuelSListOrg = "C:/Models/Fuel/slist.txt"
+    fuelPath = "C:/Models/Fuel/fuel_IR.json"
+    fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
     #slist = SLM.SListManager.loadSList(fuelSList)
     # for line in slist:
@@ -159,15 +159,20 @@ def main():
     modelChecker = SyMC(createMCConfig())
     #modelChecker.checkModel(fuelPath, fuelSList, 10, "")
     CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList)
-    for b in CSM.getBlocksForTransformation():
-        try:
-            iffunction = getattr(Testing, b.get("BlockType", ""))
-            iffunction()
-        except Exception as e:
-            pass
+    #cTable = CSM.getConnectionTable()
+    #for b in cTable:
+    #    print(b)
+    #time.sleep(10)
+    SSG = StateSpaceGenerator()
+    SSG.generateStateSpace(CSM, 10)
+    #for b in CSM.getBlocksForTransformation():
+    #    try:
+    #        iffunction = getattr(Testing, b.get("BlockType", ""))
+    #        iffunction()
+    #    except Exception as e:
+    #        pass
 
     #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
-    # for b in cocoSimModel.connectionTable:
 
     print "done"
 

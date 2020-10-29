@@ -132,7 +132,7 @@ class StateflowModel:
         for k in range(steps):
             declaration_string = declaration_string + '\n' + self.__generateDeclarationStringStep(k)
             assertion_string = assertion_string + '\n' + \
-                self.__generateAssertionStringStep(k, k+1, connectionTable)
+                self.__generateAssertionStringStep(k, k + 1, connectionTable)
 
         declaration_string = declaration_string + '\n' + self.__generateDeclarationStringStep(steps)
 
@@ -208,8 +208,8 @@ class StateflowModel:
         outer, inner, default = self.__generateNodeTransitions(state)
         return {
             "stateId": state.get("Id", ""),
-            "OuterTransitions":  outer,
-            "InnerTransitions": inner,
+            "OuterTransitions":   outer,
+            "InnerTransitions":   inner,
             "DefaultTransitions": default
         }
 
@@ -265,14 +265,14 @@ class StateflowModel:
         # a list or dictionary
         # basically here one needs to create the set of constraints that characterize the
         transitionRelation = []
-        transitions = state.get('OuterTransitions')
-        state_id = state.get('stateId')
-        stateSFS = self.__getSFStateById(state_id)
-        state_name = stateSFS.get('Name')
+        transitions  = state.get('OuterTransitions')
+        state_id     = state.get('stateId')
+        stateSFS     = self.__getSFStateById(state_id)
+        state_name   = stateSFS.get('Name')
         state_action = stateSFS.get('Actions')
-        state_exit = state_action.get('Exit')
-        outer_trans = stateSFS.get('OuterTransitions')
-        all_states = self.__getAllSFStates()
+        state_exit   = state_action.get('Exit')
+        outer_trans  = stateSFS.get('OuterTransitions')
+        all_states   = self.__getAllSFStates()
 
         all_states_list = []
         for state in all_states:
