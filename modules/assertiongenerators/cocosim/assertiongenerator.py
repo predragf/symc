@@ -16,7 +16,7 @@ class AssertionGenerator:
         _, output_signals = FindInputOutputSignals(block_handle, cTable)
         signalName = output_signals[0]
         constantValue = blockPackage.get("Value")
-
+        
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod
@@ -25,6 +25,16 @@ class AssertionGenerator:
         operators     = blockPackage.get("Inputs")
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
         inputsString = AssertionGeneratorUtils.parseSumInputs(input_signals, operators)
+        outSignalName = output_signals[0]
+
+        return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
+
+    @staticmethod
+    def Product(blockPackage, cTable):
+        block_handle  = blockPackage.get("Handle", '')
+        operators     = blockPackage.get("Inputs")
+        input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
+        inputsString = AssertionGeneratorUtils.parseProductInputs(input_signals, operators)
         outSignalName = output_signals[0]
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
@@ -93,5 +103,4 @@ def FindInputOutputSignals(block_handle, cTable):
             output_signals.append(entry.get("SignalName", ""))
         elif block_handle == entry.get('DstBlockHandle'):
             input_signals.append(entry.get("SignalName", ""))
-
     return input_signals, output_signals
