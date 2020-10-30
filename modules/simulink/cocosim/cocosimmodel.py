@@ -105,12 +105,12 @@ class CoCoSimModel:
         # this function creates all the connections incomming to a given block (sBlock)
         blockDestinationEntries = []
         outputBlockPorts = sBlock.get("PortConnectivity", {})
-        # if only one connection then it is a signle object
+        # if only one connection then it is a single object
         # then we must make it into a list, such that we can iterate
         if (type(outputBlockPorts)) == dict:
             outputBlockPorts = [outputBlockPorts]
         for outputBlockPort in outputBlockPorts:
-            # this is a check for incomming connection
+            # this is a check for incoming connection
             if cUtils.compareStringsIgnoreCase(outputBlockPort.get("PortType", ""), "in"):
                 blockDestinationEntries.append(
                     self.__createConnectionTableEntry(
@@ -186,7 +186,7 @@ class CoCoSimModel:
         result = []
         portNumber = connection.get("SrcPort", "-1")
         try:
-            outPortBlock = self.__findOutPortBlockByPortNumber(ssBlock, portNumber)
+            outPortBlock       = self.__findOutPortBlockByPortNumber(ssBlock, portNumber)
             existingConnection = self.__findEntryByDestination(
                 outPortBlock.get("Handle"), None, partialTable)
             if existingConnection is not None:
@@ -345,8 +345,8 @@ class CoCoSimModel:
         stack = []
         for connection in connectionTable:
             dstBlockHandle = connection.get("DstBlockHandle")
-            dstBlock = self.getBlockById(dstBlockHandle)
-            if (cUtils.compareStringsIgnoreCase(dstBlock.get("ExecutionOrder", "-1"), "-1") or dstBlock.get("BlockType", "") in self.noncomputationalBlocks) and dstBlock.get("StateflowContent", None) is None:
+            dstBlock       = self.getBlockById(dstBlockHandle)
+            if (dstBlock.get("BlockType", "") in self.noncomputationalBlocks) and dstBlock.get("StateflowContent", None) is None:
                 continue
             mappedConnection = self.__mapConnectionSource(connection, connectionTable, stack)
             for mc in mappedConnection:

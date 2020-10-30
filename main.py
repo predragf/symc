@@ -155,16 +155,20 @@ def main():
     # for line in slist:
     #    print line
     #verifyModel(fuelPath, fuelSList, 1)
-
+    _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
     #modelChecker.checkModel(fuelPath, fuelSList, 10, "")
-    CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList)
+    CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList, _config)
     #cTable = CSM.getConnectionTable()
     #for b in cTable:
     #    print(b)
     #time.sleep(10)
     SSG = StateSpaceGenerator()
-    SSG.generateStateSpace(CSM, 10)
+    statespace = SSG.generateStateSpace(CSM, 10)
+    getSS = statespace.getStateSpace()
+    for k in range(len(getSS)):
+        print('\n'.join(getSS[k]))
+        time.sleep(1)
     #for b in CSM.getBlocksForTransformation():
     #    try:
     #        iffunction = getattr(Testing, b.get("BlockType", ""))

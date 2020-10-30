@@ -11,12 +11,10 @@ class AssertionGenerator:
 
         # Further, if the constant block is inside the 'compareToConstant'
         # block, the 'Value' needs to be traced to that block.
-
         block_handle = blockPackage.get("Handle", '')
         _, output_signals = FindInputOutputSignals(block_handle, cTable)
         signalName = output_signals[0]
         constantValue = blockPackage.get("Value")
-        
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod
@@ -26,7 +24,6 @@ class AssertionGenerator:
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
         inputsString = AssertionGeneratorUtils.parseSumInputs(input_signals, operators)
         outSignalName = output_signals[0]
-
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
@@ -82,15 +79,12 @@ class AssertionGenerator:
         # Sum
         assertion = ""
         try:
-            #print('blocktype', blocktype)
             assertiongenerationfunction = getattr(AssertionGenerator, blocktype)
             assertion = assertiongenerationfunction(blockPackage, cTable)
         except Exception as e:
             """for now we handle the exception. bad coding practice, but will be
             rewritten in future"""
-            #print('exception', e)
             assertion = ""
-        #print('assertion:', assertion)
         return assertion
 
 def FindInputOutputSignals(block_handle, cTable):

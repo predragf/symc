@@ -28,10 +28,9 @@ class AssertionInstantiator:
                 assertionTemplate = AssertionGenerator.generateBlockAssertion(block, cTable)
             else:
                 assertionTemplate = AssertionGeneratorUtils.generateVacousState(block, cTable)
-        #instantiatedAssertion = assertionTemplate.format(step, step - 1)
-        #_assertion = "(assert (! {0} :named {1}))".format(instantiatedAssertion,
-        #customUtils.generateRandomLetterSequence(12))
-        #if instantiatedAssertion == "":
-        #    _assertion = ""
-        _assertion = ""
+        instantiatedAssertion = assertionTemplate.format(step, step - 1)
+        _assertion = "(assert (! {0} :named {1}))".format(instantiatedAssertion,
+        customUtils.generateRandomLetterSequence(12))
+        if instantiatedAssertion == "":
+            _assertion = ""
         return _assertion
