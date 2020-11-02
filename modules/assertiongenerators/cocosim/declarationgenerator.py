@@ -3,7 +3,8 @@ class DeclarationsGenerator():
 
     @staticmethod
     def mapSignalTypeToSMTSort(signalType):
-        mappingDict = {"double": "Real", "uint8": "Int", "boolean": "Bool", "single": "Real"}
+        mappingDict = {"double": "Real", "uint8": "Int",
+                       "auto": "Real", "boolean": "Bool", "single": "Real"}
         return mappingDict.get(signalType)
 
     @staticmethod
@@ -13,8 +14,13 @@ class DeclarationsGenerator():
 
     @staticmethod
     def generateDeclarations(cTable):
+        declaredSignals = set()
         declarations = ""
         for entry in cTable:
+            signalName = entry["SignalName"]
+            if signalName in declaredSignals:
+                continue
+            declaredSignals.add(signalName)
             declarations = "{0} \n {1}".format(
                 declarations, DeclarationsGenerator.generateDeclaration(entry))
         return declarations

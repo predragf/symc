@@ -1,4 +1,5 @@
 import re
+import modules.utils.utils as cUtils
 
 
 class StateSpace:
@@ -67,5 +68,9 @@ class StateSpace:
         statesForParsing = self.__getStatesForParsing(start, howmany)
         stateAssertions = ""
         for state in statesForParsing:
-            stateAssertions += "\n".join(state)
+            if not cUtils.compareStringsIgnoreCase(str(state).strip(), ""):
+                stateAssertions += "\n".join(state)
         return stateAssertions
+
+    def getSMTScript(self):
+        return "{0}\n{1}".format(self.getDeclarations(), self.getAssertions())

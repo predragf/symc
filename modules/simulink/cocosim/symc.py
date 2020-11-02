@@ -127,9 +127,6 @@ class SyMC:
         simulinkStateSpaceForChecking = self.__obtainModelStateSpace(sModel, totalSteps)
         declarations = simulinkStateSpaceForChecking.getDeclarations()
         assertions = simulinkStateSpaceForChecking.getAssertions()
-        print "++++++++++++++"
-        print assertions
-        print "++++++++++++++"
         for block in sModel.getBlocksForTransformation():
             if cUtils.compareStringsIgnoreCase(block.get("BlockType"), "SubSystem") and len(block.get("StateflowContent", {})) > 0:
                 stateFLowChart = StateflowModel(block)
@@ -169,7 +166,7 @@ class SyMC:
     def checkModel(self, pathToModel, slistPath, totalSteps, propertyAssertion=""):
         # stepSize is the fundamental step time
         start = time.time()
-        print("Model verification started at {0}".format(
+        print("COCOSIM Model verification started at {0}".format(
             time.strftime("%H:%M:%S")))
         print("Creating model ...")
         solver = self.__createAndPopulateSolver(

@@ -143,13 +143,13 @@ def main():
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
 
-    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
+    fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
+    fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
 
-    fuelPath = "C:/Models/Fuel/fuel_IR.json"
-    fuelSList = "C:/Models/Fuel/slist_flat.txt"
-    fuelSListOrg = "C:/Models/Fuel/slist.txt"
+    #fuelPath = "C:/Models/Fuel/fuel_IR.json"
+    #fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    #fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
     #slist = SLM.SListManager.loadSList(fuelSList)
     # for line in slist:
@@ -157,19 +157,30 @@ def main():
     #verifyModel(fuelPath, fuelSList, 1)
     _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
-    #modelChecker.checkModel(fuelPath, fuelSList, 10, "")
+    modelChecker.checkModel(fuelPath, fuelSList, 10, "")
     CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList, _config)
     #cTable = CSM.getConnectionTable()
-    #for b in cTable:
+    # for b in cTable:
     #    print(b)
-    #time.sleep(10)
+    # time.sleep(10)
     SSG = StateSpaceGenerator()
-    statespace = SSG.generateStateSpace(CSM, 10)
-    getSS = statespace.getStateSpace()
-    for k in range(len(getSS)):
-        print('\n'.join(getSS[k]))
-        time.sleep(1)
-    #for b in CSM.getBlocksForTransformation():
+    statespace = SSG.generateStateSpace(CSM, 1000)
+    try:
+        parsedSMTScript = z3.parse_smt2_string(statespace.getSMTScript())
+        goal = Goal()
+        goal.add(parsedSMTScript)
+        solver = Solver()
+        solver.set("mbqi", True)
+        solver.set("unsat-core", True)
+        solver.set("mbqi.max_iterations", 100)
+        tactic = Then("smt", "elim-term-ite", "elim-and")
+        parsedAssertions = tactic(goal).as_expr()
+        solver.add(parsedAssertions)
+        print solver.check()
+
+    except Exception as e:
+        print e
+    # for b in CSM.getBlocksForTransformation():
     #    try:
     #        iffunction = getattr(Testing, b.get("BlockType", ""))
     #        iffunction()

@@ -1,6 +1,8 @@
 import re
 from assertiongeneratorutils import *
 import time
+import modules.utils.utils as cUtils
+
 
 class AssertionGenerator:
     @staticmethod
@@ -15,12 +17,16 @@ class AssertionGenerator:
         _, output_signals = FindInputOutputSignals(block_handle, cTable)
         signalName = output_signals[0]
         constantValue = blockPackage.get("Value")
+        if cUtils.compareStringsIgnoreCase("uint8(0)", constantValue):
+            constantValue = 0
+        if cUtils.compareStringsIgnoreCase("value", constantValue):
+            constantValue = 10
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod
     def Sum(blockPackage, cTable):
-        block_handle  = blockPackage.get("Handle", '')
-        operators     = blockPackage.get("Inputs")
+        block_handle = blockPackage.get("Handle", '')
+        operators = blockPackage.get("Inputs")
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
         inputsString = AssertionGeneratorUtils.parseSumInputs(input_signals, operators)
         outSignalName = output_signals[0]
@@ -28,8 +34,8 @@ class AssertionGenerator:
 
     @staticmethod
     def Product(blockPackage, cTable):
-        block_handle  = blockPackage.get("Handle", '')
-        operators     = blockPackage.get("Inputs")
+        block_handle = blockPackage.get("Handle", '')
+        operators = blockPackage.get("Inputs")
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
         inputsString = AssertionGeneratorUtils.parseProductInputs(input_signals, operators)
         outSignalName = output_signals[0]
@@ -41,21 +47,23 @@ class AssertionGenerator:
 
     @staticmethod
     def Switch(blockPackage, cTable):
-        block_handle      = blockPackage.get("Handle", '')
-        criteria          = blockPackage.get("Criteria", '').split()
+        block_handle = blockPackage.get("Handle", '')
+        criteria = blockPackage.get("Criteria", '').split()
         criteria_operator = criteria[1]
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
-        inputsString  = AssertionGeneratorUtils.parseSwitchInputs(input_signals, criteria)
+        inputsString = AssertionGeneratorUtils.parseSwitchInputs(
+            blockPackage["inputSignals"], criteria)
         outSignalName = output_signals[0]
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
     def Logic(blockPackage, cTable):
-        block_handle  = blockPackage.get("Handle", '')
-        operator      = blockPackage.get("Operator")
+        block_handle = blockPackage.get("Handle", '')
+        operator = blockPackage.get("Operator")
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
         outSignalName = output_signals[0]
-        inputsString  = AssertionGeneratorUtils.parseLogicInputs(input_signals, operator)
+        inputsString = AssertionGeneratorUtils.parseLogicInputs(
+            blockPackage["inputSignals"], operator)
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
@@ -65,9 +73,10 @@ class AssertionGenerator:
     @staticmethod
     def If(blockPackage, cTable):
         block_handle = blockPackage.get("Handle", '')
-        criteria     = blockPackage.get("IfExpression", '').split()
+        criteria = blockPackage.get("IfExpression", '').split()
         input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
-        result_string = AssertionGeneratorUtils.parseIfInputs(input_signals, output_signals, criteria)
+        result_string = AssertionGeneratorUtils.parseIfInputs(
+            input_signals, output_signals, criteria)
         return "\n".join(result_string)
 
     @staticmethod
@@ -87,10 +96,11 @@ class AssertionGenerator:
             assertion = ""
         return assertion
 
+
 def FindInputOutputSignals(block_handle, cTable):
 
     output_signals = []
-    input_signals  = []
+    input_signals = []
 
     for entry in cTable:
         if block_handle == entry.get("SrcBlockHandle"):

@@ -1,3 +1,6 @@
+import modules.utils.utils as cUtils
+
+
 class AssertionGeneratorUtils:
 
     @staticmethod
@@ -25,89 +28,97 @@ class AssertionGeneratorUtils:
         return result
 
     @staticmethod
-    def parseLogicInputs(input_signals, operator):
+    def parseLogicInputs(inputSignals, operator):
         result = ""
         if operator == "AND":
-            firstOperator     = "True"
+            firstOperator = "true"
             symbolic_operator = 'and'
-            not_operator      = ''
+            not_operator = ''
         elif operator == "OR":
-            firstOperator     = "False"
+            firstOperator = "false"
             symbolic_operator = 'or'
-            not_operator      = ''
+            not_operator = ''
         elif operator == "NAND":
-            firstOperator     = "True"
+            firstOperator = "true"
             symbolic_operator = 'and'
-            not_operator      = 'not'
+            not_operator = 'not'
         elif operator == "NOR":
-            firstOperator     = "False"
+            firstOperator = "false"
             symbolic_operator = 'or'
-            not_operator      = 'not'
+            not_operator = 'not'
         elif operator == "XOR":
-            firstOperator     = "False"
+            firstOperator = "false"
             symbolic_operator = 'xor'
-            not_operator      = ''
+            not_operator = ''
         elif operator == "NXOR":
-            firstOperator     = "False"
+            firstOperator = "false"
             symbolic_operator = 'or'
-            not_operator      = 'not'
+            not_operator = 'not'
         elif operator == "NOT":
-            return "(not {0}_{{0}})".format(input_signal[0])
+            return "(not {0}_{{0}})".format(inputSignals[0]["SignalName"])
         else:
             return ""
 
         template = "({0} {1} {2})"
-        for index, _input in enumerate(input_signals):
-            secondOperator = "{0}_{{0}}".format(_input)
-            result         = template.format(symbolic_operator, firstOperator, secondOperator)
-            firstOperator  = result
+        for index, _input in enumerate(inputSignals):
+            secondOperator = "{0}_{{0}}".format(_input["SignalName"]) if cUtils.compareStringsIgnoreCase(
+                "boolean", _input["SignalType"]) else "(= 1 {0}_{{0}})".format(_input["SignalName"])
+            result = template.format(symbolic_operator, firstOperator, secondOperator)
+            firstOperator = result
 
         if not_operator == 'not':
             result = '(not {0})'.format(result)
         return result
 
     @staticmethod
-    def parseSwitchInputs(input_signals, criteria):
+    def parseSwitchInputs(inputSignals, criteria):
+        firstSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 0]
+        secondSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 1]
+        thirdSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 2]
         result = ""
-        criteria_operator   = criteria[1]
+        criteria_operator = criteria[1]
         criteria_comparison = criteria[2]
-        neq_operator        = (criteria_operator == '~=')
+        neq_operator = (criteria_operator == '~=')
         if neq_operator:
             criteria_operator = '='
-            template          = "(ite not ({0} {1} {2}) {3} {4})"
+            template = "(ite (not ({0} {1} {2})) {3} {4})"
         else:
-            template          = "(ite ({0} {1} {2}) {3} {4})"
+            template = "(ite ({0} {1} {2}) {3} {4})"
 
-        first_signal        = "{0}_{{0}}".format(input_signals[0])
-        comparison_signal   = "{0}_{{0}}".format(input_signals[1])
-        third_signal        = "{0}_{{0}}".format(input_signals[2])
+        first_signal = "{0}_{{0}}".format(firstSignal["SignalName"])
+        comparison_signal = "{0}_{{0}}".format(secondSignal["SignalName"]) if not cUtils.compareStringsIgnoreCase(
+            "boolean", secondSignal["SignalType"]) else "(ite {0}_{{0}} 1 0)".format(secondSignal["SignalName"])
+        third_signal = "{0}_{{0}}".format(thirdSignal["SignalName"])
 
-        result = template.format(criteria_operator, comparison_signal, criteria_comparison, first_signal, third_signal)
+        result = template.format(criteria_operator, comparison_signal,
+                                 criteria_comparison, first_signal, third_signal)
 
         return result
 
     @staticmethod
     def parseIfInputs(input_signals, output_signals, criteria):
         result = []
-        output_if           = "{0}_{{0}}".format(output_signals[0])
-        output_else    	    = "{0}_{{0}}".format(output_signals[1])
-        criteria_operator   = criteria[1]
+        output_if = "{0}_{{0}}".format(output_signals[0])
+        output_else = "{0}_{{0}}".format(output_signals[1])
+        criteria_operator = criteria[1]
         criteria_comparison = criteria[2]
-        neq_operator        = (criteria_operator == '~=')
+        neq_operator = (criteria_operator == '~=')
         if neq_operator:
             criteria_operator = '='
-            template            = "(ite not ({0} {1} {2}) {3} {4})"
+            template = "(ite (not ({0} {1} {2})) {3} {4})"
         else:
-            template            = "(ite ({0} {1} {2}) {3} {4})"
+            template = "(ite ({0} {1} {2}) {3} {4})"
 
-        comparison_signal   = "{0}_{{0}}".format(input_signals[0])
+        comparison_signal = "{0}_{{0}}".format(input_signals[0])
 
-        resultIf         = template.format(criteria_operator, comparison_signal, criteria_comparison, "True", "False")
-        resultElse       = template.format(criteria_operator, comparison_signal, criteria_comparison, "False", "True")
+        resultIf = template.format(criteria_operator, comparison_signal,
+                                   criteria_comparison, "true", "false")
+        resultElse = template.format(criteria_operator, comparison_signal,
+                                     criteria_comparison, "false", "true")
 
-        resultIfString   = "(= {0}_{{0}} {1})".format(output_if, resultIf)
+        resultIfString = "(= {0}_{{0}} {1})".format(output_if, resultIf)
         resultElseString = "(= {0}_{{0}} {1})".format(output_else, resultElse)
-        
+
         return (resultIfString, resultElseString)
 
     @staticmethod
@@ -122,5 +133,5 @@ class AssertionGeneratorUtils:
         _parameters = block.get("parameters")
         _initialvalue = _parameters.get("initialvalue", "-726")
         assertion = "(and (= {0}_0 {2}) (= {0}_0 {1}_0))".format(
-                        _internalstatevariable, _outSignalName, _initialvalue)
+            _internalstatevariable, _outSignalName, _initialvalue)
         return assertion
