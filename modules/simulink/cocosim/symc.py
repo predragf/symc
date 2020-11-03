@@ -77,7 +77,7 @@ class SyMC:
         try:
             parsedSMTScript = z3.parse_smt2_string(smtScript)
         except Exception as ex:
-            print("Script parsing faild. \n Reason: {0}".format(ex))
+            print("Script parsing failed. \n Reason: {0}".format(ex))
             parsedSMTScript = ""
         return parsedSMTScript
 
@@ -132,9 +132,23 @@ class SyMC:
                 stateFLowChart = StateflowModel(block)
                 sfDeclarations, sfAssertions = stateFLowChart.generateTransitionRelation(
                     totalSteps, sModel.getConnectionTable())
+                #declarations = "{0}\n{1}".format(declarations, sfDeclarations)
                 declarations = "{0}\n{1}".format(declarations, sfDeclarations)
                 assertions = "{0}\n{1}".format(assertions, sfAssertions)
-        baseModel = "{0}\n{1}".format(declarations, assertions)
+
+        # Filter out declaration duplicates coming from stateflows with the same names (Needs to be fixed in the future).
+        declaration_array = []
+        declaration_string = ""
+        file1 = open('declarations.txt', 'w')
+        for d in declarations.split('\n'):
+            if not (d in declaration_array):
+                declaration_array.append(d)
+            else:
+                continue
+            declaration_string = "{0}\n{1}".format(declaration_string, d)
+        baseModel = "{0}\n{1}".format(declaration_string, assertions)
+        file1.write(baseModel)
+        file1.close()
         return baseModel
 
     def __getSMTScript(self, sModel, totalSteps, propertyAssertion):

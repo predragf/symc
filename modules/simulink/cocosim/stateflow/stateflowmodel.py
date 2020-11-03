@@ -1,7 +1,7 @@
 import modules.utils.utils as cUtils
 import json  # I need this only for preety printing
 import copy
-
+import time
 
 class StateflowModel:
 
@@ -341,8 +341,8 @@ class StateflowModel:
         if len(transition_string) > 1:
             transition_action_append = transition_action_append + ')'
 
-        assert_text = '(assert (implies ((and ' + state_name + \
-            '_current' + transition_action_append + ')'
+        assert_text = '(assert (implies (and ' + state_name + \
+            '_current' + transition_action_append + ''
         dest_state_entry = self.__PrepareActionString(dest_state_entry[0])
         dest_state_string = self.__InfixToPrefix('(' + dest_state_entry + ')')
         dest_state_append = self.__AppendCurrentOrNext(dest_state_string, '_next')
@@ -351,7 +351,7 @@ class StateflowModel:
 
         transition_string = assert_text + \
             ' (and ' + dest_state_append + ' ' + state_string + \
-            ' ' + other_state_string[:-1] + ')))'
+            ')) (and ' + other_state_string[:-1] + ')))'
 
         return transition_string
 
@@ -475,7 +475,8 @@ class StateflowModel:
     def __ParseInfixToPrefixUnary(self, string):
 
         new_string = string.replace('~', 'not ')
-
+        if not (new_string == string):
+            new_string = "({0})".format(new_string)
         return new_string
 
     def __ParseInfixToPrefix(self, string, priority):

@@ -21,6 +21,8 @@ class AssertionGenerator:
             constantValue = 0
         if cUtils.compareStringsIgnoreCase("value", constantValue):
             constantValue = 10
+        if cUtils.compareStringsIgnoreCase("single(50)", constantValue):
+            constantValue = 50
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod

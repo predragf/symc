@@ -1,3 +1,4 @@
+import time
 class DeclarationsGenerator():
     """docstring for DeclarationsGenerator."""
 

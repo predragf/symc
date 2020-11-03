@@ -44,7 +44,7 @@ class StateSpaceGenerator:
         self.fundamentalSampleTime   = sModel.getFundamentalSampleTime()
         cTable = sModel.getConnectionTable()
         declarationsTemplate = DeclarationsGenerator.generateDeclarations(cTable)
-        for step in range(0, totalSteps):
+        for step in range(0, totalSteps+1): # One extra for stateflow
             declarations = "{0}\n{1}".format(
                 declarations, declarationsTemplate.format(step))
             state = self.__generateSymbolicState(step, cTable)

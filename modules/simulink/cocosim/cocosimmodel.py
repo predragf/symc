@@ -54,6 +54,10 @@ class CoCoSimModel:
                 compiledInPortTypes = compiledInPortTypes.get("Inport")
             if type(compiledInPortTypes) is not list:
                 compiledInPortTypes = [compiledInPortTypes]
+            # If Blocktype is outport, portnumber is not defined (probably needs fixing in the future)
+            if cUtils.compareStringsIgnoreCase(block.get("BlockType", ""), "outport"):
+                signalType = compiledInPortTypes[0]
+                return signalType
             signalType = compiledInPortTypes[int(portNumber)]
         except Exception as exc:
             self.logger.exception("extract signal failed: {0}:{1}:{2}".format(
