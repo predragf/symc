@@ -447,6 +447,10 @@ class CoCoSimModel:
                 successorIndices.append(successorIndex)
         return successors, successorIndices
 
+    def __getParentBlock(self, parentBlockHandle):
+        parentBlock = self.getBlockById(parentBlockHandle)
+        return parentBlock
+
     def __getBlockInputSignals(self, blockHandle):
         inputSignals = []
         for entry in self.connectionTable:
@@ -649,8 +653,10 @@ class CoCoSimModel:
         # but we do not want the original block object to be modified
         blockCopy = copy.deepcopy(block)
         _handle = blockCopy.get("Handle")
+        _parentHandle = blockCopy.get("ParentHandle")
         blockCopy["predecessorBlocks"] = self.__getBlockPredecessors(_handle)[0]
         blockCopy["successorBlocks"] = self.__getBlockSuccessors(_handle)[0]
+        blockCopy["parentBlock"] = self.__getParentBlock(_parentHandle)
         blockCopy["inputSignals"] = self.__getBlockInputSignals(_handle)
         blockCopy["outputSignals"] = self.__getBlockOutputSignals(_handle)
         return blockCopy

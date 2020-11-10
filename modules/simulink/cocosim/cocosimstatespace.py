@@ -7,6 +7,7 @@ class StateSpace:
     def __init__(self, _stateSpace=dict(), _declarations=""):
         self.statespace = _stateSpace.copy()
         self.declarations = _declarations
+        self.setDeclarationLib()
 
     def addState(self, position, state):
         self.statespace[position] = state
@@ -31,6 +32,13 @@ class StateSpace:
 
     def setDeclarations(self, _declarations=""):
         self.declarations = _declarations
+
+    def setDeclarationLib(self):
+        declarationLib_string = ""
+        libfile = open('declarationLib.txt', 'r')
+        declarationLib_string = libfile.read()
+        libfile.close()
+        self.declarationLib = declarationLib_string
 
     def __getStatesForParsing(self, start=0, howmany=0):
         statesForParsing = []
@@ -63,6 +71,9 @@ class StateSpace:
 
     def getDeclarations(self):
         return self.declarations
+
+    def getDeclarationLib(self):
+        return self.declarationLib
 
     def getAssertions(self, start=0, howmany=0):
         statesForParsing = self.__getStatesForParsing(start, howmany)

@@ -125,6 +125,7 @@ class SyMC:
     def __combineSimulinkAndStateflow(self, sModel, totalSteps):
         baseModel = ""
         simulinkStateSpaceForChecking = self.__obtainModelStateSpace(sModel, totalSteps)
+        declarationLib = simulinkStateSpaceForChecking.getDeclarationLib()
         declarations = simulinkStateSpaceForChecking.getDeclarations()
         assertions = simulinkStateSpaceForChecking.getAssertions()
         for block in sModel.getBlocksForTransformation():
@@ -132,7 +133,6 @@ class SyMC:
                 stateFLowChart = StateflowModel(block)
                 sfDeclarations, sfAssertions = stateFLowChart.generateTransitionRelation(
                     totalSteps, sModel.getConnectionTable())
-                #declarations = "{0}\n{1}".format(declarations, sfDeclarations)
                 declarations = "{0}\n{1}".format(declarations, sfDeclarations)
                 assertions = "{0}\n{1}".format(assertions, sfAssertions)
 
@@ -146,21 +146,21 @@ class SyMC:
             else:
                 continue
             declaration_string = "{0}\n{1}".format(declaration_string, d)
-        baseModel = "{0}\n{1}".format(declaration_string, assertions)
+        baseModel = "{0}\n{1}\n{2}".format(declarationLib, declaration_string, assertions)
         file1.write(baseModel)
         file1.close()
         return baseModel
 
     def __getSMTScript(self, sModel, totalSteps, propertyAssertion):
-            # this function is the holy grail for us
+        # this function is the holy grail for us
         baseModel = ""
         if self.reuseExistingModel:
             baseModel = self.__loadExistingSMTModel(
                 sModel.getModelName(), sModel.getFundamentalSampleTime(), totalSteps)
         if baseModel == "":
             baseModel = self.__combineSimulinkAndStateflow(sModel, totalSteps)
-        self.__saveExistingSMTModel(sModel.getModelName(
-        ), sModel.getFundamentalSampleTime(), totalSteps, baseModel)
+        self.__saveExistingSMTModel(sModel.getModelName(), 
+            sModel.getFundamentalSampleTime(), totalSteps, baseModel)
         propertyAssertions = self.__generateAssertionsFromProperty(propertyAssertion, totalSteps)
         return "{0}\n;the propeties start here\n{1}".format(baseModel, propertyAssertions)
 

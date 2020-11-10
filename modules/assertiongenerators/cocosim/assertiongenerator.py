@@ -13,16 +13,23 @@ class AssertionGenerator:
 
         # Further, if the constant block is inside the 'compareToConstant'
         # block, the 'Value' needs to be traced to that block.
-        block_handle = blockPackage.get("Handle", '')
-        _, output_signals = FindInputOutputSignals(block_handle, cTable)
-        signalName = output_signals[0]
+        block_handle  = blockPackage.get("Handle", '')
+        #_, output_signals = FindInputOutputSignals(block_handle, cTable)
+        outputSignals = blockPackage.get("outputSignals")
+        signalName    = outputSignals[0].get("SignalName")
         constantValue = blockPackage.get("Value")
-        if cUtils.compareStringsIgnoreCase("uint8(0)", constantValue):
-            constantValue = 0
-        if cUtils.compareStringsIgnoreCase("value", constantValue):
-            constantValue = 10
-        if cUtils.compareStringsIgnoreCase("single(50)", constantValue):
-            constantValue = 50
+        types         = ['uint8', 'uint16', 'uint32', 'int8', 'int16',
+                         'int32', 'single', 'double', 'logical']
+
+        for t in types:
+            constantValue = constantValue.replace(t + '(', '(' + t + ' ')
+
+        # Find masked parameter
+        if not constantValue.isnumeric():
+            parentBlock = blockPackage.get("parentBlock")
+            if cUtils.compareStringsIgnoreCase(parentBlock.get("Mask"), "on") and not parentBlock.get(constantValue) is None:
+                constantValue = parentBlock.get(constantValue)
+
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod

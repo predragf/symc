@@ -255,7 +255,7 @@ class StateflowModel:
             sf_types.append(variable['Datatype'])
 
         for state in sf_states:
-            sf_var.append(state['Name'])
+            sf_var.append("{0}_{1}".format(state['Name'], state['Id']))
             sf_types.append('boolean')
 
         return sf_var, sf_types
@@ -268,7 +268,7 @@ class StateflowModel:
         transitions  = state.get('OuterTransitions')
         state_id     = state.get('stateId')
         stateSFS     = self.__getSFStateById(state_id)
-        state_name   = stateSFS.get('Name')
+        state_name   = "{0}_{1}".format(stateSFS.get('Name'), state_id)
         state_action = stateSFS.get('Actions')
         state_exit   = state_action.get('Exit')
         outer_trans  = stateSFS.get('OuterTransitions')
@@ -276,7 +276,7 @@ class StateflowModel:
 
         all_states_list = []
         for state in all_states:
-            all_states_list.append(state.get('Name'))
+            all_states_list.append("{0}_{1}".format(state.get('Name'), state.get('Id')))
 
         trans_ids = []
 
@@ -313,7 +313,7 @@ class StateflowModel:
             dest_state = outer_tmp['Destination']
             dest_state_id = dest_state['Id']
             dest_state_SFS = self.__getSFStateById(dest_state_id)
-            dest_state_name = dest_state_SFS.get('Name')
+            dest_state_name = "{0}_{1}".format(dest_state_SFS.get('Name'), dest_state_id)
             dest_state_action = dest_state_SFS.get('Actions')
             dest_state_entry = dest_state_action.get('Entry')
 
