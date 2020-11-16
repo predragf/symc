@@ -156,10 +156,16 @@ def main():
     _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
     modelChecker.checkModel(fuelPath, fuelSList, 4, "")
-    #CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList, _config)
-    #cTable = CSM.getConnectionTable()
-    # for b in cTable:
-    #    print(b)
+    CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList, _config)
+    cTable = CSM.getConnectionTable()
+
+    #for b in cTable:
+
+    fileCTable = open('CTable.txt', 'w')
+    for entry in cTable:
+        fileCTable.writelines(str(entry) + '\n')
+
+    fileCTable.close()
     # time.sleep(10)
     #SSG = StateSpaceGenerator()
     #statespace = SSG.generateStateSpace(CSM, 1000)

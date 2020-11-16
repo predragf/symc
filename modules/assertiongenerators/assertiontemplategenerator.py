@@ -141,7 +141,7 @@ class AssertionTemplateGenerator:
         assertionTemplate = "(= {0}_{{0}} (LOOKUP {1}_{{0}}))".format(_outSignalName,
         _input1.get("signalvariable"))
         return assertionTemplate
-		
+
     @staticmethod
     def generateInitialConfiguration(blockForTransformation):
         _parameters = blockForTransformation.get("parameters")

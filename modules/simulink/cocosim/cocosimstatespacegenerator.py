@@ -14,7 +14,7 @@ class StateSpaceGenerator:
 
     def __generateBlockSymbolicState(self, blockPackage, step, cTable):
         blockStepSize   = self.__computeBlockStepSize(blockPackage)
-        blockAssertion  = AssertionInstantiator.instantiateAssertion(blockPackage, step, blockStepSize, cTable)
+        blockAssertion  = AssertionInstantiator.instantiateAssertion(blockPackage, step, blockStepSize)
         return blockAssertion
 
     def __computeBlockStepSize(self, blockPackage):
