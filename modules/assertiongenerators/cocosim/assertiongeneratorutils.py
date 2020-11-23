@@ -72,9 +72,9 @@ class AssertionGeneratorUtils:
 
     @staticmethod
     def parseSwitchInputs(inputSignals, criteria):
-        firstSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 0]
-        secondSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 1]
-        thirdSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 2]
+        firstSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 0][0]
+        secondSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 1][0]
+        thirdSignal = [inputSignal for inputSignal in inputSignals if inputSignal["DstPort"] == 2][0]
         result = ""
         criteria_operator = criteria[1]
         criteria_comparison = criteria[2]
@@ -89,7 +89,6 @@ class AssertionGeneratorUtils:
         comparison_signal = "{0}_{{0}}".format(secondSignal["SignalName"]) if not cUtils.compareStringsIgnoreCase(
             "boolean", secondSignal["SignalType"]) else "(ite {0}_{{0}} 1 0)".format(secondSignal["SignalName"])
         third_signal = "{0}_{{0}}".format(thirdSignal["SignalName"])
-
         result = template.format(criteria_operator, comparison_signal,
                                  criteria_comparison, first_signal, third_signal)
 
@@ -122,7 +121,7 @@ class AssertionGeneratorUtils:
         return (resultIfString, resultElseString)
 
     @staticmethod
-    def generateVacousState(block, cTable):
+    def generateVacousState(block):
         _outSignalName = block.get("signalvariable")
         return "(= {0}_{{0}} {0}_{{1}})".format(_outSignalName)
 

@@ -455,6 +455,25 @@ class CoCoSimModel:
         parentBlock = self.getBlockById(parentBlockHandle)
         return parentBlock
 
+    def __getMaskedParentBlocks(self, blockHandle):
+        maskedParentBlocks = []
+        parentBlock = self.__getParentBlock(blockHandle)
+        while not (parentBlock == None):
+            if cUtils.compareStringsIgnoreCase(parentBlock.get("Mask"), "on"):
+                maskedParentBlocks.append(parentBlock)
+            blockHandle = parentBlock.get('BlockHandle')
+            parentBlock = self.__getParentBlock(blockHandle)
+        return maskedParentBlocks
+
+    def __getParentBlock(self, blockHandle):
+        block = self.getBlockById(blockHandle)
+        parentBlockHandle = block.get('ParentHandle', 'None')
+        if cUtils.compareStringsIgnoreCase(parentBlockHandle, 'None'):
+            return None
+        parentBlock = self.getBlockById(parentBlockHandle)
+
+        return parentBlock
+
     def __getBlockInputSignals(self, blockHandle):
         inputSignals = []
         for entry in self.connectionTable:
@@ -660,7 +679,7 @@ class CoCoSimModel:
         _parentHandle = blockCopy.get("ParentHandle")
         blockCopy["predecessorBlocks"] = self.__getBlockPredecessors(_handle)[0]
         blockCopy["successorBlocks"] = self.__getBlockSuccessors(_handle)[0]
-        blockCopy["parentBlock"] = self.__getParentBlock(_parentHandle)
+        blockCopy["maskedParentBlocks"] = self.__getMaskedParentBlocks(_handle)
         blockCopy["inputSignals"] = self.__getBlockInputSignals(_handle)
         blockCopy["outputSignals"] = self.__getBlockOutputSignals(_handle)
         return blockCopy

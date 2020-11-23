@@ -14,20 +14,20 @@ class AssertionInstantiator:
         return not blocktype in blocksWithStates
 
     @staticmethod
-    def instantiateAssertion(block, step, blockStepSize, cTable):
+    def instantiateAssertion(block, step, blockStepSize):
         assertionTemplate = ""
         if AssertionInstantiator.isStateless(block):
             if step == 0 or blockStepSize == 0 or step % blockStepSize == 0:
-                assertionTemplate = AssertionGenerator.generateBlockAssertion(block, cTable)
+                assertionTemplate = AssertionGenerator.generateBlockAssertion(block)
             else:
-                assertionTemplate = AssertionGeneratorUtils.generateVacousState(block, cTable)
+                assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
         else:
             if step == 0:
-                assertionTemplate = AssertionGeneratorUtils.generateInitialState(block, cTable)
+                assertionTemplate = AssertionGeneratorUtils.generateInitialState(block)
             elif blockStepSize == 0 or step % blockStepSize == 0:
-                assertionTemplate = AssertionGenerator.generateBlockAssertion(block, cTable)
+                assertionTemplate = AssertionGenerator.generateBlockAssertion(block)
             else:
-                assertionTemplate = AssertionGeneratorUtils.generateVacousState(block, cTable)
+                assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
         instantiatedAssertion = assertionTemplate.format(step, step - 1)
         _assertion = "(assert (! {0} :named {1}))".format(instantiatedAssertion,
         customUtils.generateRandomLetterSequence(12))

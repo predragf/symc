@@ -3,10 +3,9 @@ from assertiongeneratorutils import *
 import time
 import modules.utils.utils as cUtils
 
-
 class AssertionGenerator:
     @staticmethod
-    def Constant(blockPackage, cTable):
+    def Constant(blockPackage):
         # signalname is the output signal name, constant value is the
         # value that needs to be written on the signal
         # (= signal_djshadkjhas_{0} 5)
@@ -14,9 +13,9 @@ class AssertionGenerator:
         # Further, if the constant block is inside the 'compareToConstant'
         # block, the 'Value' needs to be traced to that block.
         block_handle  = blockPackage.get("Handle", '')
-        #_, output_signals = FindInputOutputSignals(block_handle, cTable)
-        outputSignals = blockPackage.get("outputSignals")
-        signalName    = outputSignals[0].get("SignalName")
+        _, output_signals = FindInputOutputSignals(blockPackage)
+        maskedParentBlocks = blockPackage.get("maskedParentBlocks")
+        signalName    = output_signals[0]#.get("SignalName")
         constantValue = blockPackage.get("Value")
         types         = ['uint8', 'uint16', 'uint32', 'int8', 'int16',
                          'int32', 'single', 'double', 'logical']
@@ -26,94 +25,154 @@ class AssertionGenerator:
 
         # Find masked parameter
         if not constantValue.isnumeric():
-            parentBlock = blockPackage.get("parentBlock")
-            if cUtils.compareStringsIgnoreCase(parentBlock.get("Mask"), "on") and not parentBlock.get(constantValue) is None:
-                constantValue = parentBlock.get(constantValue)
+            constantValue = FindMaskedParameter(maskedParentBlocks, constantValue)
 
         return "(= {0}_{{0}} {1})".format(signalName, constantValue)
 
     @staticmethod
-    def Sum(blockPackage, cTable):
+    def Sum(blockPackage):
         block_handle = blockPackage.get("Handle", '')
         operators = blockPackage.get("Inputs")
-        input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
+        input_signals, output_signals = FindInputOutputSignals(blockPackage)
         inputsString = AssertionGeneratorUtils.parseSumInputs(input_signals, operators)
         outSignalName = output_signals[0]
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
-    def Product(blockPackage, cTable):
+    def Product(blockPackage):
         block_handle = blockPackage.get("Handle", '')
         operators = blockPackage.get("Inputs")
-        input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
+        input_signals, output_signals = FindInputOutputSignals(blockPackage)
         inputsString = AssertionGeneratorUtils.parseProductInputs(input_signals, operators)
         outSignalName = output_signals[0]
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
-    def merge(blockPackage, cTable):
+    def merge(blockPackage):
         pass
 
     @staticmethod
-    def Switch(blockPackage, cTable):
-        block_handle = blockPackage.get("Handle", '')
+    def Switch(blockPackage):
         criteria = blockPackage.get("Criteria", '').split()
         criteria_operator = criteria[1]
-        input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
+        _, output_signals = FindInputOutputSignals(blockPackage)
         inputsString = AssertionGeneratorUtils.parseSwitchInputs(
             blockPackage["inputSignals"], criteria)
         outSignalName = output_signals[0]
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
-    def Logic(blockPackage, cTable):
+    def Logic(blockPackage):
         block_handle = blockPackage.get("Handle", '')
         operator = blockPackage.get("Operator")
-        input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
+        input_signals, output_signals = FindInputOutputSignals(blockPackage)
         outSignalName = output_signals[0]
         inputsString = AssertionGeneratorUtils.parseLogicInputs(
             blockPackage["inputSignals"], operator)
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
-    def dataTypeConversion(blockPackage, cTable):
+    def DataTypeConversion(blockPackage):
+        return ""
         pass
 
     @staticmethod
-    def If(blockPackage, cTable):
-        block_handle = blockPackage.get("Handle", '')
+    def SubSystem(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def Inport(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def InportShadow(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def ActionPort(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def Outport(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def Terminator(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def Merge(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def BusCreator(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def BusSelector(blockPackage):
+        return ""
+        pass
+
+    @staticmethod
+    def If(blockPackage):
         criteria = blockPackage.get("IfExpression", '').split()
-        input_signals, output_signals = FindInputOutputSignals(block_handle, cTable)
+        input_signals, output_signals = FindInputOutputSignals(blockPackage)
         result_string = AssertionGeneratorUtils.parseIfInputs(
             input_signals, output_signals, criteria)
         return "\n".join(result_string)
 
     @staticmethod
-    def generateBlockAssertion(blockPackage, cTable):
+    def generateBlockAssertion(blockPackage):
         # you need to implement this function
         #set([u'SubSystem', u'Outport', u'Constant', u'InportShadow', u'Sum', u'BusSelector', u'Inport', u'Merge', u'Switch', u'Terminator', u'Logic', None, u'BusCreator', u'DataTypeConversion', u'ActionPort', u'If'])
         # you need to check this
         blocktype = blockPackage.get("BlockType")
-        # Sum
         assertion = ""
+
+        if blocktype == None:
+            return assertion
+
         try:
             assertiongenerationfunction = getattr(AssertionGenerator, blocktype)
-            assertion = assertiongenerationfunction(blockPackage, cTable)
+            assertion = assertiongenerationfunction(blockPackage)
         except Exception as e:
             """for now we handle the exception. bad coding practice, but will be
             rewritten in future"""
             assertion = ""
         return assertion
 
+def FindInputOutputSignals(blockPackage):
 
-def FindInputOutputSignals(block_handle, cTable):
+    output_signal_names = []
+    input_signal_names  = []
 
-    output_signals = []
-    input_signals = []
+    input_signals  = blockPackage.get("inputSignals")
+    output_signals = blockPackage.get("outputSignals")
 
-    for entry in cTable:
-        if block_handle == entry.get("SrcBlockHandle"):
-            output_signals.append(entry.get("SignalName", ""))
-        elif block_handle == entry.get('DstBlockHandle'):
-            input_signals.append(entry.get("SignalName", ""))
-    return input_signals, output_signals
+    for input_signal in input_signals:
+        input_signal_names.append(input_signal.get("SignalName", ""))
+
+    for output_signal in output_signals:
+        output_signal_names.append(output_signal.get("SignalName", ""))
+
+    return input_signal_names, output_signal_names
+
+def FindMaskedParameter(maskedParentBlocks, parameter):
+    # Finds parameter value going through parent blocks recursively
+    for k, maskedParentBlock in enumerate(maskedParentBlocks):
+        if not (maskedParentBlock.get(parameter) is None):
+            parameter = maskedParentBlock.get(parameter)
+            if parameter.isnumeric():
+                return parameter
+            else:
+                return FindMaskedParameter(maskedParentBlocks[k+1:], parameter)
+
+    return parameter
