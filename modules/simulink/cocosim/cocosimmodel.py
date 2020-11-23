@@ -5,6 +5,7 @@ import copy
 from copy import deepcopy
 import time
 
+
 class CoCoSimModel:
 
     def __init__(self, _simulinkmodeljson, _slist, _configuration={}):
@@ -190,7 +191,7 @@ class CoCoSimModel:
         result = []
         portNumber = connection.get("SrcPort", "-1")
         try:
-            outPortBlock       = self.__findOutPortBlockByPortNumber(ssBlock, portNumber)
+            outPortBlock = self.__findOutPortBlockByPortNumber(ssBlock, portNumber)
             existingConnection = self.__findEntryByDestination(
                 outPortBlock.get("Handle"), None, partialTable)
             if existingConnection is not None:
@@ -306,6 +307,9 @@ class CoCoSimModel:
             connection = self.__traceMuxBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "inport"):
             connection = self.__traceInPortBlock(sourceBlock, connection, partialTable, stack)
+            # added case for inportshadow
+        if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "InportShadow"):
+            connection = self.__traceInPortBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "busselector"):
             connection = self.__traceBusSelectorBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "buscreator"):
@@ -349,7 +353,7 @@ class CoCoSimModel:
         stack = []
         for connection in connectionTable:
             dstBlockHandle = connection.get("DstBlockHandle")
-            dstBlock       = self.getBlockById(dstBlockHandle)
+            dstBlock = self.getBlockById(dstBlockHandle)
             if (dstBlock.get("BlockType", "") in self.noncomputationalBlocks) and dstBlock.get("StateflowContent", None) is None:
                 continue
             mappedConnection = self.__mapConnectionSource(connection, connectionTable, stack)
@@ -518,7 +522,7 @@ class CoCoSimModel:
         # Added if all sample times are -1
         if sampleTimes == set():
             sTimeSpecified = self.rawSimulinkModelJson.get(
-            'meta').get('sampleTime')
+                'meta').get('sampleTime')
             sampleTimes.add(float(sTimeSpecified))
 
         return gcd.gcd(sampleTimes)

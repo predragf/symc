@@ -22,6 +22,7 @@ from modules.simulink.cocosim.cocosimstatespacegenerator import StateSpaceGenera
 
 simulationSize = 100
 
+
 class Testing:
     @staticmethod
     def If():
@@ -141,29 +142,23 @@ def main():
     slistPath = "./models/slist-bbw.txt"
     slistPath = "./models/slist-bbw.txt"
 
-    #fuelPath = "/Users/predrag/Documents/fuel/fuel_IR.json"
-    #fuelSList = "/Users/predrag/Documents/fuel/slist_flat.txt"
-    #fuelSListOrg = "/Users/predrag/Documents/fuel/slist.txt"
+    # fuelPath = "C:/Models/Fuel/fuel_IR.json"
+    # fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    # fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
-    fuelPath = "C:/Models/Fuel/fuel_IR.json"
-    fuelSList = "C:/Models/Fuel/slist_flat.txt"
-    fuelSListOrg = "C:/Models/Fuel/slist.txt"
-
-    #slist = SLM.SListManager.loadSList(fuelSList)
+    # slist = SLM.SListManager.loadSList(fuelSList)
     # for line in slist:
     #    print line
-    #verifyModel(fuelPath, fuelSList, 1)
+    # verifyModel(fuelPath, fuelSList, 1)
     _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
-    modelChecker.checkModel(fuelPath, fuelSList, 4, "")
+    modelChecker.checkModel(fuelPath, fuelSList, 15, "")
     #CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList, _config)
-    #cTable = CSM.getConnectionTable()
-    # for b in cTable:
-    #    print(b)
+
     # time.sleep(10)
-    #SSG = StateSpaceGenerator()
-    #statespace = SSG.generateStateSpace(CSM, 1000)
-    #try:
+    # SSG = StateSpaceGenerator()
+    # statespace = SSG.generateStateSpace(CSM, 1000)
+    # try:
     #    parsedSMTScript = z3.parse_smt2_string(statespace.getSMTScript())
     #    goal = Goal()
     #    goal.add(parsedSMTScript)
@@ -176,7 +171,7 @@ def main():
     #    solver.add(parsedAssertions)
     #    print solver.check()
 
-    #except Exception as e:
+    # except Exception as e:
     #    print e
     # for b in CSM.getBlocksForTransformation():
     #    try:
@@ -185,7 +180,7 @@ def main():
     #    except Exception as e:
     #        pass
 
-    #print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
+    # print(json.dumps(sf.generateAllTransitions(), indent=4, sort_keys=False))
 
     print "done"
 
