@@ -17,11 +17,16 @@ class DeclarationsGenerator():
     def generateDeclarations(cTable):
         declaredSignals = set()
         declarations = ""
+        fileCTable = open('CTable.txt', 'w')
         for entry in cTable:
             signalName = entry["SignalName"]
+            fileCTable.writelines(str(entry) + '\n')
             if signalName in declaredSignals:
                 continue
             declaredSignals.add(signalName)
             declarations = "{0} \n {1}".format(
                 declarations, DeclarationsGenerator.generateDeclaration(entry))
+
+        fileCTable.close()
+
         return declarations

@@ -14,6 +14,7 @@ class StateSpaceGenerator:
 
     def __generateBlockSymbolicState(self, blockPackage, step, cTable):
         blockStepSize   = self.__computeBlockStepSize(blockPackage)
+        blockPackage_modified = self.__updateSignalTypes(blockPackage, cTable)
         blockAssertion  = AssertionInstantiator.instantiateAssertion(blockPackage, step, blockStepSize)
         return blockAssertion
 
@@ -24,6 +25,18 @@ class StateSpaceGenerator:
         else:
             blockStepSize = blockSampleTime / self.fundamentalSampleTime;
         return blockStepSize
+
+    def __updateSignalTypes(self, blockPackage, cTable):
+        signal_inputs = blockPackage.get("inputSignals")
+
+        for signal_input in signal_inputs:
+            signal_name = signal_input.get("SignalName", "")
+            for entry in cTable:
+                if cUtils.compareStringsIgnoreCase(entry["SignalName"], signal_name):
+                    signal_input["SignalType"] = entry["SignalType"]
+                    break
+
+        return blockPackage
 
     def __generateSymbolicState(self, step, cTable):
         # this function calls the function above and creates assertions for

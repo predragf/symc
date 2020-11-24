@@ -20,7 +20,7 @@ class CoCoSimModel:
         self.configuration = _configuration
         self.logger = LogManager.LogManager.getLogger(__name__)
         self.compositeBlockTypes = ["subsystem"]
-        self.noncomputationalBlocks = _configuration.get("noncomputationalblocks", [])
+        self.noncomputationalBlocks = _configuration.get("noncomputationalblocks", ["SubSystem"])
         self.portBlockTypes = ["inport", "outport"]
         self.rawSimulinkModelJson = _simulinkmodeljson
         self.sortedOrderList = _slist
@@ -139,6 +139,7 @@ class CoCoSimModel:
                             child, _port, cUtils.generateRandomLetterSequence(12)))
             except:
                 continue
+
         return destinationEntries
 
     def __createAllDestinationEntries(self):
@@ -148,6 +149,7 @@ class CoCoSimModel:
             destinationEntries.extend(self.__createDesitinationEntriesForBlock(destinationBlock))
             if cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType"), "SubSystem") and destinationBlock.get("StateflowContent", None) is None:
                 destinationEntries.extend(self.__createDesitnationEntriesForPorts(destinationBlock))
+
         return destinationEntries
 
     def __findAllEntriesByDestination(self, _handle):
@@ -314,7 +316,6 @@ class CoCoSimModel:
             connection = self.__traceBusSelectorBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "buscreator"):
             connection = self.__traceBusCreatorBlock(sourceBlock, connection, partialTable, stack)
-
         return connection if type(connection) is list else [connection]
 
     def __modifyFinalTableConnection(self, connection, finalTable):
@@ -413,8 +414,9 @@ class CoCoSimModel:
         # not be included in the analysis model
         for blk in self.getAllBlocks():
             blockPath = blk.get("Origin_path", "").lower().strip()
-            _number = int(_slist.get(blockPath, "-1"))
-            blk["ExecutionOrder"] = str(_number).zfill(2)
+            if not (blockPath == ''):
+                _number = int(_slist.get(blockPath, "-1"))
+                blk["ExecutionOrder"] = str(_number).zfill(2)
 
     def __getModelMetaData(self):
         # returns meta-data of the CoCoSim-exported JSON

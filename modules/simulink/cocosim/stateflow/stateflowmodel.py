@@ -357,7 +357,7 @@ class StateflowModel:
 
     def __AppendCurrentOrNext(self, string, appending_string):
         non_variables = ['+', '-', '/', '*', '!=', '=', '>=',
-                         '<=', 'and', 'or', '(', ')', 'false', 'true', 'not']
+                         '<=', '>', '<', 'and', 'or', '(', ')', 'false', 'true', 'not']
 
         split_string = string.split(' ')
 
@@ -481,8 +481,8 @@ class StateflowModel:
 
     def __ParseInfixToPrefix(self, string, priority):
 
-        operators = ["==", "~=", ">=", "<=", "&&",  "||", '=', '+', '-', '*', '/']
-        c_operators = ['=',  "!=", ">=", "<=", "and", "or", '=', '+', '-', '*', '/']
+        operators = ["==",  "~=", ">=", "<=", "<", ">", "&&",  "||", '=', '+', '-', '*', '/']
+        c_operators = ['=', "!=", ">=", "<=", "<", ">", "and", "or", '=', '+', '-', '*', '/']
 
         if priority >= len(operators):
             return string

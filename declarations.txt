@@ -1,0 +1,991 @@
+(define-fun uint8 ((m Int)) Int m)
+(define-fun uint16 ((m Int)) Int m)
+(define-fun uint32 ((m Int)) Int m)
+(define-fun uint64 ((m Int)) Int m)
+(define-fun int8 ((m Int)) Int m)
+(define-fun int16 ((m Int)) Int m)
+(define-fun int32 ((m Int)) Int m)
+(define-fun int64 ((m Int)) Int m)
+(define-fun single ((m Real)) Real m)
+(define-fun double ((m Real)) Real m)
+(define-fun logical ((m Int)) Bool (if (= m 0) false true))
+(define-fun boolean ((m Int)) Bool (if (= m 0) false true))
+(define-fun bool2real ((m Bool)) Real (if (= m true) 1.0 0.0))
+(define-fun real2bool ((m Real)) Bool (if (= m 0) false true))
+
+(declare-const LOW_FUEL_LEVEL_IND_ACTIVE_U08 Int)
+(declare-const FUEL_SENSOR_VDO_FLOAT_ARM_U08 Int)
+(declare-const FUEL_TOT_FROM_CAN_U08 Int)
+(declare-const MAIN_LOW_IND_RELEASE_LEVEL_F32 Real)
+(declare-const LOW_FUEL_LEVEL_WARNING_LARGE_TANKS_F32 Real)
+(declare-const LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32 Real)
+(declare-const LARGE_TANK_LIMIT_F32 Real)
+(declare-const FUEL_SENSOR_GAS_ENGINE_U08 Int)
+(declare-const FUEL_SENSOR_DUAL_U08 Int)
+(declare-const T_FUEL_SENSOR_INIT_F32 Real)
+(declare-const T_MAX_F32 Real)
+(declare-const TS_F32 Real)
+
+
+
+ 
+ (declare-const signal_ODRQZFLIBFNN_0 Real) 
+ (declare-const signal_OTVNNLLVQXEM_0 Real) 
+ (declare-const signal_USWZTNOLQUNK_0 Real) 
+ (declare-const signal_DGWDQBUMZDYW_0 Bool) 
+ (declare-const signal_VSUZJUCIFDYT_0 Real) 
+ (declare-const signal_VRVUPTXBQMIR_0 Real) 
+ (declare-const signal_KLDKPAIDRERW_0 Real) 
+ (declare-const signal_IGPSECLNBIES_0 Real) 
+ (declare-const signal_SQITIPIPUEFX_0 Real) 
+ (declare-const signal_FJCVIMZDQFUW_0 Real) 
+ (declare-const signal_RSUCXFAWMYZH_0 Real) 
+ (declare-const signal_CKQYHCLVFVRW_0 Real) 
+ (declare-const signal_QHXYBWOFOSIM_0 Real) 
+ (declare-const signal_VXVHVKEUAXZX_0 Real) 
+ (declare-const signal_ZZXGWOEEHNBI_0 Bool) 
+ (declare-const signal_CLPXQIZPYWTC_0 Bool) 
+ (declare-const signal_HYWSDJWXJIPB_0 Real) 
+ (declare-const signal_EOBNNTXJEGYX_0 Real) 
+ (declare-const signal_GGJAOIGPJQEI_0 Real) 
+ (declare-const signal_NXXNDWMOEGJB_0 Real) 
+ (declare-const signal_LFMXRDKCSVVC_0 Real) 
+ (declare-const signal_JVMHKXEUSZUJ_0 Real) 
+ (declare-const signal_XOARCOAVQLNN_0 Real) 
+ (declare-const signal_QVAIFKYPTLTO_0 Real) 
+ (declare-const signal_MJIENZWQMQAC_0 Real) 
+ (declare-const signal_CYTCQKFGPMEJ_0 Real) 
+ (declare-const signal_XWROMFGLEGBM_0 Real) 
+ (declare-const signal_KZWZFSZCPQDG_0 Real) 
+ (declare-const signal_FENCVMFSAWCQ_0 Bool) 
+ (declare-const signal_FDPTCPCWJUTB_0 Bool) 
+ (declare-const signal_PQEFAJXWDRMR_0 Real) 
+ (declare-const signal_OLTKYHXALRAF_0 Bool) 
+ (declare-const signal_BSIBTAVNTJRH_0 Real) 
+ (declare-const signal_MYBYYESWEKWC_0 Real) 
+ (declare-const signal_LKELWEBPZPMI_0 Int) 
+ (declare-const signal_VKGDJUGRGLHD_0 Real) 
+ (declare-const signal_UYTNFGHUTUTM_0 Real) 
+ (declare-const signal_PAUVOEFBGWOK_0 Int) 
+ (declare-const signal_LAMONZCYEFPW_0 Int) 
+ (declare-const signal_VVDRCGEPMPME_0 Bool) 
+ (declare-const signal_OQRJRHVYWUAN_0 Real) 
+ (declare-const signal_OWLGQEVPVUES_0 Real) 
+ (declare-const signal_SFHXGAROKYZE_0 Real) 
+ (declare-const signal_ARXCXGMPEEXL_0 Real) 
+ (declare-const signal_UBMTCPOVXBDY_0 Real) 
+ (declare-const signal_RZUYGZKWXJKZ_0 Bool) 
+ (declare-const signal_LFDKDFZUEZSQ_0 Real) 
+ (declare-const signal_XKJGGLIZHWVS_0 Real) 
+ (declare-const signal_PQRFKEHYUPCN_0 Bool) 
+ (declare-const signal_PZPEULUKFTRB_0 Bool) 
+ (declare-const signal_DCVHVIWIZRRP_0 Real) 
+ (declare-const signal_XGLZPHEACHXD_0 Real) 
+ (declare-const signal_CLIXQSCJDZKA_0 Bool) 
+ (declare-const signal_IXHMNVWGEVJM_0 Real) 
+ (declare-const signal_UQDIUNHBMPDO_0 Real) 
+ (declare-const signal_DUVAXAHRYUCV_0 Bool) 
+ (declare-const signal_IPQSQKZIOUZB_0 Real) 
+ (declare-const signal_VUQEZUSEWNHD_0 Real) 
+ (declare-const signal_XTGIEIGVIJXB_0 Bool) 
+ (declare-const signal_KRPUMYSPQYLC_0 Real) 
+ (declare-const signal_JUENYEITUJDH_0 Int) 
+ (declare-const signal_LQWNDBNUOIUO_0 Bool) 
+ (declare-const signal_DHIAKXYAEHZP_0 Real) 
+ (declare-const signal_XIOFRDIXMDFJ_0 Bool) 
+ (declare-const signal_OTXMFHOZRKTV_0 Bool) 
+ (declare-const signal_UQCYRMVKCJCZ_0 Real) 
+ (declare-const signal_ZZPSWGQXTOHN_0 Real) 
+ (declare-const signal_HZSYBUCIIAPF_0 Real) 
+ (declare-const signal_HKWIBLDMDMBZ_0 Bool) 
+ (declare-const signal_GDAYBEEBJCON_0 Real) 
+ (declare-const signal_CPGSCZETRSPJ_0 Bool) 
+ (declare-const signal_SZIVBIZEVSWE_0 Real) 
+ (declare-const signal_BMOPKSVNMQTY_0 Bool) 
+ (declare-const signal_TLQYHJMXVPGA_0 Real) 
+ (declare-const signal_VRSZHJRKYPVY_0 Bool) 
+ (declare-const signal_ECGPRGNSZZKM_0 Real) 
+ (declare-const signal_SBQNHEBAXTRZ_0 Real) 
+ (declare-const signal_BSYLWRTBGQMZ_0 Bool) 
+ (declare-const signal_WKXREFFLPTRD_0 Int) 
+ (declare-const signal_PVHIKJHWDJCM_0 Bool) 
+ (declare-const signal_YRFFAAFRYUZM_0 Bool) 
+ (declare-const signal_KFZIWXRFTOQS_0 Bool) 
+ (declare-const signal_CVHOKCAFQZPG_0 Real) 
+ (declare-const signal_VXEJBJAWRXNH_0 Real) 
+ (declare-const signal_YCILNWMWONAQ_0 Bool) 
+ (declare-const signal_JFJXCXXZLJMT_0 Real) 
+ (declare-const signal_QUDMECEGHKLQ_0 Bool) 
+ (declare-const signal_SYYBRMBIHUJU_0 Bool) 
+ (declare-const signal_SWXCRKBEGMEG_0 Bool) 
+ (declare-const signal_TZMRGTMPEAJK_0 Real) 
+ (declare-const signal_IISVWSGBUFLK_0 Bool) 
+ (declare-const signal_KSWIVXNBIZGC_0 Bool) 
+ (declare-const signal_SGYQZAEYWZNF_0 Int) 
+ (declare-const signal_SAUTYCUENVSI_0 Bool) 
+ (declare-const signal_VATHBBAKRFRA_0 Real) 
+ (declare-const signal_UKFFJKNFCUUX_0 Bool) 
+ (declare-const signal_AMUGYLKXZNEQ_0 Real) 
+ (declare-const signal_EDYOHYGRHMCA_0 Bool) 
+ (declare-const signal_BGVENBXUHRXF_0 Real) 
+ (declare-const signal_SBAITHBJGIUG_0 Real) 
+ (declare-const signal_KQUQUAZMRDZE_0 Real) 
+ (declare-const signal_GUHEPKAIULJY_0 Bool) 
+ (declare-const signal_KBWJUWCFOHGL_0 Real) 
+ (declare-const signal_TKYNBPMDZINV_0 Int) 
+ (declare-const signal_EEQGYZUBCNMD_0 Real) 
+ (declare-const signal_DWQZWITYWMQN_0 Real) 
+ (declare-const signal_BNKKCIKUSKBW_0 Real) 
+ (declare-const signal_EGQEPFCPNBCI_0 Real) 
+ (declare-const signal_NKFSNXUCXOKT_0 Real) 
+ (declare-const signal_VEASLHAITNEC_0 Real) 
+ (declare-const signal_UTFCOZUEOEIN_0 Real) 
+ (declare-const signal_TEEHNILTFTSN_0 Real) 
+ (declare-const signal_ORXJAJMJLHCA_0 Real) 
+ (declare-const signal_DJSVAODENQKA_0 Real) 
+ (declare-const signal_CLHBATURNYWS_0 Bool)
+ (declare-const signal_ODRQZFLIBFNN_1 Real) 
+ (declare-const signal_OTVNNLLVQXEM_1 Real) 
+ (declare-const signal_USWZTNOLQUNK_1 Real) 
+ (declare-const signal_DGWDQBUMZDYW_1 Bool) 
+ (declare-const signal_VSUZJUCIFDYT_1 Real) 
+ (declare-const signal_VRVUPTXBQMIR_1 Real) 
+ (declare-const signal_KLDKPAIDRERW_1 Real) 
+ (declare-const signal_IGPSECLNBIES_1 Real) 
+ (declare-const signal_SQITIPIPUEFX_1 Real) 
+ (declare-const signal_FJCVIMZDQFUW_1 Real) 
+ (declare-const signal_RSUCXFAWMYZH_1 Real) 
+ (declare-const signal_CKQYHCLVFVRW_1 Real) 
+ (declare-const signal_QHXYBWOFOSIM_1 Real) 
+ (declare-const signal_VXVHVKEUAXZX_1 Real) 
+ (declare-const signal_ZZXGWOEEHNBI_1 Bool) 
+ (declare-const signal_CLPXQIZPYWTC_1 Bool) 
+ (declare-const signal_HYWSDJWXJIPB_1 Real) 
+ (declare-const signal_EOBNNTXJEGYX_1 Real) 
+ (declare-const signal_GGJAOIGPJQEI_1 Real) 
+ (declare-const signal_NXXNDWMOEGJB_1 Real) 
+ (declare-const signal_LFMXRDKCSVVC_1 Real) 
+ (declare-const signal_JVMHKXEUSZUJ_1 Real) 
+ (declare-const signal_XOARCOAVQLNN_1 Real) 
+ (declare-const signal_QVAIFKYPTLTO_1 Real) 
+ (declare-const signal_MJIENZWQMQAC_1 Real) 
+ (declare-const signal_CYTCQKFGPMEJ_1 Real) 
+ (declare-const signal_XWROMFGLEGBM_1 Real) 
+ (declare-const signal_KZWZFSZCPQDG_1 Real) 
+ (declare-const signal_FENCVMFSAWCQ_1 Bool) 
+ (declare-const signal_FDPTCPCWJUTB_1 Bool) 
+ (declare-const signal_PQEFAJXWDRMR_1 Real) 
+ (declare-const signal_OLTKYHXALRAF_1 Bool) 
+ (declare-const signal_BSIBTAVNTJRH_1 Real) 
+ (declare-const signal_MYBYYESWEKWC_1 Real) 
+ (declare-const signal_LKELWEBPZPMI_1 Int) 
+ (declare-const signal_VKGDJUGRGLHD_1 Real) 
+ (declare-const signal_UYTNFGHUTUTM_1 Real) 
+ (declare-const signal_PAUVOEFBGWOK_1 Int) 
+ (declare-const signal_LAMONZCYEFPW_1 Int) 
+ (declare-const signal_VVDRCGEPMPME_1 Bool) 
+ (declare-const signal_OQRJRHVYWUAN_1 Real) 
+ (declare-const signal_OWLGQEVPVUES_1 Real) 
+ (declare-const signal_SFHXGAROKYZE_1 Real) 
+ (declare-const signal_ARXCXGMPEEXL_1 Real) 
+ (declare-const signal_UBMTCPOVXBDY_1 Real) 
+ (declare-const signal_RZUYGZKWXJKZ_1 Bool) 
+ (declare-const signal_LFDKDFZUEZSQ_1 Real) 
+ (declare-const signal_XKJGGLIZHWVS_1 Real) 
+ (declare-const signal_PQRFKEHYUPCN_1 Bool) 
+ (declare-const signal_PZPEULUKFTRB_1 Bool) 
+ (declare-const signal_DCVHVIWIZRRP_1 Real) 
+ (declare-const signal_XGLZPHEACHXD_1 Real) 
+ (declare-const signal_CLIXQSCJDZKA_1 Bool) 
+ (declare-const signal_IXHMNVWGEVJM_1 Real) 
+ (declare-const signal_UQDIUNHBMPDO_1 Real) 
+ (declare-const signal_DUVAXAHRYUCV_1 Bool) 
+ (declare-const signal_IPQSQKZIOUZB_1 Real) 
+ (declare-const signal_VUQEZUSEWNHD_1 Real) 
+ (declare-const signal_XTGIEIGVIJXB_1 Bool) 
+ (declare-const signal_KRPUMYSPQYLC_1 Real) 
+ (declare-const signal_JUENYEITUJDH_1 Int) 
+ (declare-const signal_LQWNDBNUOIUO_1 Bool) 
+ (declare-const signal_DHIAKXYAEHZP_1 Real) 
+ (declare-const signal_XIOFRDIXMDFJ_1 Bool) 
+ (declare-const signal_OTXMFHOZRKTV_1 Bool) 
+ (declare-const signal_UQCYRMVKCJCZ_1 Real) 
+ (declare-const signal_ZZPSWGQXTOHN_1 Real) 
+ (declare-const signal_HZSYBUCIIAPF_1 Real) 
+ (declare-const signal_HKWIBLDMDMBZ_1 Bool) 
+ (declare-const signal_GDAYBEEBJCON_1 Real) 
+ (declare-const signal_CPGSCZETRSPJ_1 Bool) 
+ (declare-const signal_SZIVBIZEVSWE_1 Real) 
+ (declare-const signal_BMOPKSVNMQTY_1 Bool) 
+ (declare-const signal_TLQYHJMXVPGA_1 Real) 
+ (declare-const signal_VRSZHJRKYPVY_1 Bool) 
+ (declare-const signal_ECGPRGNSZZKM_1 Real) 
+ (declare-const signal_SBQNHEBAXTRZ_1 Real) 
+ (declare-const signal_BSYLWRTBGQMZ_1 Bool) 
+ (declare-const signal_WKXREFFLPTRD_1 Int) 
+ (declare-const signal_PVHIKJHWDJCM_1 Bool) 
+ (declare-const signal_YRFFAAFRYUZM_1 Bool) 
+ (declare-const signal_KFZIWXRFTOQS_1 Bool) 
+ (declare-const signal_CVHOKCAFQZPG_1 Real) 
+ (declare-const signal_VXEJBJAWRXNH_1 Real) 
+ (declare-const signal_YCILNWMWONAQ_1 Bool) 
+ (declare-const signal_JFJXCXXZLJMT_1 Real) 
+ (declare-const signal_QUDMECEGHKLQ_1 Bool) 
+ (declare-const signal_SYYBRMBIHUJU_1 Bool) 
+ (declare-const signal_SWXCRKBEGMEG_1 Bool) 
+ (declare-const signal_TZMRGTMPEAJK_1 Real) 
+ (declare-const signal_IISVWSGBUFLK_1 Bool) 
+ (declare-const signal_KSWIVXNBIZGC_1 Bool) 
+ (declare-const signal_SGYQZAEYWZNF_1 Int) 
+ (declare-const signal_SAUTYCUENVSI_1 Bool) 
+ (declare-const signal_VATHBBAKRFRA_1 Real) 
+ (declare-const signal_UKFFJKNFCUUX_1 Bool) 
+ (declare-const signal_AMUGYLKXZNEQ_1 Real) 
+ (declare-const signal_EDYOHYGRHMCA_1 Bool) 
+ (declare-const signal_BGVENBXUHRXF_1 Real) 
+ (declare-const signal_SBAITHBJGIUG_1 Real) 
+ (declare-const signal_KQUQUAZMRDZE_1 Real) 
+ (declare-const signal_GUHEPKAIULJY_1 Bool) 
+ (declare-const signal_KBWJUWCFOHGL_1 Real) 
+ (declare-const signal_TKYNBPMDZINV_1 Int) 
+ (declare-const signal_EEQGYZUBCNMD_1 Real) 
+ (declare-const signal_DWQZWITYWMQN_1 Real) 
+ (declare-const signal_BNKKCIKUSKBW_1 Real) 
+ (declare-const signal_EGQEPFCPNBCI_1 Real) 
+ (declare-const signal_NKFSNXUCXOKT_1 Real) 
+ (declare-const signal_VEASLHAITNEC_1 Real) 
+ (declare-const signal_UTFCOZUEOEIN_1 Real) 
+ (declare-const signal_TEEHNILTFTSN_1 Real) 
+ (declare-const signal_ORXJAJMJLHCA_1 Real) 
+ (declare-const signal_DJSVAODENQKA_1 Real) 
+ (declare-const signal_CLHBATURNYWS_1 Bool)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_JUENYEITUJDH_0 (uint8 0)) :named JMGGSQGQEQVF))
+
+(assert (! (= signal_KLDKPAIDRERW_0 1) :named OWWCUTQEWFJB))
+
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_TLQYHJMXVPGA_0 LOW_FUEL_LEVEL_IND_ACTIVE_U08) :named GYFQNZOJRBGQ))
+
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_CPGSCZETRSPJ_0 (or (or (or (or false (= 1 signal_UQDIUNHBMPDO_0)) signal_KFZIWXRFTOQS_0) signal_GUHEPKAIULJY_0) signal_SYYBRMBIHUJU_0)) :named AGPDTBPMLWFY))
+
+
+
+
+
+
+(assert (! (= signal_JVMHKXEUSZUJ_0 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named GGBBHOITFKDJ))
+
+
+
+
+
+(assert (! (= signal_KRPUMYSPQYLC_0 (ite (not (= (ite signal_DGWDQBUMZDYW_0 1 0) 0)) signal_NXXNDWMOEGJB_0 signal_OTVNNLLVQXEM_0)) :named BQQHQVRWCEMP))
+(assert (! (= signal_UBMTCPOVXBDY_0 (ite (not (= signal_KRPUMYSPQYLC_0 0)) signal_KRPUMYSPQYLC_0 signal_DJSVAODENQKA_0)) :named NUMXIEOVTKJN))
+
+
+
+
+(assert (! (= signal_DJSVAODENQKA_0 1) :named ZYAJJVJREDZW))
+
+
+(assert (! (= signal_SBQNHEBAXTRZ_0 FUEL_TOT_FROM_CAN_U08) :named QOJKIUPGSZUW))
+
+
+
+(assert (! (= signal_JFJXCXXZLJMT_0 (single 50)) :named ZAXFFKLCHWPK))
+
+
+
+(assert (! (= signal_LFDKDFZUEZSQ_0 MAIN_LOW_IND_RELEASE_LEVEL_F32) :named TBBLXLPEHTDY))
+
+
+
+
+
+
+
+(assert (! (= signal_ZZPSWGQXTOHN_0 (ite (not (= signal_XOARCOAVQLNN_0 0)) signal_OTVNNLLVQXEM_0 signal_JFJXCXXZLJMT_0)) :named VAOPUHLNZPPV))
+
+
+
+
+
+(assert (! (= signal_EGQEPFCPNBCI_0 LOW_FUEL_LEVEL_WARNING_LARGE_TANKS_F32) :named JUKXEVZZNCHU))
+
+
+
+(assert (! (= signal_QUDMECEGHKLQ_0 (ite (not (= (ite signal_YCILNWMWONAQ_0 1 0) 0)) signal_PVHIKJHWDJCM_0 signal_YRFFAAFRYUZM_0)) :named PNAFMHUVOWBN))
+
+(assert (! (= signal_TEEHNILTFTSN_0 LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32) :named HPJGTLVGCRUF))
+
+
+(assert (! (= signal_DCVHVIWIZRRP_0 (+ (+ 0 signal_UQDIUNHBMPDO_0) signal_BSIBTAVNTJRH_0)) :named HSAVGKHQFIBV))
+
+
+(assert (! (= signal_MJIENZWQMQAC_0 LARGE_TANK_LIMIT_F32) :named RFSTJPSYCDWD))
+
+
+
+
+(assert (! (= signal_HKWIBLDMDMBZ_0 (or (or false signal_RZUYGZKWXJKZ_0) signal_KSWIVXNBIZGC_0)) :named MJKUAHTHRNZO))
+
+
+
+(assert (! (= signal_AMUGYLKXZNEQ_0 FUEL_SENSOR_GAS_ENGINE_U08) :named YDGASVGBKMHK))
+
+
+
+(assert (! (= signal_QHXYBWOFOSIM_0 (ite (not (= (ite signal_CPGSCZETRSPJ_0 1 0) 0)) signal_WKXREFFLPTRD_0 signal_PAUVOEFBGWOK_0)) :named HFFEXBKSRRZH))
+
+
+
+
+
+
+
+
+(assert (! (= signal_ORXJAJMJLHCA_0 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named OSXYFIBWZKTX))
+
+
+
+
+
+
+(assert (! (= signal_VXVHVKEUAXZX_0 (ite (not (= (ite signal_DGWDQBUMZDYW_0 1 0) 0)) signal_NXXNDWMOEGJB_0 signal_ZZPSWGQXTOHN_0)) :named KOYFKIIUOFOO))
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_TKYNBPMDZINV_0 FUEL_SENSOR_DUAL_U08) :named DICCGUIWLLGC))
+
+
+(assert (! (= signal_LKELWEBPZPMI_0 (ite (not (= (ite signal_OTXMFHOZRKTV_0 1 0) 0)) signal_OWLGQEVPVUES_0 signal_QHXYBWOFOSIM_0)) :named UVFPRFSBEXDS))
+
+
+
+
+
+(assert (! (= signal_CLPXQIZPYWTC_0 (or (or (or (or false signal_PQRFKEHYUPCN_0) (= 1 signal_UQDIUNHBMPDO_0)) signal_SWXCRKBEGMEG_0) signal_XTGIEIGVIJXB_0)) :named ISGJPWLIAWRY))
+
+
+
+
+(assert (! (= signal_BGVENBXUHRXF_0 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named GTOZAPZYDXNR))
+
+
+
+
+
+(assert (! (= signal_GGJAOIGPJQEI_0 (ite (not (= (ite signal_ZZXGWOEEHNBI_0 1 0) 0)) signal_NXXNDWMOEGJB_0 signal_OTVNNLLVQXEM_0)) :named XWPEJFEGSSQE))
+(assert (! (= signal_OWLGQEVPVUES_0 (ite (not (= signal_GGJAOIGPJQEI_0 0)) signal_GGJAOIGPJQEI_0 signal_IXHMNVWGEVJM_0)) :named YZVKAGYNZASI))
+
+
+
+
+(assert (! (= signal_IXHMNVWGEVJM_0 1) :named YCOZJSOKADNP))
+
+
+
+(assert (! (= signal_SBAITHBJGIUG_0 FUEL_TOT_FROM_CAN_U08) :named FJBUWNLSGECN))
+
+
+
+(assert (! (= signal_DHIAKXYAEHZP_0 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named PDFNIAEYWRMY))
+
+
+
+(assert (! (= signal_VEASLHAITNEC_0 FUEL_SENSOR_GAS_ENGINE_U08) :named MTNWBQXHGHHS))
+
+
+
+
+(assert (! (= signal_LFMXRDKCSVVC_0 (ite (not (= (ite signal_CLPXQIZPYWTC_0 1 0) 0)) signal_SGYQZAEYWZNF_0 signal_LAMONZCYEFPW_0)) :named HPOLZVCCJQCR))
+
+
+
+
+
+
+
+
+(assert (! (= signal_KBWJUWCFOHGL_0 (single 50)) :named MNSZTPNCIXYJ))
+
+
+
+
+
+(assert (! (= signal_IGPSECLNBIES_0 (ite (not (= signal_ODRQZFLIBFNN_0 0)) signal_NXXNDWMOEGJB_0 signal_VATHBBAKRFRA_0)) :named VVBGSVEQDZMB))
+
+
+
+
+
+
+(assert (! (= signal_ARXCXGMPEEXL_0 (ite (not (= signal_ODRQZFLIBFNN_0 0)) signal_NXXNDWMOEGJB_0 signal_KBWJUWCFOHGL_0)) :named CQUCVRUYPHOE))
+
+
+
+(assert (! (= signal_VVDRCGEPMPME_0 (boolean 1)) :named VBVCTDWGSBPR))
+
+
+
+
+
+
+(assert (! (= signal_NKFSNXUCXOKT_0 T_FUEL_SENSOR_INIT_F32) :named DGPYUBJWMIQE))
+
+
+
+(assert (! (= signal_VKGDJUGRGLHD_0 LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32) :named NGGHTNSYMHTA))
+
+
+
+
+
+(assert (! (= signal_HZSYBUCIIAPF_0 T_MAX_F32) :named DAYADRMAXZTH))
+
+
+
+(assert (! (= signal_VUQEZUSEWNHD_0 (single 0)) :named NRHKOETKSBDA))
+
+
+
+(assert (! (= signal_EEQGYZUBCNMD_0 MAIN_LOW_IND_RELEASE_LEVEL_F32) :named WHZMITVUECHE))
+
+
+
+
+(assert (! (= signal_DWQZWITYWMQN_0 TS_F32) :named XFVUFYZJBQSN))
+
+
+
+(assert (! (= signal_HYWSDJWXJIPB_0 (single 0)) :named ZQLEDIVWUMTK))
+
+
+
+
+(assert (! (= signal_GDAYBEEBJCON_0 TS_F32) :named KTAIBNSSSNVB))
+
+
+
+
+
+(assert (! (= signal_DUVAXAHRYUCV_0 (boolean 0)) :named MKGONCABVJGM))
+
+
+
+(assert (! (= signal_BMOPKSVNMQTY_0 (boolean 1)) :named KZRJIIHEKMSC))
+
+
+
+
+
+(assert (! (= signal_VXEJBJAWRXNH_0 T_FUEL_SENSOR_INIT_F32) :named QFZLOXNCFDYW))
+
+
+
+(assert (! (= signal_PQEFAJXWDRMR_0 LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32) :named YZCSZVPSGMZH))
+
+
+
+
+
+(assert (! (= signal_XGLZPHEACHXD_0 T_MAX_F32) :named BBNDOESCEWLR))
+
+
+
+(assert (! (= signal_BNKKCIKUSKBW_0 (single 0)) :named IRPEMOVIWFGC))
+
+
+
+
+(assert (! (= signal_UTFCOZUEOEIN_0 MAIN_LOW_IND_RELEASE_LEVEL_F32) :named UAMUTACRLCKY))
+
+
+
+
+(assert (! (= signal_CVHOKCAFQZPG_0 TS_F32) :named DYZSBJXUIWRW))
+
+
+
+(assert (! (= signal_XKJGGLIZHWVS_0 (single 0)) :named WVIMPSKFYOPI))
+
+
+
+
+(assert (! (= signal_UQCYRMVKCJCZ_0 TS_F32) :named OEUMFVOUYCYO))
+
+
+
+
+
+(assert (! (= signal_IISVWSGBUFLK_0 (boolean 0)) :named RKRPWZECIIDH))
+
+(assert (! (= signal_VATHBBAKRFRA_0 (single 50)) :named JEJVJNZUWUQC))
+
+
+
+
+
+(assert (! (= signal_KQUQUAZMRDZE_0 (ite (not (= (ite signal_ZZXGWOEEHNBI_0 1 0) 0)) signal_NXXNDWMOEGJB_0 signal_OTVNNLLVQXEM_0)) :named UHZDIKMRVIOZ))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_JUENYEITUJDH_1 (uint8 0)) :named LEJSXBQNXDXZ))
+
+(assert (! (= signal_KLDKPAIDRERW_1 1) :named WYEVJOFRBUMX))
+
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_TLQYHJMXVPGA_1 LOW_FUEL_LEVEL_IND_ACTIVE_U08) :named QHDLMZYHVXXS))
+
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_CPGSCZETRSPJ_1 (or (or (or (or false (= 1 signal_UQDIUNHBMPDO_1)) signal_KFZIWXRFTOQS_1) signal_GUHEPKAIULJY_1) signal_SYYBRMBIHUJU_1)) :named XPXMDYFEUUHP))
+
+
+
+
+
+
+(assert (! (= signal_JVMHKXEUSZUJ_1 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named MQIDPZONCFUV))
+
+
+
+
+
+(assert (! (= signal_KRPUMYSPQYLC_1 (ite (not (= (ite signal_DGWDQBUMZDYW_1 1 0) 0)) signal_NXXNDWMOEGJB_1 signal_OTVNNLLVQXEM_1)) :named ICZFZVTWMWVG))
+(assert (! (= signal_UBMTCPOVXBDY_1 (ite (not (= signal_KRPUMYSPQYLC_1 0)) signal_KRPUMYSPQYLC_1 signal_DJSVAODENQKA_1)) :named LLLUTLVDPJLU))
+
+
+
+
+(assert (! (= signal_DJSVAODENQKA_1 1) :named BZVRCAJCUSXW))
+
+
+(assert (! (= signal_SBQNHEBAXTRZ_1 FUEL_TOT_FROM_CAN_U08) :named THBMHGSQTICQ))
+
+
+
+(assert (! (= signal_JFJXCXXZLJMT_1 (single 50)) :named PDIHIFPIPJEG))
+
+
+
+(assert (! (= signal_LFDKDFZUEZSQ_1 MAIN_LOW_IND_RELEASE_LEVEL_F32) :named GQQDLTRUVEFB))
+
+
+
+
+
+
+
+(assert (! (= signal_ZZPSWGQXTOHN_1 (ite (not (= signal_XOARCOAVQLNN_1 0)) signal_OTVNNLLVQXEM_1 signal_JFJXCXXZLJMT_1)) :named KQVSFLEOKUCY))
+
+
+
+
+
+(assert (! (= signal_EGQEPFCPNBCI_1 LOW_FUEL_LEVEL_WARNING_LARGE_TANKS_F32) :named ILOBRTVRSOVN))
+
+
+
+(assert (! (= signal_QUDMECEGHKLQ_1 (ite (not (= (ite signal_YCILNWMWONAQ_1 1 0) 0)) signal_PVHIKJHWDJCM_1 signal_YRFFAAFRYUZM_1)) :named YXQOUNAJUZVR))
+
+(assert (! (= signal_TEEHNILTFTSN_1 LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32) :named RWLLGKCRFKSO))
+
+
+(assert (! (= signal_DCVHVIWIZRRP_1 (+ (+ 0 signal_UQDIUNHBMPDO_1) signal_BSIBTAVNTJRH_1)) :named DSLJFOBMXXZD))
+
+
+(assert (! (= signal_MJIENZWQMQAC_1 LARGE_TANK_LIMIT_F32) :named IGWXYGGUVGTG))
+
+
+
+
+(assert (! (= signal_HKWIBLDMDMBZ_1 (or (or false signal_RZUYGZKWXJKZ_1) signal_KSWIVXNBIZGC_1)) :named WPQHLSWGLAHC))
+
+
+
+(assert (! (= signal_AMUGYLKXZNEQ_1 FUEL_SENSOR_GAS_ENGINE_U08) :named VAHXJFKLDQTP))
+
+
+
+(assert (! (= signal_QHXYBWOFOSIM_1 (ite (not (= (ite signal_CPGSCZETRSPJ_1 1 0) 0)) signal_WKXREFFLPTRD_1 signal_PAUVOEFBGWOK_1)) :named YZWUMMRQAYEI))
+
+
+
+
+
+
+
+
+(assert (! (= signal_ORXJAJMJLHCA_1 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named JKIYOQBFHDVG))
+
+
+
+
+
+
+(assert (! (= signal_VXVHVKEUAXZX_1 (ite (not (= (ite signal_DGWDQBUMZDYW_1 1 0) 0)) signal_NXXNDWMOEGJB_1 signal_ZZPSWGQXTOHN_1)) :named MBCNEJMOGPGL))
+
+
+
+
+
+
+
+
+
+
+
+
+(assert (! (= signal_TKYNBPMDZINV_1 FUEL_SENSOR_DUAL_U08) :named KHMUFNWTOWCN))
+
+
+(assert (! (= signal_LKELWEBPZPMI_1 (ite (not (= (ite signal_OTXMFHOZRKTV_1 1 0) 0)) signal_OWLGQEVPVUES_1 signal_QHXYBWOFOSIM_1)) :named DIVVROXRTSZY))
+
+
+
+
+
+(assert (! (= signal_CLPXQIZPYWTC_1 (or (or (or (or false signal_PQRFKEHYUPCN_1) (= 1 signal_UQDIUNHBMPDO_1)) signal_SWXCRKBEGMEG_1) signal_XTGIEIGVIJXB_1)) :named EVMSOVXTZBMI))
+
+
+
+
+(assert (! (= signal_BGVENBXUHRXF_1 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named HTDSRXQRURNI))
+
+
+
+
+
+(assert (! (= signal_GGJAOIGPJQEI_1 (ite (not (= (ite signal_ZZXGWOEEHNBI_1 1 0) 0)) signal_NXXNDWMOEGJB_1 signal_OTVNNLLVQXEM_1)) :named ZGZTTWAKXJJC))
+(assert (! (= signal_OWLGQEVPVUES_1 (ite (not (= signal_GGJAOIGPJQEI_1 0)) signal_GGJAOIGPJQEI_1 signal_IXHMNVWGEVJM_1)) :named NROYWDFMEJWL))
+
+
+
+
+(assert (! (= signal_IXHMNVWGEVJM_1 1) :named YNVNWBFWBXBN))
+
+
+
+(assert (! (= signal_SBAITHBJGIUG_1 FUEL_TOT_FROM_CAN_U08) :named GGELFMQUJDFM))
+
+
+
+(assert (! (= signal_DHIAKXYAEHZP_1 FUEL_SENSOR_VDO_FLOAT_ARM_U08) :named RIRMTXJDVNHV))
+
+
+
+(assert (! (= signal_VEASLHAITNEC_1 FUEL_SENSOR_GAS_ENGINE_U08) :named TBEJXTPTPZCZ))
+
+
+
+
+(assert (! (= signal_LFMXRDKCSVVC_1 (ite (not (= (ite signal_CLPXQIZPYWTC_1 1 0) 0)) signal_SGYQZAEYWZNF_1 signal_LAMONZCYEFPW_1)) :named GEIOOOHPEUOA))
+
+
+
+
+
+
+
+
+(assert (! (= signal_KBWJUWCFOHGL_1 (single 50)) :named GFBVJWULOMGW))
+
+
+
+
+
+(assert (! (= signal_IGPSECLNBIES_1 (ite (not (= signal_ODRQZFLIBFNN_1 0)) signal_NXXNDWMOEGJB_1 signal_VATHBBAKRFRA_1)) :named NHZCUKSZXZOO))
+
+
+
+
+
+
+(assert (! (= signal_ARXCXGMPEEXL_1 (ite (not (= signal_ODRQZFLIBFNN_1 0)) signal_NXXNDWMOEGJB_1 signal_KBWJUWCFOHGL_1)) :named XILAIPRTFNOD))
+
+
+
+(assert (! (= signal_VVDRCGEPMPME_1 (boolean 1)) :named FHHAEZWGWJNA))
+
+
+
+
+
+
+(assert (! (= signal_NKFSNXUCXOKT_1 T_FUEL_SENSOR_INIT_F32) :named NKMZGPRNLSER))
+
+
+
+(assert (! (= signal_VKGDJUGRGLHD_1 LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32) :named OVKSCGFXASUO))
+
+
+
+
+
+(assert (! (= signal_HZSYBUCIIAPF_1 T_MAX_F32) :named DOTYICAWFHLY))
+
+
+
+(assert (! (= signal_VUQEZUSEWNHD_1 (single 0)) :named EKMELNBGBWKW))
+
+
+
+(assert (! (= signal_EEQGYZUBCNMD_1 MAIN_LOW_IND_RELEASE_LEVEL_F32) :named FCSOPSZOKPOG))
+
+
+
+
+(assert (! (= signal_DWQZWITYWMQN_1 TS_F32) :named NGKMTCPXJCIW))
+
+
+
+(assert (! (= signal_HYWSDJWXJIPB_1 (single 0)) :named VSOKQDCXIIRH))
+
+
+
+
+(assert (! (= signal_GDAYBEEBJCON_1 TS_F32) :named VQATOGYAJWEK))
+
+
+
+
+
+(assert (! (= signal_DUVAXAHRYUCV_1 (boolean 0)) :named WLGXQWUDZPRE))
+
+
+
+(assert (! (= signal_BMOPKSVNMQTY_1 (boolean 1)) :named OCFDSGSSBJPT))
+
+
+
+
+
+(assert (! (= signal_VXEJBJAWRXNH_1 T_FUEL_SENSOR_INIT_F32) :named DBUMVECQGBJA))
+
+
+
+(assert (! (= signal_PQEFAJXWDRMR_1 LOW_FUEL_LEVEL_WARNING_NORMAL_TANKS_F32) :named VBMIKZGQPPUD))
+
+
+
+
+
+(assert (! (= signal_XGLZPHEACHXD_1 T_MAX_F32) :named VWQMFVQWPWDP))
+
+
+
+(assert (! (= signal_BNKKCIKUSKBW_1 (single 0)) :named BKNTKVIWKXWS))
+
+
+
+
+(assert (! (= signal_UTFCOZUEOEIN_1 MAIN_LOW_IND_RELEASE_LEVEL_F32) :named USGXAHGHOTQN))
+
+
+
+
+(assert (! (= signal_CVHOKCAFQZPG_1 TS_F32) :named UOJCTTGOYNCM))
+
+
+
+(assert (! (= signal_XKJGGLIZHWVS_1 (single 0)) :named WRQACXRZAJIB))
+
+
+
+
+(assert (! (= signal_UQCYRMVKCJCZ_1 TS_F32) :named WVCJLOKDRFZZ))
+
+
+
+
+
+(assert (! (= signal_IISVWSGBUFLK_1 (boolean 0)) :named ZRQRKPPLOYTE))
+
+(assert (! (= signal_VATHBBAKRFRA_1 (single 50)) :named JMKPXLERDAPD))
+
+
+
+
+
+(assert (! (= signal_KQUQUAZMRDZE_1 (ite (not (= (ite signal_ZZXGWOEEHNBI_1 1 0) 0)) signal_NXXNDWMOEGJB_1 signal_OTVNNLLVQXEM_1)) :named ZDHGGFQUZATH))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

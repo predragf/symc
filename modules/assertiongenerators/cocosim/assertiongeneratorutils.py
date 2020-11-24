@@ -16,19 +16,22 @@ class AssertionGeneratorUtils:
         return result
 
     @staticmethod
-    def parseSumInputs(input_signals, operators):
+    def parseSumInputs(input_signals, input_signal_types, operators):
         result = ""
         firstOperator = "0"
         template = "({0} {1} {2})"
         for index, _input in enumerate(input_signals):
-            secondOperator = "{0}_{{0}}".format(_input)
+            if cUtils.compareStringsIgnoreCase(input_signal_types[index], 'boolean'):
+                secondOperator = '(bool2real {0}_{{0}})'.format(_input)
+            else:
+                secondOperator = "{0}_{{0}}".format(_input)
             _operator = operators[index]
             result = template.format(_operator, firstOperator, secondOperator)
             firstOperator = result
         return result
 
     @staticmethod
-    def parseLogicInputs(inputSignals, operator):
+    def parseLogicInputs(inputSignals, input_signal_types, operator):
         result = ""
         if operator == "AND":
             firstOperator = "true"

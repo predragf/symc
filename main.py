@@ -136,25 +136,27 @@ def verifyModel(modelname, slistPath, size):
 
 def main():
     cUtils.clearScreen()
-    modelPath = "./models/bbw_cocosim_adjusted.json"  # './models/bbw/bbw.json' #
-    SFmodelPath = "./models/bbw/stateflow.json"
-    BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
-    slistPath = "./models/slist-bbw.txt"
-    slistPath = "./models/slist-bbw.txt"
+    #modelPath = "./models/bbw_cocosim_adjusted.json"  # './models/bbw/bbw.json' #
+    #SFmodelPath = "./models/bbw/stateflow.json"
+    #BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
+    #slistPath = "./models/slist-bbw.txt"
 
-    # fuelPath = "C:/Models/Fuel/fuel_IR.json"
-    # fuelSList = "C:/Models/Fuel/slist_flat.txt"
-    # fuelSListOrg = "C:/Models/Fuel/slist.txt"
+    #fuelPath = "C:/Models/Fuel/fuel_IR.json"
+    #fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    #fuelSListOrg = "C:/Models/Fuel/slist.txt"
+
+    fuelPath = "C:/Models/FuelAdj/fueladj.json"
+    fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
+    #fuelSListOrg = "C:/Models/FuelAdj/fueladj_slist.txt"
 
     # slist = SLM.SListManager.loadSList(fuelSList)
     # for line in slist:
     #    print line
     # verifyModel(fuelPath, fuelSList, 1)
+    #modelChecker = SyMC(createMCConfig())
     _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
-    modelChecker.checkModel(fuelPath, fuelSList, 15, "")
-    #CSM = CoCoSimModelManager.loadModel(fuelPath, fuelSList, _config)
-
+    modelChecker.checkModel(fuelPath, fuelSList, 1, "")
     # time.sleep(10)
     # SSG = StateSpaceGenerator()
     # statespace = SSG.generateStateSpace(CSM, 1000)
