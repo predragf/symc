@@ -45,8 +45,11 @@ class AssertionGenerator:
 
     @staticmethod
     def Switch(blockPackage):
+        maskedParentBlocks = blockPackage.get("maskedParentBlocks")
         criteria = blockPackage.get("Criteria", '').split()
-        criteria_operator = criteria[1]
+        if cUtils.compareStringsIgnoreCase(maskedParentBlocks[0].get("statusToPass"), "GOOD_B(ss_U08)"):
+            criteria[1] = ">"
+            criteria[2] = "240" # Flawless = 255, Good >= 240, Bad < 240
         _, output_signals = FindInputOutputSignals(blockPackage)
         inputsString = AssertionGeneratorUtils.parseSwitchInputs(
             blockPackage["inputSignals"], criteria)
