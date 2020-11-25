@@ -9,7 +9,7 @@ class AssertionInstantiator:
     @staticmethod
     def isStateless(block):
         #to be updated
-        blocksWithStates = ["unitdelay", "rt", "integrator"]
+        blocksWithStates = ["UnitDelay", "rt", "integrator", "DiscreteIntegrator"]
         blocktype = block.get("blocktype")
         return not blocktype in blocksWithStates
 

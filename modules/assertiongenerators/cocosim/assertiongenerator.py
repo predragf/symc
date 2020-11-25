@@ -67,6 +67,36 @@ class AssertionGenerator:
         return "(= {0}_{{0}} {1})".format(outSignalName, inputsString)
 
     @staticmethod
+    def DiscreteIntegrator(blockPackage):
+        # TODO:
+        #
+        _input_signals = blockPackage.get("inputSignals")
+        _external_signal = [_input_signal for _input_signal in _input_signals if _input_signal["DstPort"] == 0][0]
+        _input_signal_name = _external_signal["SignalName"]
+        _gain_value = blockPackage.get("gainval", "None")
+        _output_signal = blockPackage.get("outputSignals")
+        _output_signal = _output_signal[0]
+        _output_signal_name = _output_signal.get("SignalName", "")
+        _sample_time = blockPackage.get("CompiledSampleTime")[0]
+        _internalstatevariable = "{0}_{1}".format(blockPackage.get("Name"), int(blockPackage.get("Handle")))
+        _out_equal_int = "(= {0}_{{0}} {1}_{{0}})".format(_output_signal_name, _internalstatevariable)
+        _gain_mult = "(* {0}_{{1}} (* {1} {2}))".format(_input_signal_name, _gain_value, _sample_time)
+        _add_increment = "(+ {0} {1}_{{1}})".format(_gain_mult, _internalstatevariable)
+        _increment = "(= {0}_{{0}} {1})".format(_internalstatevariable, _add_increment)
+        return "(and {0} {1})".format(_out_equal_int, _increment)
+
+    @staticmethod
+    def UnitDelay(blockPackage):
+        _input_signal = blockPackage.get("inputSignals")
+        _input_signal = _input_signal[0]
+        _input_signal_name = _input_signal["SignalName"]
+        _output_signal = blockPackage.get("outputSignals")
+        _output_signal = _output_signal[0]
+        _output_signal_name = _output_signal.get("SignalName", "")
+
+        return "(= {0}_{{0}} {1}_{{1}})".format(_output_signal_name, _input_signal_name)
+
+    @staticmethod
     def DataTypeConversion(blockPackage):
         return ""
         pass

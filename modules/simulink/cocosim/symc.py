@@ -149,6 +149,7 @@ class SyMC:
             declaration_string = "{0}\n{1}".format(declaration_string, d)
         baseModel = "{0}\n{1}\n{2}".format(declarationLib, declaration_string, assertions)
         file1.write(baseModel)
+        #file1.write(sfDeclarations)
         file1.close()
         return baseModel
 

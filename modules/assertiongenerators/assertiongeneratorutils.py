@@ -37,6 +37,7 @@ class AssertionGeneratorUtils:
 
     @staticmethod
     def generateInitialState(block):
+        print('Inside')
         _internalstatevariable = block.get("internalstatevariable")
         _outSignalName = block.get("signalvariable")
         _parameters = block.get("parameters")

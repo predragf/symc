@@ -1,5 +1,5 @@
 import modules.utils.utils as cUtils
-
+import time
 
 class AssertionGeneratorUtils:
 
@@ -130,10 +130,34 @@ class AssertionGeneratorUtils:
 
     @staticmethod
     def generateInitialState(block):
-        _internalstatevariable = block.get("internalstatevariable")
-        _outSignalName = block.get("signalvariable")
-        _parameters = block.get("parameters")
-        _initialvalue = _parameters.get("initialvalue", "-726")
+        _initialConditionSource = block.get("InitialConditionSource")
+        if cUtils.compareStringsIgnoreCase(_initialConditionSource, "external"):
+            _initialSignal = generateInitialValueExternal(block)
+            _initialvalue  = "{0}_0".format(_initialSignal)
+        else:
+            _initialvalue = block.get("InitialCondition")
+
+        _output_signal = block.get("outputSignals")
+        _output_signal = _output_signal[0]
+        _output_signal_name = _output_signal.get("SignalName", "")
+
+        if cUtils.compareStringsIgnoreCase(block.get("BlockType"), "UnitDelay"):
+            if cUtils.compareStringsIgnoreCase(_output_signal.get("SignalType"), 'boolean'):
+                _output_signal_string = "(bool2real {0}_0)".format(_output_signal_name)
+            else:
+                _output_signal_string = "{0}_0".format(_output_signal_name)
+            return "(= {0} {1})".format(_output_signal_string, _initialvalue)
+
+        _internalstatevariable = "{0}_{1}".format(block.get("Name"), int(block.get("Handle")))
+
         assertion = "(and (= {0}_0 {2}) (= {0}_0 {1}_0))".format(
-            _internalstatevariable, _outSignalName, _initialvalue)
+            _internalstatevariable, _output_signal_name, _initialvalue)
+
         return assertion
+
+def generateInitialValueExternal(block):
+    input_signals = block.get("inputSignals")
+    external_signal = [input_signal for input_signal in input_signals if input_signal["DstPort"] == 2][0]
+    initialSignal = external_signal["SignalName"]
+
+    return initialSignal

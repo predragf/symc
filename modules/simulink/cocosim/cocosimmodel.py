@@ -698,6 +698,9 @@ class CoCoSimModel:
             blockCopy = self.__packBlockForTransformation(block)
             if not any(cUtils.compareStringsIgnoreCase(nonComputationalBlockType, blockCopy.get("BlockType")) for nonComputationalBlockType in self.noncomputationalBlocks):
                 packedBlocksForTransformation.append(blockCopy)
+            # If stateflow, add the block
+            if (cUtils.compareStringsIgnoreCase(block.get("BlockType"), "SubSystem") and len(block.get("StateflowContent", {})) > 0):
+                packedBlocksForTransformation.append(blockCopy)
         return packedBlocksForTransformation
 
     def getFundamentalSampleTime(self):

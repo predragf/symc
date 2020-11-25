@@ -9,8 +9,8 @@ class AssertionInstantiator:
     @staticmethod
     def isStateless(block):
         #to be updated
-        blocksWithStates = ["unitdelay", "rt", "integrator"]
-        blocktype = block.get("blocktype")
+        blocksWithStates = ["UnitDelay", "rt", "integrator", "DiscreteIntegrator"]
+        blocktype = block.get("BlockType")
         return not blocktype in blocksWithStates
 
     @staticmethod
@@ -28,6 +28,7 @@ class AssertionInstantiator:
                 assertionTemplate = AssertionGenerator.generateBlockAssertion(block)
             else:
                 assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
+                
         instantiatedAssertion = assertionTemplate.format(step, step - 1)
         _assertion = "(assert (! {0} :named {1}))".format(instantiatedAssertion,
         customUtils.generateRandomLetterSequence(12))

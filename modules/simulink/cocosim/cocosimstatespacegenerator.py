@@ -56,7 +56,7 @@ class StateSpaceGenerator:
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
         self.fundamentalSampleTime   = sModel.getFundamentalSampleTime()
         cTable = sModel.getConnectionTable()
-        declarationsTemplate = DeclarationsGenerator.generateDeclarations(cTable)
+        declarationsTemplate = DeclarationsGenerator.generateDeclarations(sModel, cTable)
         for step in range(0, totalSteps+1): # One extra for stateflow
             declarations = "{0}\n{1}".format(
                 declarations, declarationsTemplate.format(step))

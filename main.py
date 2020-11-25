@@ -141,12 +141,14 @@ def main():
     # BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
     #slistPath = "./models/slist-bbw.txt"
 
-    fuelPath = "/Users/predrag/Documents/fuel/fldadj_IR.json"
-    fuelSList = "/Users/predrag/Documents/fuel/fldadj_slist.txt"
+    #fuelPath = "/Users/predrag/Documents/fuel/fldadj_IR.json"
+    #fuelSList = "/Users/predrag/Documents/fuel/fldadj_slist.txt"
     #fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
-    #fuelPath = "C:/Models/FuelAdj/fueladj.json"
-    #fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
+    fuelPath = "C:/Models/FuelAdj/fueladj.json"
+    fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
+    #fuelPath = "C:/Models/Fuel/fuel.json"
+    #fuelSList = "C:/Models/Fuel/fuel_slist.txt"
     #fuelSListOrg = "C:/Models/FuelAdj/fueladj_slist.txt"
 
     # slist = SLM.SListManager.loadSList(fuelSList)
@@ -157,7 +159,7 @@ def main():
     _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
     _assertion = "(and (> 10 signal_TLZEWZDBSSQV) (= signal_WHAJTCEKOZWV 0)"
-    modelChecker.checkModel(fuelPath, fuelSList, 1, "")
+    modelChecker.checkModel(fuelPath, fuelSList, 5, "")
     # time.sleep(10)
     # SSG = StateSpaceGenerator()
     # statespace = SSG.generateStateSpace(CSM, 1000)
