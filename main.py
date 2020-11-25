@@ -65,7 +65,7 @@ def createMCConfig():
     _configuration["reuseExistingModel"] = False
     _configuration["saveStateSpace"] = True
     _configuration["noncomputationalblocks"] = ["SubSystem",
-                                                "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "BusSelector", "BusCreator", "none"]
+                                                "goto", "from", "Inport", "Outport", "TriggerPort", "Mux", "Demux", "Terminator", "Scope", "BusSelector", "BusCreator", "InportShadow", "none"]
     _configuration["sample_times"] = {}
     return _configuration
 
@@ -138,15 +138,15 @@ def main():
     cUtils.clearScreen()
     #modelPath = "./models/bbw_cocosim_adjusted.json"  # './models/bbw/bbw.json' #
     #SFmodelPath = "./models/bbw/stateflow.json"
-    #BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
+    # BBWmodelPath = './models/bbw/bbw.json'  # "./models/bbw_cocosim_adjusted.json"
     #slistPath = "./models/slist-bbw.txt"
 
-    #fuelPath = "C:/Models/Fuel/fuel_IR.json"
-    #fuelSList = "C:/Models/Fuel/slist_flat.txt"
+    fuelPath = "/Users/predrag/Documents/fuel/fldadj_IR.json"
+    fuelSList = "/Users/predrag/Documents/fuel/fldadj_slist.txt"
     #fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
-    fuelPath = "C:/Models/FuelAdj/fueladj.json"
-    fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
+    #fuelPath = "C:/Models/FuelAdj/fueladj.json"
+    #fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
     #fuelSListOrg = "C:/Models/FuelAdj/fueladj_slist.txt"
 
     # slist = SLM.SListManager.loadSList(fuelSList)
@@ -156,6 +156,7 @@ def main():
     #modelChecker = SyMC(createMCConfig())
     _config = createMCConfig()
     modelChecker = SyMC(createMCConfig())
+    _assertion = "(and (> 10 signal_TLZEWZDBSSQV) (= signal_WHAJTCEKOZWV 0)"
     modelChecker.checkModel(fuelPath, fuelSList, 1, "")
     # time.sleep(10)
     # SSG = StateSpaceGenerator()

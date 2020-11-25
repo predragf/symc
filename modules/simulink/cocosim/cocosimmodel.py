@@ -149,7 +149,6 @@ class CoCoSimModel:
             destinationEntries.extend(self.__createDesitinationEntriesForBlock(destinationBlock))
             if cUtils.compareStringsIgnoreCase(destinationBlock.get("BlockType"), "SubSystem") and destinationBlock.get("StateflowContent", None) is None:
                 destinationEntries.extend(self.__createDesitnationEntriesForPorts(destinationBlock))
-
         return destinationEntries
 
     def __findAllEntriesByDestination(self, _handle):
@@ -188,6 +187,7 @@ class CoCoSimModel:
         return result
 
     def __traceSubSystemBlock(self, ssBlock, connection, partialTable, stack):
+
         # this function is called when the source of the coonection is a subSystemBlock
         # because in the final table the source and the destination must be computationalBlocks
         result = []
@@ -214,6 +214,7 @@ class CoCoSimModel:
         # this function is called when the source of the coonection is an in port block
         # because in the final table the source and the destination must be computationalBlocks
         portNumber = inPortBlock.get("Port", None)
+
         result = []
         try:
             portNumberAsInteger = int(portNumber)
@@ -364,7 +365,12 @@ class CoCoSimModel:
                     combinedConnection, finalTable)
                 if combinedConnection != {}:
                     finalTable.append(combinedConnection)
-        return [dict(t) for t in {tuple(d.items()) for d in finalTable}]
+        returnTable = []
+        for itm in [dict(t) for t in {tuple(d.items()) for d in finalTable}]:
+            blk = self.getBlockById(itm.get("DstBlockHandle", ""))
+            if blk is not None and blk.get("BlockType", "") not in self.noncomputationalBlocks:
+                returnTable.append(itm)
+        return returnTable
 
     def __calculateSubSystemSampleTime(self, ssBlock):
         sampleTime = -1.0

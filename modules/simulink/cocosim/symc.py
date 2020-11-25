@@ -18,6 +18,7 @@ class SyMC:
         self.__configure(_configuration)
 
     def __configure(self, _configuration=dict()):
+        self._configuration = _configuration
         self.reuseExistingModel = _configuration.get(
             "reuseExistingModel", "") is True
         self.saveStateSpace = _configuration.get("saveStateSpace", "") is True
@@ -159,13 +160,13 @@ class SyMC:
                 sModel.getModelName(), sModel.getFundamentalSampleTime(), totalSteps)
         if baseModel == "":
             baseModel = self.__combineSimulinkAndStateflow(sModel, totalSteps)
-        self.__saveExistingSMTModel(sModel.getModelName(), 
-            sModel.getFundamentalSampleTime(), totalSteps, baseModel)
+        self.__saveExistingSMTModel(sModel.getModelName(),
+                                    sModel.getFundamentalSampleTime(), totalSteps, baseModel)
         propertyAssertions = self.__generateAssertionsFromProperty(propertyAssertion, totalSteps)
         return "{0}\n;the propeties start here\n{1}".format(baseModel, propertyAssertions)
 
     def __createAndPopulateSolver(self, pathToModel, slistPath, totalSteps, propertyAssertion):
-        sModel = CoCoSimModelManager.loadModel(pathToModel, slistPath)
+        sModel = CoCoSimModelManager.loadModel(pathToModel, slistPath, self._configuration)
         smtModel = self.__getSMTScript(
             sModel, totalSteps, propertyAssertion)
         goal = self.__createGoal()
