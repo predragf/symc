@@ -1,6 +1,6 @@
 import re
 import modules.utils.utils as cUtils
-
+import time
 
 class StateSpace:
 
@@ -79,8 +79,9 @@ class StateSpace:
         statesForParsing = self.__getStatesForParsing(start, howmany)
         stateAssertions = ""
         for state in statesForParsing:
-            if not cUtils.compareStringsIgnoreCase(str(state).strip(), ""):
-                stateAssertions += "\n".join(state)
+            for s in state:
+                if not cUtils.compareStringsIgnoreCase(str(s).strip(), ""):
+                    stateAssertions += "\n" + s
         return stateAssertions
 
     def getSMTScript(self):

@@ -150,9 +150,7 @@ class AssertionGeneratorUtils:
 
         _internalstatevariable = "{0}_{1}".format(block.get("Name"), int(block.get("Handle")))
 
-        assertion = "(and (= {0}_0 {2}) (= {0}_0 {1}_0))".format(
-            _internalstatevariable, _output_signal_name, _initialvalue)
-
+        assertion = "(= {0}_0 {2})\n(= {0}_0 {1}_0)".format(_internalstatevariable, _output_signal_name, _initialvalue)
         return assertion
 
 def generateInitialValueExternal(block):

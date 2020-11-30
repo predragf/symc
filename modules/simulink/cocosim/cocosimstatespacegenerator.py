@@ -45,7 +45,9 @@ class StateSpaceGenerator:
         for block in self.blocksForTransformation:
             # all blocks except statflow
             if not (cUtils.compareStringsIgnoreCase(block.get("BlockType"), "SubSystem") and len(block.get("StateflowContent", {})) > 0):
-               symbolicState.append(self.__generateBlockSymbolicState(block, step, cTable))
+                tmp_symbolicState = self.__generateBlockSymbolicState(block, step, cTable)
+                for tmp_state in tmp_symbolicState:
+                    symbolicState.append(tmp_state)
         return symbolicState
 
     def __generateModelStateSpace(self, sModel, totalSteps):

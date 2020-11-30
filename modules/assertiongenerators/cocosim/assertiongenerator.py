@@ -68,22 +68,50 @@ class AssertionGenerator:
 
     @staticmethod
     def DiscreteIntegrator(blockPackage):
-        # TODO:
-        #
-        _input_signals = blockPackage.get("inputSignals")
-        _external_signal = [_input_signal for _input_signal in _input_signals if _input_signal["DstPort"] == 0][0]
-        _input_signal_name = _external_signal["SignalName"]
-        _gain_value = blockPackage.get("gainval", "None")
-        _output_signal = blockPackage.get("outputSignals")
-        _output_signal = _output_signal[0]
-        _output_signal_name = _output_signal.get("SignalName", "")
-        _sample_time = blockPackage.get("CompiledSampleTime")[0]
+        _input_signals         = blockPackage.get("inputSignals")
+        _external_signal       = [_input_signal for _input_signal in _input_signals if _input_signal["DstPort"] == 0][0]
+        _input_signal_name     = _external_signal["SignalName"]
+        _gain_value            = blockPackage.get("gainval", "None")
+        _output_signal         = blockPackage.get("outputSignals")
+        _output_signal         = _output_signal[0]
+        _output_signal_name    = _output_signal.get("SignalName", "")
+        _sample_time           = blockPackage.get("CompiledSampleTime")[0]
+
         _internalstatevariable = "{0}_{1}".format(blockPackage.get("Name"), int(blockPackage.get("Handle")))
-        _out_equal_int = "(= {0}_{{0}} {1}_{{0}})".format(_output_signal_name, _internalstatevariable)
-        _gain_mult = "(* {0}_{{1}} (* {1} {2}))".format(_input_signal_name, _gain_value, _sample_time)
-        _add_increment = "(+ {0} {1}_{{1}})".format(_gain_mult, _internalstatevariable)
-        _increment = "(= {0}_{{0}} {1})".format(_internalstatevariable, _add_increment)
-        return "(and {0} {1})".format(_out_equal_int, _increment)
+        _out_equal_int         = "(= {0}_{{0}} {1}_{{0}})".format(_output_signal_name, _internalstatevariable)
+        _gain_mult             = "(* {0}_{{1}} (* {1} {2}))".format(_input_signal_name, _gain_value, _sample_time)
+        _add_increment         = "(+ {0} {1}_{{1}})".format(_gain_mult, _internalstatevariable)
+        _increment             = "(= {0}_{{0}} {1})".format(_internalstatevariable, _add_increment)
+
+        _upper_saturation  = blockPackage.get('UpperSaturationLimit')
+        _lower_saturation  = blockPackage.get('LowerSaturationLimit')
+        _reset_signal      = [_input_signal for _input_signal in _input_signals if _input_signal["DstPort"] == 1][0]
+        _reset_signal_name = _reset_signal["SignalName"]
+        _reset_signal_type = _reset_signal["SignalType"]
+        _reset_signal_name = "{0}_{{0}}".format(_reset_signal_name)
+
+        _inc_upp_leq = "(<= {0} {1})".format(_add_increment, _upper_saturation)
+        _inc_upp_gt  = "(> {0} {1})".format(_add_increment, _upper_saturation)
+        _inc_low_geq = "(>= {0} {1})".format(_add_increment, _lower_saturation)
+        _inc_low_lt  = "(< {0} {1})".format(_add_increment, _lower_saturation)
+
+        if cUtils.compareStringsIgnoreCase(_reset_signal_type, 'single'):
+            _reset_signal_name = "not (= {0} 0)".format(_reset_signal_name)
+
+        _reset_false = "(not ({0}))".format(_reset_signal_name)
+        _reset_true  = "({0})".format(_reset_signal_name)
+
+
+        _incremental_cond_ite  = "(ite (and {0} {1} {2}) {3} {4}_{{0}})".format(_inc_upp_leq, _inc_low_geq, _reset_false, _add_increment, _internalstatevariable)
+        _incremental_condition = "(= {0}_{{0}} {1})".format(_internalstatevariable, _incremental_cond_ite)
+        _upper_sat_cond_ite    = "(ite (and {0} {1}) {2} {3}_{{0}})".format(_inc_upp_gt, _reset_false, _upper_saturation, _internalstatevariable)
+        _upper_sat_condition   = "(= {0}_{{0}} {1})".format(_internalstatevariable, _upper_sat_cond_ite)
+        _lower_sat_cond_ite    = "(ite (and {0} {1}) {2} {3}_{{0}})".format(_inc_low_lt, _reset_false, _lower_saturation, _internalstatevariable)
+        _lower_sat_condition   = "(= {0}_{{0}} {1})".format(_internalstatevariable, _lower_sat_cond_ite)
+        _reset_cond_ite        = "(ite {0} {1} {2}_{{0}})".format(_reset_true, '0', _internalstatevariable)
+        _reset_condition       = "(= {0}_{{0}} {1})".format(_internalstatevariable, _reset_cond_ite)
+
+        return "{0}\n{1}\n{2}\n{3}\n{4}".format(_out_equal_int, _incremental_condition, _upper_sat_condition, _lower_sat_condition, _reset_condition)
 
     @staticmethod
     def UnitDelay(blockPackage):

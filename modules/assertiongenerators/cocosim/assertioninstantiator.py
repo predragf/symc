@@ -28,10 +28,17 @@ class AssertionInstantiator:
                 assertionTemplate = AssertionGenerator.generateBlockAssertion(block)
             else:
                 assertionTemplate = AssertionGeneratorUtils.generateVacousState(block)
-                
+
         instantiatedAssertion = assertionTemplate.format(step, step - 1)
-        _assertion = "(assert (! {0} :named {1}))".format(instantiatedAssertion,
-        customUtils.generateRandomLetterSequence(12))
-        if instantiatedAssertion == "":
+        instantiatedAssertion = instantiatedAssertion.split('\n')
+
+        if instantiatedAssertion[0] == "":
             _assertion = ""
+
+        else:
+            _assertion = []
+            for assertion in instantiatedAssertion:
+                _assertion.append("(assert (! {0} :named {1}))".format(assertion,
+                customUtils.generateRandomLetterSequence(12)))
+
         return _assertion
