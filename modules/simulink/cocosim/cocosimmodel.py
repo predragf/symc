@@ -207,7 +207,6 @@ class CoCoSimModel:
                 result = [connection]
         except Exception as exc:
             self.logger.exception("{0}:{1}:{2}".format(ssBlock.get("Origin_path"), exc, portNumber))
-
         return result
 
     def __traceInPortBlock(self, inPortBlock, connection, partialTable, stack):
@@ -222,10 +221,13 @@ class CoCoSimModel:
             # blocks are 0-based
             newConnections = self.__findEntryByDestination(
                 cUtils.stringify(inPortBlock.get("ParentHandle", "")), portNumberAsInteger - 1, partialTable)
+
             # this should work for inports on model level which shall be translated into variables, and eventually becoming signals
             if newConnections is None:
                 return [connection]
+
             newConnections = self.__mapConnectionSource(newConnections, partialTable, stack)
+
             if newConnections is not None and type(newConnections) is not list:
                 newConnections = [newConnections]
             for nc in newConnections:
@@ -245,6 +247,7 @@ class CoCoSimModel:
         try:
             existingConnection = self.__findEntryByDestination(
                 cUtils.stringify(muxBlock.get('Handle', '')), None, partialTable)
+
             # check if no connection exists. In that case, the input into the mux blocks
             # is a input of the model. Consequently, return the connection
             if existingConnection is None:
@@ -253,9 +256,10 @@ class CoCoSimModel:
             portConectivity = muxBlock.get("PortConnectivity", {})
             portNumberToTraceback = -1
             if len(stack) > 0:
-                portNumberToTraceback = stack.pop()
+                portNumberToTraceback = stack.pop() # ADDED -1
             if not isinstance(portConectivity, list):
                 portConectivity = [portConectivity]
+
             for port in portConectivity:
                 if (not cUtils.compareStringsIgnoreCase(port.get("PortNumber"), str(portNumberToTraceback))) and portNumberToTraceback >= 0:
                     continue
@@ -268,7 +272,7 @@ class CoCoSimModel:
         return result
 
     def __traceDemuxBlock(self, demuxBlock, connection, partialTable, stack):
-        # this function is called when the source of the coonection is a mux block
+        # this function is called when the source of the coonection is a demux block
         # because in the final table the source and the destination must be computationalBlocks
         # the main idea is to have a stack where we keep the ports from demux blocks from which
         # we have reached this mux block, in order to know which port to resume from
@@ -278,11 +282,23 @@ class CoCoSimModel:
         # create fresh copy of the stack
         newStack = stack[:]
         try:
+            portNumber = None
             newConnection = self.__findEntryByDestination(
                 cUtils.stringify(demuxBlock.get('Handle', '')), None, partialTable)
             if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
                 return connection
-            newStack.append(connection.get("SrcPort"))
+
+            sourcePort = connection.get("SrcPort")
+
+            # Extract bus port if bus (the ordering is not consistent as for muxes)
+            if cUtils.compareStringsIgnoreCase(demuxBlock.get('BlockType', ''), 'busselector'):
+                signalOutputs = demuxBlock.get("OutputSignals").split(',')
+                signalName = signalOutputs[sourcePort]
+                busNames = demuxBlock.get('InputSignals')
+                for k, busName in enumerate(busNames):
+                    if busName == signalName:
+                        sourcePort = k
+            newStack.append(sourcePort)
         except Exception as e:
             self.logger.exception(e)
             newConnection = {}
@@ -317,6 +333,7 @@ class CoCoSimModel:
             connection = self.__traceBusSelectorBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "buscreator"):
             connection = self.__traceBusCreatorBlock(sourceBlock, connection, partialTable, stack)
+
         return connection if type(connection) is list else [connection]
 
     def __modifyFinalTableConnection(self, connection, finalTable):
