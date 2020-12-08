@@ -4,7 +4,7 @@ import modules.logging.logmanager as LogManager
 import copy
 from copy import deepcopy
 import time
-
+import numpy as np
 
 class CoCoSimModel:
 
@@ -256,17 +256,19 @@ class CoCoSimModel:
             portConectivity = muxBlock.get("PortConnectivity", {})
             portNumberToTraceback = -1
             if len(stack) > 0:
-                portNumberToTraceback = stack.pop() # ADDED -1
+                portNumberToTraceback = copy.deepcopy(stack.pop()) # ADDED -1
             if not isinstance(portConectivity, list):
                 portConectivity = [portConectivity]
 
-            for port in portConectivity:
+            for k, port in enumerate(portConectivity):
                 if (not cUtils.compareStringsIgnoreCase(port.get("PortNumber"), str(portNumberToTraceback))) and portNumberToTraceback >= 0:
                     continue
                 returnConnection = self.__findEntryByDestination(
                     muxBlock.get("Handle"), port.get("PortNumber", ""), partialTable)
+
                 result.extend(self.__mapConnectionSource(
-                    returnConnection, partialTable, stack))
+                    returnConnection, partialTable, copy.deepcopy(stack)))
+
         except Exception as e:
             self.logger.exception(e)
         return result
@@ -280,25 +282,44 @@ class CoCoSimModel:
         # is a computational block between the mux and demux
         newConnection = {}
         # create fresh copy of the stack
-        newStack = stack[:]
+        newStack = copy.deepcopy(stack[:])
         try:
+
             portNumber = None
             newConnection = self.__findEntryByDestination(
                 cUtils.stringify(demuxBlock.get('Handle', '')), None, partialTable)
+
             if newConnection is None:  # this should work for inports on model level which shall be translated into blocks, and eventually becoming signals
                 return connection
 
             sourcePort = connection.get("SrcPort")
-
+            structPort = None
             # Extract bus port if bus (the ordering is not consistent as for muxes)
             if cUtils.compareStringsIgnoreCase(demuxBlock.get('BlockType', ''), 'busselector'):
                 signalOutputs = demuxBlock.get("OutputSignals").split(',')
                 signalName = signalOutputs[sourcePort]
+                signalName = signalName.split('.')
                 busNames = demuxBlock.get('InputSignals')
-                for k, busName in enumerate(busNames):
-                    if busName == signalName:
-                        sourcePort = k
+
+                if np.shape(signalName)[0] > 1:
+                    signalName_str = signalName[0]
+                    signalName_signal = signalName[1]
+                    for k, busName in enumerate(busNames):
+                        if busName[0] == signalName_str:
+                            for n, busName_tmp in enumerate(busName[1]):
+                                if busName_tmp == signalName_signal:
+                                    structPort = k
+                                    sourcePort = n
+                else:
+                    for k, busName in enumerate(busNames):
+                        if busName == signalName:
+                            sourcePort = k
             newStack.append(sourcePort)
+
+            # Add a struct port in case of multiple bus creators
+            if not (structPort == None):
+                newStack.append(structPort)
+
         except Exception as e:
             self.logger.exception(e)
             newConnection = {}
@@ -318,6 +339,7 @@ class CoCoSimModel:
         """
         sourceBlock = self.getBlockById(connection.get("SrcBlockHandle", ""))
         # subsystem is not a stateflow
+        tmp_connection = copy.deepcopy(connection)
         if (cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "subsystem") and (sourceBlock.get("StateflowContent", None) is None)):
             connection = self.__traceSubSystemBlock(sourceBlock, connection, partialTable, stack)
         if cUtils.compareStringsIgnoreCase(sourceBlock.get("BlockType", ""), "demux"):

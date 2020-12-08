@@ -1,0 +1,3 @@
+{'DstBlockHandle': 49.003662109375, 'SrcPort': 0, 'SignalType': u'uint8', 'SrcBlockHandle': 19.003662109375, 'DstPort': 0, 'SignalName': 'signal_BQAWDGJSDJZG'}
+{'DstBlockHandle': 49.003662109375, 'SrcPort': 0, 'SignalType': u'uint8', 'SrcBlockHandle': 8.003662109375, 'DstPort': 0, 'SignalName': 'signal_SEVYYSQFRAGM'}
+{'DstBlockHandle': 49.003662109375, 'SrcPort': 0, 'SignalType': u'uint8', 'SrcBlockHandle': 7.003662109375, 'DstPort': 0, 'SignalName': 'signal_FFFTRJPQXTHZ'}
