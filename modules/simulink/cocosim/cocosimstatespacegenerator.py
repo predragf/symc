@@ -13,9 +13,9 @@ class StateSpaceGenerator:
         pass
 
     def __generateBlockSymbolicState(self, blockPackage, step, cTable):
-        blockStepSize   = self.__computeBlockStepSize(blockPackage)
+        blockStepSize  = self.__computeBlockStepSize(blockPackage)
         blockPackage_modified = self.__updateSignalTypes(blockPackage, cTable)
-        blockAssertion  = AssertionInstantiator.instantiateAssertion(blockPackage, step, blockStepSize)
+        blockAssertion = AssertionInstantiator.instantiateAssertion(blockPackage, step, blockStepSize)
         return blockAssertion
 
     def __computeBlockStepSize(self, blockPackage):
@@ -55,9 +55,10 @@ class StateSpaceGenerator:
         declarations = ""
         sSpace = StateSpace()
         # declarations are fixed
+        cTable = sModel.getConnectionTable()
+        sModel.insertTriggerSignals(cTable)
         self.blocksForTransformation = sModel.packAllBlocksForTransformation()
         self.fundamentalSampleTime   = sModel.getFundamentalSampleTime()
-        cTable = sModel.getConnectionTable()
         declarationsTemplate = DeclarationsGenerator.generateDeclarations(sModel, cTable)
         for step in range(0, totalSteps+1): # One extra for stateflow
             declarations = "{0}\n{1}".format(

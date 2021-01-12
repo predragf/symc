@@ -121,7 +121,6 @@ class AssertionGenerator:
         _output_signal = blockPackage.get("outputSignals")
         _output_signal = _output_signal[0]
         _output_signal_name = _output_signal.get("SignalName", "")
-
         return "(= {0}_{{0}} {1}_{{1}})".format(_output_signal_name, _input_signal_name)
 
     @staticmethod
@@ -161,26 +160,29 @@ class AssertionGenerator:
 
     @staticmethod
     def Merge(blockPackage):
-        return ""
-        pass
+        # Probably needs to be updated if a mux or bus signal is
+        # propagated through the merge block.
+
+        input_signals, output_signals = FindInputOutputSignals(blockPackage)
+        if output_signals == []:
+            return ""
+        trigger_signals = FindTriggerSignals(blockPackage)
+        inport_num = FindPortNumbers(blockPackage)
+        result_string = GenerateMergeAssert(input_signals, output_signals, trigger_signals, inport_num)
+
+        return "\n".join(result_string)
 
     @staticmethod
     def BusCreator(blockPackage):
         return ""
-        pass
 
     @staticmethod
     def BusSelector(blockPackage):
         return ""
-        pass
 
     @staticmethod
     def If(blockPackage):
-        criteria = blockPackage.get("IfExpression", '').split()
-        input_signals, output_signals = FindInputOutputSignals(blockPackage)
-        result_string = AssertionGeneratorUtils.parseIfInputs(
-            input_signals, output_signals, criteria)
-        return "\n".join(result_string)
+        return ""
 
     @staticmethod
     def generateBlockAssertion(blockPackage):
@@ -241,3 +243,29 @@ def FindMaskedParameter(maskedParentBlocks, parameter):
                 return FindMaskedParameter(maskedParentBlocks[k+1:], parameter)
 
     return parameter
+
+def FindTriggerSignals(blockPackage):
+    # Get predecessor blocks
+    # Find triggeringSignal
+    trigger_signals = []
+    predecessorBlocks = blockPackage.get("predecessorBlocks", "")
+    for preBlock in predecessorBlocks:
+        trigger_signals.append(preBlock.get("calculated_sample_time_str", ""))
+
+    return trigger_signals
+
+def FindPortNumbers(blockPackage):
+
+    inport_num  = []
+    input_signals  = blockPackage.get("inputSignals")
+    for input_signal in input_signals:
+        inport_num.append(input_signal.get("DstPort", ""))
+    return inport_num
+
+def GenerateMergeAssert(input_signals, output_signal, trigger_signals, inport_num):
+    assertion = []
+    for k, input in enumerate(input_signals):
+        trigger = trigger_signals[k]
+        assertion.append('(= {0} (ite {1} {2} {0}))'.format(output_signal[0] + '_{0}', trigger, input + '_{0}'))
+
+    return assertion

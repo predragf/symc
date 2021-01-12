@@ -413,7 +413,7 @@ class CoCoSimModel:
 
     def __calculateSubSystemSampleTime(self, ssBlock):
         sampleTime = -1.0
-        istriggered = False
+        istriggered = self. __triggered(ssBlock)
         portConectivity = ssBlock.get("PortConnectivity", {})
         if not isinstance(portConectivity, list):
             portConectivity = [portConectivity]
@@ -426,7 +426,106 @@ class CoCoSimModel:
             parentSubSystemBlock = self.getBlockById(
                 cUtils.stringify(ssBlock.get("ParentHandle", "")))
             sampleTime = self.__calculateSubSystemSampleTime(parentSubSystemBlock)
+        if istriggered:
+            sampleTime = self.__findTriggerId(ssBlock)
+            #print('sampleTime', sampleTime)
         return sampleTime
+
+    def __triggered(self, ssBlock):
+
+        content = ssBlock.get("Content", "")
+        istriggered = False
+        try:
+            actionport = content.get("ActionPort", "")
+            if not (actionport == ''):
+                istriggered = True
+        except:
+            pass
+        return istriggered
+
+    def __findTriggerId(self, ssBlock):
+        # Find
+        line_handles = ssBlock.get("LineHandles", "")
+        if_action = line_handles.get("Ifaction", "")
+        try:
+            if not (if_action == ''):
+                actionport_expression = self.__findActionPortExpression(ssBlock, if_action)
+                return actionport_expression
+        except:
+            pass
+        return ''
+
+    def __findActionPortExpression(self, ssBlock, ifAction):
+        # Find Id of the If-block connected to the action port
+        port_connectivity = ssBlock.get('PortConnectivity')
+        for tmp in port_connectivity:
+            if tmp.get('Type') == 'ifaction':
+                if_block = self.getBlockById(tmp.get('SrcBlock'))
+                expression = self.__findIfExpression(if_block, ifAction)
+                expression_final = self.__findSignalIds(if_block, expression)
+        return expression_final
+
+    def __findIfExpression(self, ifBlock, ifAction):
+        # Find if expression from block
+        line_handles = ifBlock.get("LineHandles", "")
+        if_outports = line_handles.get("Outport", "")
+        for k, tmp in enumerate(if_outports):
+            if tmp == ifAction:
+                if k == 0:
+                    if_expression = self.__formatExpression(ifBlock.get("IfExpression"))
+                    return if_expression
+                elif k == len(if_outports) - 1:
+                    if_expression_final = self.__formatExpression(ifBlock.get("IfExpression"))
+                    elseif_expression = ifBlock.get("ElseIfExpressions")
+                    if elseif_expression == '':
+                        final_expression = '(not {0})'.format(if_expression_final) # CHANGE
+                    else:
+                        if isinstance(elseif_expression, list):
+                            exp = []
+                            for tmp_exp in elseif_expression:
+                                exp.append(self.__formatExpression(tmp_exp))
+                            elseif_expression_final = ' '.join(exp)
+                        else:
+                            elseif_expression_final = self.__formatExpression(elseif_expression)
+                        final_expression = '(not (or {0} {1}))'.format(if_expression_final, elseif_expression_final)
+                    return final_expression
+                else:
+                    if_expression = self.__formatExpression(ifBlock.get("ElseIfExpressions"))
+                    return if_expression
+
+        # Should not happen
+        return ''
+
+    def __formatExpression(self, expression):
+
+        expression = expression.split(' ')
+        if expression[1] == '~=':
+            final_expression = '(not (= {0} {2}))'.format(expression[0], expression[1], expression[2])
+        else:
+            final_expression = '({1} {0} {2})'.format(expression[0], expression[1], expression[2])
+
+        return final_expression
+
+    def __findSignalIds(self, ifBlock, expression):
+        # Find signal id
+
+        handle = ifBlock.get('Handle')
+        line_handles = ifBlock.get('LineHandles')
+        inports = line_handles.get('Inport')
+
+        if not isinstance(inports, list):
+            tmp_str = str(handle) + ',0'
+            expression = expression.replace('u1', tmp_str)
+        else:
+            n_inports = len(inports)
+            inports_reverse = copy.deepcopy(inports)
+            inports_reverse.reverse()
+            for k, inp in enumerate(inports_reverse):
+                tmp_str_old = 'u' + str(n_inports - k)
+                tmp_str_new = str(handle) + ',' + str(n_inports - k - 1)
+                expression = expression.replace(tmp_str_old, tmp_str_new)
+
+        return expression
 
     def __flattenSubSystem(self, ssBlock, sampleTime=None):
         # this function replaces subsystem block with by a set of its constituent blocks
@@ -616,6 +715,7 @@ class CoCoSimModel:
                 # this exception is hit only if the float conversion above fails
                 # in that case, the sample time is in the dictionary of sample times
                 blk["calculated_sample_time"] = sampleTimes.get(calculatedSampleTime, float("-1"))
+                blk["calculated_sample_time_str"] = calculatedSampleTime
         return self
 
     def __calculateModelSymbolicFixedPoint(self):
@@ -741,6 +841,40 @@ class CoCoSimModel:
             if (cUtils.compareStringsIgnoreCase(block.get("BlockType"), "SubSystem") and len(block.get("StateflowContent", {})) > 0):
                 packedBlocksForTransformation.append(blockCopy)
         return packedBlocksForTransformation
+
+    def insertTriggerSignals(self, cTable):
+        newBlocks = [] #copy.deepcopy(self.allBlocks)
+        for block in self.allBlocks:
+            #blockCopy = self.__packBlockForTransformation(block)
+            sampleTime = block.get("calculated_sample_time")
+            sampleTime_str = block.get("calculated_sample_time_str")
+            if not (sampleTime_str == None): # < -1:
+                newSampleTime = self.__findCtableTriggerSignal(sampleTime_str, cTable)
+                block["calculated_sample_time_str"] = newSampleTime
+
+    def __findCtableTriggerSignal(self, sampleTimeStr, cTable):
+        sampleTimeStr_split = sampleTimeStr.split(' ')
+        for tmp_str in sampleTimeStr_split:
+            try:
+                tmp_str_split = tmp_str.split(',')
+                parentHandle = int(float(tmp_str_split[0]))
+                portNumber = int(tmp_str_split[1])
+                for entry in cTable:
+                    if (int(entry.get("DstBlockHandle")) == parentHandle) and (int(entry.get("DstPort")) == portNumber):
+                        signal_expression = self.__signalExpression(entry)
+                        sampleTimeStr = sampleTimeStr.replace(tmp_str, signal_expression)
+            except:
+                continue
+        return sampleTimeStr
+
+    def __signalExpression(self, signal_entry):
+
+        signal_name = signal_entry.get("SignalName") + '_{0}'
+        if signal_entry.get("SignalType") == 'boolean':
+            signal_expression = '(bool2real {0})'.format(signal_name)
+        else:
+            signal_expression = signal_name
+        return signal_expression
 
     def getFundamentalSampleTime(self):
         if self.fundamentalSampleTime is None:

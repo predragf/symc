@@ -125,8 +125,9 @@ class AssertionGeneratorUtils:
 
     @staticmethod
     def generateVacousState(block):
-        _outSignalName = block.get("signalvariable")
-        return "(= {0}_{{0}} {0}_{{1}})".format(_outSignalName)
+        _output_signals = block.get("outputSignals")[0]
+        _outSignal_name = _output_signals["SignalName"]
+        return "(= {0}_{{0}} {0}_{{1}})".format(_outSignal_name)
 
     @staticmethod
     def generateInitialState(block):

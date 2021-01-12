@@ -145,8 +145,11 @@ def main():
     #fuelSList = "/Users/predrag/Documents/fuel/fldadj_slist.txt"
     #fuelSListOrg = "C:/Models/Fuel/slist.txt"
 
-    fuelPath = "C:/Models/FuelAdj/fueladj.json"
-    fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
+    #fuelPath = "C:/Models/FuelAdj/fueladj.json"
+    #fuelSList = "C:/Models/FuelAdj/fueladj_slist.txt"
+    fuelPath = "C:/Models/FuelAdj/fldlatest_IR.json"
+    fuelSList = "C:/Models/FuelAdj/fldlatest_slist_final.txt"
+
     #fuelPath = "C:/Models/Fuel/fuel.json"
     #fuelSList = "C:/Models/Fuel/fuel_slist.txt"
     #fuelSListOrg = "C:/Models/FuelAdj/fueladj_slist.txt"

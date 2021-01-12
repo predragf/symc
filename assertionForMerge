@@ -1,0 +1,1 @@
+(assert (or (and trigger1 (= mergeOut mergeIn1)) (and trigger2 (= mergeOut mergeIn2)) ... (and triggern (= mergeOut mergeInn)) ))
