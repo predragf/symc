@@ -29,7 +29,7 @@ def openFile(absoluteFileName, operation="r"):
     """
         This fuction makes sure that if the directory where
         the file is to be created exists. If the directory does
-        not exist, it will crate it.
+        not exist, it will create it.
     """
     # just in case make sure that it is an absultute path
     absoluteFileName = os.path.abspath(absoluteFileName)
